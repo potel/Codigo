@@ -1,0 +1,10 @@
+/Debug/
+*.txt
+*.pdf
+*.png
+*.dll
+/figuras
+/input
+/Matlab
+.cproject
+/.project
