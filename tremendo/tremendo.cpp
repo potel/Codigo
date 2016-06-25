@@ -2,21 +2,15 @@ using namespace std;
 #include "tremendo.h"
 #include "structs.h"
 #include "definiciones.h"
-void sub1();
 ofstream misc1("misc1.txt");
 ofstream misc2("misc2.txt");
 ofstream misc3("misc3.txt");
 ofstream misc4("misc4.txt");
 ofstream informe("informe.txt");
-//int main() {
-//	cout<<"Quilloooo!!!"<<endl;
-//	cout<<I<<endl;
-//	sub1();
-//}
 int main()
 {
 	parametros *parm=new struct parametros;
-	cout<<"Project managed with Git"<<endl;
+	cout<<"Project managed with Git!!!"<<endl;
 	if (!parm) Error("No se pudo reservar memoria para parametros");
 	const char* input="parametros.txt";
 	LeeParametros(input,parm);
