@@ -1,0 +1,322 @@
+num_st 4	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
+lmin 0      # momento angular mínimo. En una reacción tiene que ser 0.
+lmax 20   # momento angular máximo. En una reacción, número de ondas parciales.
+
+emin -1000.    # energía mínima. 
+emax 0. 	   # energía máxima.
+puntos 1000    # número de puntos en los que se definen las funciones.
+radio 30.      #radio máximo.
+num_cm 4       # número de potenciales de campo medio.
+num_opt 3      # número de potenciales ópticos.
+a_numst 1	   # número de estados monoparticulares del núcleo a (la reacción se define como A+a(=b+2)->B(=A+2)+b).
+B_numst 3       # número de estados monoparticulares del núcleo B (la reacción se define como A+a(=b+2)->B(=A+2)+b).
+a_estados 0    # índice de los estados del núcleo a.
+B_estados 1 2 3      # índice de los estados del núcleo B.
+flcoef  matrizcoeficientes.dat   # fichero o ficheros con los coeficientes de la definición de la función de onda en una base 
+                                   # de partícula independiente (usado si tipo_fun=li)
+a_potcm 0   # potencial de campo medio usado para definir los estados del núcleo a.
+B_potcm 1    # potencial de campo medio usado para definir los estados del núcleo B.
+pot_transfer 1  # potencial de campo medio utilizado para calcular la transferencia (Si es igual a a_potcm, la representación es post,
+                 # si es igual a B_potcm, prior).
+prior 1
+remnant 0
+core_pot 0	 
+optico_ingreso 0    # potencial optico en el canal de ingreso
+optico_intermedio 1  # potencial optico en el canal intermedio
+optico_salida 2      # potencial optico en el canal de salida
+++++++++++++++ Descripción de la reacción +++++++++++++++++++++++++++++++++++++
+
+base1  20   # tamaños de la base usada para describir los estados de partícula independiente
+base2  20
+base3  20
+
+m_A    1   # Masas
+m_a    124
+
+Z_a    50  # cargas
+Z_A     1
+
+proyectil A		# define cual es el proyectil
+energia_lab  25
+
+Qvalue  -5.955		# Q-value de la reacción
+
+int_Qvalue 0.31 # Q-value intermedio (transferencia de una partícula)
+
+J_a 0.			# momentos angulares de las especies nucleares
+J_A 0.5
+J_b 0.
+J_B  0.5
+
+lambda  0.	# momento angular del cluster transferido
+
+a_Sn  -7.66247 # energía de extracción de un neutrón para el núcleo a-1 (debe ser<0, típicamente será la energía del estado del núcleo a con energía mas baja)
+B_Sn   -4.24091 # energía de extracción de un neutrón para el núcleo B-1 (debe ser<0, típicamente será la energía del estado del núcleo B con energía mas baja)
++++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
+
+r_Ccmin 0.     # valor mínimo de r_Cc
+r_Ccmax  30.    # valor máximo de r_Cc
+r_A2min   0.    # valor mínimo de r_A2
+r_A2max   30.    # valor máximo de r_A2
+rCc_puntos  40    # número de puntos de integración gaussiana para r_Cc
+rA2_puntos   40  # número de puntos de integración gaussiana para r_A2
+theta_puntos  20    # número de puntos de integrción gaussiana para theta
+cross_puntos  200 # número de puntos en los que se evalúa la sección eficaz
+
+++++++++++++ Parametros para la densidad ++++++++++++++++++
+
+id_pot_dens 1
+V0pairing  0.
+Vrpairing   1.
+rho0    1.4
+pexp  1.
+
++++++++++++++++++++++++ Opciones de funcionamiento ++++++++++++++++++++++++++++
+
+
+# gen12 1               # si=1, genera estados de dos partículas (r1,r2) a partir de la matriz de coeficientes en flcoef.
+gen_dens_bound 0      # si=1, genera una densidad y un potencial efectivo tipo Bertsch-Esbensen.
+two_trans 1           # si=1, calcula una reacción de transferencia de 2 nucleones.
+debug 0                # nivel de debug.
+a_tipo_fun sn           # modo de descripcion de la función de onda del núcleo a. Si=li-> tipo 11Li, si=sn->tipo 120Sn.
+B_tipo_fun sn           # modo de descripcion de la función de onda del núcleo a. Si=li-> tipo 11Li, si=sn->tipo 120Sn.
+simultaneous 1         # si=0, no calcular la contribución simultánea (two_trans tiene que ser 1). 
+successive 1         # si=0, no calcular la contribución sucesiva (two_trans tiene que ser 1). 
+dumb 0               # si=1 no hace nada, solo lee el fichero de parámetros y sale del programa. 
+form_factor 0			# si=1 calcula el factor de forma no local (two_trans tiene que ser 1). 
+unidades milib				# unidades de la sección eficaz: milib->milibarn, fm2->fermi^2, b->barn, microb->microbarn
+adiabatico 0 
+matching_radio 20.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+InicioPotencialesOpticos
+
+
+id 0                                                     
+RealVolumen   52.123	
+ImaginarioVolumen   1.429
+RealSpinOrbita     	0.
+ImaginarioSpinOrbita   0.                      	
+ImaginarioSuperficie   8.930
+RadioRealVolumen       1.205
+RadioCoulomb          1.264                      
+RadioImaginarioVolumen  1.246                       
+DifusividadRealVolumen 0.69                     
+DifusividadImaginarioVolumen  0.69             	      	
+RadioSpinOrbita 1.1                             	    
+DifusividadSpinOrbita 	0.63                                  
+RadioImaginarioSuperficie   1.2458                   
+DifusividadImaginarioSuperficie  0.69  
+
+***************
+
+id 1
+RealVolumen    91.992	
+ImaginarioVolumen    0.529
+RealSpinOrbita      0.
+ImaginarioSpinOrbita	0.
+ImaginarioSuperficie   12.206
+RadioRealVolumen     1.17
+RadioCoulomb              1.17                         
+RadioImaginarioVolumen         1.325
+DifusividadRealVolumen           0.744
+DifusividadImaginarioVolumen     0.878
+RadioSpinOrbita             	1.07
+DifusividadSpinOrbita         0.66
+RadioImaginarioSuperficie            1.325
+DifusividadImaginarioSuperficie     0.878
+
+*******************
+
+id 2
+RealVolumen      162.391	
+ImaginarioVolumen     13.469
+RealSpinOrbita      		0.
+ImaginarioSpinOrbita     0.
+ImaginarioSuperficie        16.095
+RadioRealVolumen            1.090
+RadioCoulomb                    1.422      
+RadioImaginarioVolumen        1.284
+DifusividadRealVolumen         0.778
+DifusividadImaginarioVolumen	     1.214
+RadioSpinOrbita                 0.496
+DifusividadSpinOrbita             0.096
+RadioImaginarioSuperficie         1.158
+DifusividadImaginarioSuperficie    0.869
+
+******
+
+FinPotencialesOpticos
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+InicioCampoMedio
+
+id 0
+tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
+VV 43.9
+VSO  6.2
+aV 0.65
+aSO 0.65
+RV    6.19959457980288
+RSO   6.19959457980288
+*******
+
+#id 1
+#tipo tang  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
+#VV 43.9
+#VSO  15.5773882
+#aV 0.65
+#aSO 0.65
+#RV  2.693
+#RSO  2.693
+#k 2.5   # parámetro k de Tang-Herndon
+#rhc 0.45  # hard-core del potencial de Tang-Herndon
+#****
+
+id 1
+tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
+VV 170.
+VSO  0.
+aV 0.65
+aSO 0.75
+RV    0.95
+RSO   5.04
+*******
+
+id 2
+tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
+VV 170.
+VSO  0.
+aV 0.6
+aSO 0.75
+RV    0.4
+RSO   5.04
+*******
+
+id 3
+tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
+VV 170.
+VSO  0.
+aV 0.6
+aSO 0.75
+RV    0.317
+RSO   5.04
+*******
+
+#id 1
+#tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
+#VV 170.
+#VSO  0.
+#aV 0.6
+#aSO 0.75
+#RV    0.317
+#RSO   5.04
+#*******
+
+
+FinCampoMedio
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+InicioEstados
+
+#id 0
+#l 2
+#j 1.5
+#nodos 1
+#spec  0.71913
+#energia -7.60589
+#file      
+#*************
+
+id 0                                    
+l 0                                     
+j 0.5                                   
+nodos 2                                 
+spec 1.                            
+energia -7.219                       
+file                                    
+*************            
+
+               
+#id 2                                    
+#l 2
+#j 2.5
+#nodos 1
+#spec 0.59927
+#energia -9.79793
+#file  
+#*************
+#id 3
+#l 4
+#j 3.5
+#nodos 0
+#spec 0.62944
+#energia -9.45267  
+#file      
+#*************
+#id 4
+#l 5
+#j 5.5
+#nodos 0
+#spec 1.24399
+#energia -6.57882      
+#file      
+#*************
+
+id 1
+l 0
+j 0.5
+nodos 0
+spec 1.
+energia -4.2415
+file      
+*************
+
+id 2
+l 0
+j 0.5
+nodos 0
+spec 1.
+energia -4.2415
+file      
+*************
+
+id 3
+l 0
+j 0.5
+nodos 0
+spec 1.
+energia -4.2415
+file      
+*************
+
+FinEstados
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
++++++++++++++++++++++++ Ficheros de salida ++++++++++++++++++++++++++++
+
+fl_energias energias.txt   # fichero con las energias y momentos angulares de los niveles
+fl_funondas  funondas.txt         # fichero con las funciones de onda
+fl_formfactor  formfactor.txt #fichero con los factores de forma
+fl_potcm  potenciales.txt #fichero con los potenciales de campo medio
+fl_cross_succ   cross_succ.txt #fichero con la contribución sucesiva a  la sección eficaz total
+fl_cross_sim	 cross_sim.txt #fichero con la contribución simulatánea  la sección eficaz total
+fl_cross_non	cross_non.txt #fichero con la contribución no ortogonal  la sección eficaz total
+fl_cross_tot	cross.txt #fichero con la sección eficaz total
+fl_amplitudes    amplitudes.txt #fichero con las amplitudes para cada onda parcial
+fl_dw			dw.txt   #fichero con las ondas distorsionadas
+fl_gf			gf.txt   #fichero con las ondas distorsionadas de la función de Green
+
+
+
+
+
+
+
+
+
+
+
+
+
+
