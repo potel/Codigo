@@ -10,11 +10,11 @@ ofstream informe("informe.txt");
 int main()
 {
 	parametros *parm=new struct parametros;
-	cout<<"Project managed with Git!"<<endl;
+	cout<<"Project managed with Git"<<endl;
 	if (!parm) Error("No se pudo reservar memoria para parametros");
 	const char* input="parametros.txt";
 	LeeParametros(input,parm);
-	int polarization=0;
+	int polarization=1;
 	if(polarization) {Polarization(parm);return(0);}
 	cout<<"   parm->id_pot_dens: "<<parm->id_pot_dens<<endl;
 	if ((parm->dumb+parm->gen_dens_bound+parm->two_trans+parm->knockout+parm->capture+parm->one_trans
@@ -3203,6 +3203,7 @@ double Multipole(estado* inicial,estado* final,int l)
 		}
 	}
 	integral*=angular*inicial->radio/2.;
+	return integral;
 }
 /////////////////////////////////////////////////////////////////////////
 //                                                                     //
@@ -3326,7 +3327,9 @@ void Polarization(parametros* parm)
 	complejo* ff1=new complejo[parm->puntos];
 	complejo* ff2=new complejo[parm->puntos];
 	complejo* Up=new complejo[parm->puntos];
-	double *D0,*rms;
+	cout<<"Calculo del potencial de polarizacion *************************************"<<endl;
+	double *D0=new double[1];
+	double *rms=new double[1];
 	parametros_integral *dimr=new parametros_integral;
 	parametros_integral *dimtheta=new parametros_integral;
 	int num_rd=50;

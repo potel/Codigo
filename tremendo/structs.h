@@ -328,6 +328,7 @@ struct integrando_onept{
 	int lb;
 	double spinA;
 	double spinB;
+
 };
 struct tablas{
 	double armonico_esferico[MAX_L][MAX_L][MAX_PTS];

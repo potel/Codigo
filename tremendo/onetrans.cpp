@@ -11,7 +11,7 @@ extern ofstream misc3;
 extern ofstream misc4;
 void OneTrans(struct parametros* parm)
 {
-	cout<<"********************************************************************************"<<endl;
+	cout<<"*******************************************************************************+"<<endl;
 	cout<<"*                                                                              *"<<endl;
 	cout<<"*                       TRANSFERENCIA DE 1 NUCLEON                             *"<<endl;
 	cout<<"*                                                                              *"<<endl;
