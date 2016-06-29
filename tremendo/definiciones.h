@@ -187,9 +187,9 @@ void FormFactor1D(potencial* v,estado* st1,estado* st2,complejo* ff,double radio
 void PotencialPolarizado(complejo* Up,complejo* ff1,complejo* ff2,double radio, int puntos,
 		parametros* parm,potencial_optico* U,int lp,distorted_wave* f,distorted_wave* g);
 void FormFactor2D(potencial* v,estado* st1,estado* st2,complejo* ff,double radio,int puntos);
-void FuncionInl(complejo* Inl,distorted_wave* f,distorted_wave* g,estado* std, estado* stn,
-		potencial* Vpn,parametros_integral* dim_rpn,parametros_integral* dim_rd,
-		parametros_integral* dim_theta,parametros* parm,int num_rd,double* rd,double k0);
+void FuncionInl(complejo*** Inl,distorted_wave* f,distorted_wave* g,estado* std, estado* stn,
+		potencial* VnB,parametros_integral* dim_rpn,parametros_integral* dim_rd,
+		parametros_integral* dim_theta,parametros* parm,int num_rd,double* rd,double k0,int lp);
 complejo FuncionBnl(complejo* Inl,estado* stn,estado* std,potencial* Vp,int num_rd,double* rd,parametros_integral* dim_rn,
 		parametros_integral* dim_theta,double rp);
 void JacobiTransform(estado* st1,estado* st2,estado* st3,estado* st4,double** g,double** vtx,int J,parametros* parm,int l,int lambda,int I
