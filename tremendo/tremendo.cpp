@@ -10,7 +10,7 @@ ofstream informe("informe.txt");
 int main()
 {
 	parametros *parm=new struct parametros;
-	cout<<"Project managed with Git"<<endl;
+	cout<<"Project managed with Git!!!"<<endl;
 	if (!parm) Error("No se pudo reservar memoria para parametros");
 	const char* input="parametros.txt";
 	LeeParametros(input,parm);
