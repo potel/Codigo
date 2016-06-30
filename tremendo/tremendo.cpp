@@ -3553,11 +3553,12 @@ void FuncionInl(complejo*** Inl,distorted_wave* f,distorted_wave* g,estado* std,
 		potencial* Vpn,parametros_integral* dim_rpn,parametros_integral* dim_rd,
 		parametros_integral* dim_theta,parametros* parm,int num_rd,double* rd,double k0,int lp)
 {
-	double rn,rnx,rnz,rp,rpx,rpz,rdp,rpn,sintheta,costheta,j0,Vpn_int,theta,kd;
-	int n1,n2,n3,n0,ld;
-	complejo std_int,stn_int,f_mayor,f_rd,f_rdp,g_rd,g_rdp;
+	double rn,rnx,rnz,rp,rpx,rpz,rdp,rpn,sintheta,costheta,j0,Vpn_int,theta,kd,coseno_n,coseno_p;
+	int n1,n2,n3,n0,ld,l;
+	complejo std_int,stn_int,f_mayor,f_rd,f_rdp,g_rd,g_rdp,angular;
 	kd=sqrt(2.*parm->mu_Bb*AMU*(f->energia))/(HC);
 	ld=f->l;
+	l=stn->l;
 	for(n0=0;n0<num_rd;n0++)
 	{
 		Inl[n0][lp][ld]=0.;
@@ -3580,22 +3581,25 @@ void FuncionInl(complejo*** Inl,distorted_wave* f,distorted_wave* g,estado* std,
 				rnx=0.5*rpn*costheta;
 				rnz=rdp-0.5*rpn*sintheta;
 				rn=sqrt(rnx*rnx+rnz*rnz);
+				coseno_n=rnz/rn;
 				rpx=-0.5*rpn*costheta;
 				rpz=rdp+0.5*rpn*sintheta;
 				rp=sqrt(rpx*rpx+rpz*rpz);
+				coseno_p=rpz/rp;
 				stn_int=interpola_cmpx(stn->wf,stn->r,rn,stn->puntos);
 				j0=gsl_sf_bessel_jl(lp,k0*rp);
+				angular=FuncionAngular2(lp,l,ld,coseno_p,coseno_n);
 				for(n0=0;n0<num_rd;n0++)
 				{
 					if(rdp>=rd[n0]){
 						f_rd=interpola_cmpx(f->wf,f->r,rd[n0],f->puntos);
-						Inl[n0][lp][ld]+=f_rd*g_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*dim_rd->pesos[n1]*
+						Inl[n0][lp][ld]+=f_rd*g_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*angular*dim_rd->pesos[n1]*
 								dim_rpn->pesos[n2]*dim_theta->pesos[n3]*(dim_theta->b-dim_theta->a)
 								*(dim_rpn->b-dim_rpn->a)*(dim_rd->b-dim_rd->a)/(kd*rd[n0]*64.*PI);
 					}
 					if(rdp<rd[n0]){
 						g_rd=interpola_cmpx(g->wf,g->r,rd[n0],g->puntos);
-						Inl[n0][lp][ld]+=g_rd*f_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*dim_rd->pesos[n1]*
+						Inl[n0][lp][ld]+=g_rd*f_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*angular*dim_rd->pesos[n1]*
 								dim_rpn->pesos[n2]*dim_theta->pesos[n3]*(dim_theta->b-dim_theta->a)
 								*(dim_rpn->b-dim_rpn->a)*(dim_rd->b-dim_rd->a)/(kd*rd[n0]*64.*PI);
 					}
