@@ -3561,7 +3561,7 @@ void FuncionInl(complejo*** Inl,distorted_wave* f,distorted_wave* g,estado* std,
 	l=stn->l;
 	for(n0=0;n0<num_rd;n0++)
 	{
-		Inl[n0][lp][ld]=0.;
+		Inl[lp][ld][n0]=0.;
 	}
 	for(n1=0;n1<dim_rd->num_puntos;n1++)
 	{
@@ -3593,13 +3593,13 @@ void FuncionInl(complejo*** Inl,distorted_wave* f,distorted_wave* g,estado* std,
 				{
 					if(rdp>=rd[n0]){
 						f_rd=interpola_cmpx(f->wf,f->r,rd[n0],f->puntos);
-						Inl[n0][lp][ld]+=f_rd*g_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*angular*dim_rd->pesos[n1]*
+						Inl[lp][ld][n0]+=f_rd*g_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*angular*dim_rd->pesos[n1]*
 								dim_rpn->pesos[n2]*dim_theta->pesos[n3]*(dim_theta->b-dim_theta->a)
 								*(dim_rpn->b-dim_rpn->a)*(dim_rd->b-dim_rd->a)/(kd*rd[n0]*64.*PI);
 					}
 					if(rdp<rd[n0]){
 						g_rd=interpola_cmpx(g->wf,g->r,rd[n0],g->puntos);
-						Inl[n0][lp][ld]+=g_rd*f_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*angular*dim_rd->pesos[n1]*
+						Inl[lp][ld][n0]+=g_rd*f_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*angular*dim_rd->pesos[n1]*
 								dim_rpn->pesos[n2]*dim_theta->pesos[n3]*(dim_theta->b-dim_theta->a)
 								*(dim_rpn->b-dim_rpn->a)*(dim_rd->b-dim_rd->a)/(kd*rd[n0]*64.*PI);
 					}
@@ -3608,13 +3608,14 @@ void FuncionInl(complejo*** Inl,distorted_wave* f,distorted_wave* g,estado* std,
 		}
 	}
 }
-complejo FuncionBnl(complejo* Inl,estado* stn,estado* std,potencial* Vp,int num_rd,double* rd,parametros_integral* dim_rn,
-		parametros_integral* dim_theta,double rp)
+complejo FuncionBnl(complejo*** Inl,estado* stn,estado* std,potencial* Vp,int num_rd,double* rd,parametros_integral* dim_rn,
+		parametros_integral* dim_theta,double rp,int lp,int lmax)
 {
-	double rn,theta,rpnx,rpnz,rpn,rdpx,rdpz,rdp,Vp_int,sintheta,costheta;
-	complejo stn_int,std_int,Inl_int,suma;
-	int n1,n2;
+	double rn,theta,rpnx,rpnz,rpn,rdpx,rdpz,rdp,Vp_int,sintheta,costheta,coseno_d;
+	complejo stn_int,std_int,Inl_int,suma,angular;
+	int n1,n2,l,ld;
 	suma=0.;
+	l=stn->l;
 	for(n1=0;n1<dim_rn->num_puntos;n1++)
 	{
 		rn=dim_rn->a+(dim_rn->b-dim_rn->a)*(dim_rn->puntos[n1]+1.)/2.;
@@ -3625,18 +3626,24 @@ complejo FuncionBnl(complejo* Inl,estado* stn,estado* std,potencial* Vp,int num_
 			costheta=cos(theta);
 			sintheta=sin(theta);
 			rpnx=rn*sintheta;
-			rpnz=rp-rn*costheta;
+			rpnz=rn*costheta-rp;
 			rpn=sqrt(rpnx*rpnx+rpnz*rpnz);
-			rdpx=-0.5*rn*sintheta;
-			rdpz=rp+0.5*rn*costheta;
+			rdpx=0.5*rn*sintheta;
+			rdpz=0.5*(rp+rn*costheta);
 			rdp=sqrt(rdpx*rdpx+rdpz*rdpz);
+			coseno_d=rdpz/rdp;
 			Vp_int=interpola_dbl(Vp->pot,Vp->r,rpn,Vp->puntos);
 			std_int=interpola_cmpx(std->wf,std->r,rpn,std->puntos);
-			Inl_int=interpola_cmpx(Inl,rd,rdp,num_rd);
+			for(ld=abs(l-lp);ld<=l+ld && ld<lmax;ld++)
+			{
+			angular=FuncionAngular2(l,ld,lp,costheta,coseno_d);
+			Inl_int=interpola_cmpx(&Inl[lp][ld][0],rd,rdp,num_rd);
 			suma+=sqrt(PI)*std_int*stn_int*Vp_int*Inl_int*rn*rn*sintheta*dim_rn->pesos[n1]*
 					dim_theta->pesos[n2]*(dim_theta->b-dim_theta->a)*(dim_rn->b-dim_rn->a)/(4.);
+			}
 		}
 	}
+	suma=suma*pow(PI,1.5)/sqrt(2.*lp+1.);
 	return suma;
 }
 void JacobiTransform(estado* st1,estado* st2,estado* st3,estado* st4,double** ga,double** gB,double** vtx,int J,parametros* parm,int l,int lambdaa,
