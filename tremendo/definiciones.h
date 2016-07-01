@@ -190,8 +190,8 @@ void FormFactor2D(potencial* v,estado* st1,estado* st2,complejo* ff,double radio
 void FuncionInl(complejo*** Inl,distorted_wave* f,distorted_wave* g,estado* std, estado* stn,
 		potencial* VnB,parametros_integral* dim_rpn,parametros_integral* dim_rd,
 		parametros_integral* dim_theta,parametros* parm,int num_rd,double* rd,double k0,int lp);
-complejo FuncionBnl(complejo* Inl,estado* stn,estado* std,potencial* Vp,int num_rd,double* rd,parametros_integral* dim_rn,
-		parametros_integral* dim_theta,double rp);
+complejo FuncionBnl(complejo*** Inl,estado* stn,estado* std,potencial* Vp,int num_rd,double* rd,parametros_integral* dim_rn,
+		parametros_integral* dim_theta,double rp,int lp,int lmax);
 void JacobiTransform(estado* st1,estado* st2,estado* st3,estado* st4,double** g,double** vtx,int J,parametros* parm,int l,int lambda,int I
 		,potencial* v,parametros_integral* dim2,parametros_integral* dim3);
 void Simultaneous(struct parametros *parm,complejo*** Clalb);
