@@ -3322,6 +3322,7 @@ void Polarization(parametros* parm)
 	potencial* vd;
 	estado* phi_n;
 	estado* phi_d;
+	potencial_optico* Utilde_d=new potencial_optico[1];
 	distorted_wave* fl=new distorted_wave[2];
 	distorted_wave* gl=new distorted_wave[2];
 	complejo* ff1=new complejo[parm->puntos];
@@ -3332,7 +3333,7 @@ void Polarization(parametros* parm)
 	double *rms=new double[1];
 	parametros_integral *dimr=new parametros_integral;
 	parametros_integral *dimtheta=new parametros_integral;
-	int num_rd=50;
+	int num_rd=parm->puntos;
 	double* rd=new double[num_rd];
 	complejo*** Inl=tensor_cmpx(num_rd,parm->lmax,parm->lmax);
 	int indx_pot_vd,indx_pot_vp,n,m,indx_stn,indx_std,nR,indx_ingreso,indx_salida;
@@ -3404,7 +3405,6 @@ void Polarization(parametros* parm)
 	cout<<"energia: "<<fl[0].energia<<endl;
 	GeneraGreenFunction(fl,gl,&(parm->pot_opt[indx_salida]),
 							0.,parm->m_A/(parm->m_A+1.),parm->radio,parm->puntos,parm->matching_radio);
-	cout<<"quillo!1"<<endl;
 	step=parm->radio/double(num_rd);
 	for(nR=0;nR<num_rd;nR++)
 	{
@@ -3413,22 +3413,6 @@ void Polarization(parametros* parm)
 //		Inl[nR]=0.;
 	}
 	k0=sqrt(2.*parm->mu_Aa*AMU*(parm->energia_cm))/(HC);
-//	cout<<"Calculando Inl..... "<<endl;
-//	FuncionInl(Inl,fl,gl,phi_n,phi_d,vd,dimr,dimr,dimtheta,parm,num_rd,rd,k0);
-//	cout<<"OK"<<endl;
-
-//	cout<<"Generando factor de forma 1..."<<endl;
-//	FormFactor2D(vp,phi_d,phi_n,ff1,parm->radio,parm->puntos);
-//	cout<<"Generando factor de forma 2..."<<endl;
-//	FormFactor2D(vd,phi_n,phi_d,ff2,parm->radio,parm->puntos);
-//	for(nR=0;nR<parm->puntos;nR++)
-//	{
-//		R=step*(nR+1);
-//		misc1<<R<<"  "<<abs(real(ff1[nR]))<<"  "<<abs(vp->pot[nR])<<"  "<<abs(real(phi_n->wf[nR]))<<"  "<<abs(real(phi_d->wf[nR]))<<endl;
-//		misc2<<R<<"  "<<abs(real(ff2[nR]))<<"  "<<abs(vd->pot[nR])<<endl;
-//	}
-//	cout<<"Calculando polarizacion..."<<endl;
-//	PotencialPolarizado(Up,ff1,ff2,parm->radio,parm->puntos,parm,&(parm->pot_opt[indx_ingreso]),0,&(fl[0]),&(gl[0]));
 	for(nR=0;nR<num_rd;nR++)
 	{
 		R=step*(nR+1);
@@ -3593,15 +3577,15 @@ void FuncionInl(complejo*** Inl,distorted_wave* f,distorted_wave* g,estado* std,
 				{
 					if(rdp>=rd[n0]){
 						f_rd=interpola_cmpx(f->wf,f->r,rd[n0],f->puntos);
-						Inl[lp][ld][n0]+=f_rd*g_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*angular*dim_rd->pesos[n1]*
+						Inl[lp][ld][n0]+=4.*pow(PI,1.5)*f_rd*g_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*angular*dim_rd->pesos[n1]*
 								dim_rpn->pesos[n2]*dim_theta->pesos[n3]*(dim_theta->b-dim_theta->a)
-								*(dim_rpn->b-dim_rpn->a)*(dim_rd->b-dim_rd->a)/(kd*rd[n0]*64.*PI);
+								*(dim_rpn->b-dim_rpn->a)*(dim_rd->b-dim_rd->a)/(kd*rd[n0]*sqrt(2.*l+1.));
 					}
 					if(rdp<rd[n0]){
 						g_rd=interpola_cmpx(g->wf,g->r,rd[n0],g->puntos);
-						Inl[lp][ld][n0]+=g_rd*f_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*angular*dim_rd->pesos[n1]*
+						Inl[lp][ld][n0]+=4.*pow(PI,1.5)*g_rd*f_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*angular*dim_rd->pesos[n1]*
 								dim_rpn->pesos[n2]*dim_theta->pesos[n3]*(dim_theta->b-dim_theta->a)
-								*(dim_rpn->b-dim_rpn->a)*(dim_rd->b-dim_rd->a)/(kd*rd[n0]*64.*PI);
+								*(dim_rpn->b-dim_rpn->a)*(dim_rd->b-dim_rd->a)/(kd*rd[n0]*sqrt(2.*l+1.));
 					}
 				}
 			}
@@ -3646,6 +3630,7 @@ complejo FuncionBnl(complejo*** Inl,estado* stn,estado* std,potencial* Vp,int nu
 	suma=suma*pow(PI,1.5)/sqrt(2.*lp+1.);
 	return suma;
 }
+
 void JacobiTransform(estado* st1,estado* st2,estado* st3,estado* st4,double** ga,double** gB,double** vtx,int J,parametros* parm,int l,int lambdaa,
 		int lambdaB,int LTa,int LTB,int S,int II,potencial* v,parametros_integral* dim2,parametros_integral* dim3,double* normaD)
 {
