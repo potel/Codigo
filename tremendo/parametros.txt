@@ -231,9 +231,9 @@ InicioEstados
 id 0                                    
 l 0                                     
 j 0.5                                   
-nodos 2                                 
+nodos 0                                 
 spec 1.                            
-energia -7.219                       
+energia -0.2                       
 file                                    
 *************            
 

@@ -3323,6 +3323,8 @@ void Polarization(parametros* parm)
 	estado* phi_n;
 	estado* phi_d;
 	potencial_optico* Utilde_d=new potencial_optico[1];
+	complejo* gd=new complejo[parm->puntos];
+	complejo* vdd=new complejo[parm->puntos];
 	distorted_wave* fl=new distorted_wave[2];
 	distorted_wave* gl=new distorted_wave[2];
 	complejo* ff1=new complejo[parm->puntos];
@@ -3412,6 +3414,14 @@ void Polarization(parametros* parm)
 		rd[nR]=R;
 //		Inl[nR]=0.;
 	}
+	NonOrthogonalPotential(gd,vdd,phi_n,phi_d,vp,num_rd,rd,dimr,dimtheta);
+	for(nR=0;nR<num_rd;nR++)
+	{
+		Utilde_d->r[nR]=rd[nR];
+		Utilde_d->pot[nR]=gd[nR]*vdd[nR]/(4.*PI);
+        misc1<<rd[nR]<<"  "<<real(gd[nR])<<"  "<<real(vdd[nR])<<"  "<<real(Utilde_d->pot[nR])<<endl;
+	}
+//	cout<<"Salida"<<endl; exit(0);
 	k0=sqrt(2.*parm->mu_Aa*AMU*(parm->energia_cm))/(HC);
 	for(nR=0;nR<num_rd;nR++)
 	{
@@ -3419,10 +3429,13 @@ void Polarization(parametros* parm)
 		cout<<"R: "<<R<<endl;
 		U=interpola_cmpx(parm->pot_opt[indx_ingreso].pot,parm->pot_opt[indx_ingreso].r,R,parm->pot_opt[indx_ingreso].puntos);
 		k0=sqrt(2.*parm->mu_Aa*AMU*(parm->energia_cm-real(U)))/(HC);
-		FuncionInl(Inl,fl,gl,phi_n,phi_d,vd,dimr,dimr,dimtheta,parm,num_rd,rd,k0,0);
-//		Bnl=FuncionBnl(Inl,phi_n,phi_d,vp,num_rd,rd,dimr,dimtheta,R);
-		polar_pot=exp(I*k0*R)*Bnl/(sqrt(4.*PI));
-//		misc3<<R<<"  "<<(real(Inl[nR]))<<"  "<<(imag(Inl[nR]))<<"  "<<(real(polar_pot))<<"  "<<(imag(polar_pot))<<endl;
+		cout<<"En Pol 1"<<endl;
+		FuncionInl(Inl,&fl[0],&gl[0],phi_n,phi_d,vd,dimr,dimr,dimtheta,parm,num_rd,rd,k0,0);
+		cout<<"En Pol 2"<<endl;
+		Bnl=FuncionBnl(Inl,phi_n,phi_d,vp,num_rd,rd,dimr,dimtheta,R,0,parm->lmax);
+		cout<<"En Pol 3"<<endl;
+		polar_pot=gsl_sf_bessel_jl(0,k0*R)*Bnl;
+		misc3<<R<<"  "<<(real(polar_pot))<<"  "<<(imag(polar_pot))<<endl;
 	}
 }
 void FormFactor1D(potencial* v,estado* st1,estado* st2,complejo* ff,double radio,int puntos)
@@ -3554,11 +3567,13 @@ void FuncionInl(complejo*** Inl,distorted_wave* f,distorted_wave* g,estado* std,
 		g_rdp=interpola_cmpx(g->wf,g->r,rdp,g->puntos);
 		for(n2=0;n2<dim_rpn->num_puntos;n2++)
 		{
+
 			rpn=dim_rpn->a+(dim_rpn->b-dim_rpn->a)*(dim_rpn->puntos[n2]+1.)/2.;
 			std_int=interpola_cmpx(std->wf,std->r,rpn,std->puntos);
 			Vpn_int=interpola_dbl(Vpn->pot,Vpn->r,rpn,Vpn->puntos);
 			for(n3=0;n3<dim_theta->num_puntos;n3++)
 			{
+
 				theta=dim_theta->a+(dim_theta->b-dim_theta->a)*(dim_theta->puntos[n3]+1.)/2.;
 				costheta=cos(theta);
 				sintheta=sin(theta);
@@ -3629,6 +3644,45 @@ complejo FuncionBnl(complejo*** Inl,estado* stn,estado* std,potencial* Vp,int nu
 	}
 	suma=suma*pow(PI,1.5)/sqrt(2.*lp+1.);
 	return suma;
+}
+void NonOrthogonalPotential(complejo* gd,complejo* vd,estado* stn,estado* std,potencial* Vp,int num_rd,double* rd,parametros_integral* dim_rn,
+		parametros_integral* dim_theta)
+{
+	double rn,theta,rpnx,rpnz,rpn,Vp_int,sintheta,costheta,constante;
+	complejo stn_int,std_int,angular;
+	int n1,n2,l,nd;
+	l=stn->l;
+	constante=1./(16.*PI*(2*l+1.));
+	for(nd=0;nd<num_rd;nd++)
+	{
+		gd[nd]=0.;
+		vd[nd]=0.;
+	}
+	l=stn->l;
+	for(n1=0;n1<dim_rn->num_puntos;n1++)
+	{
+		rn=dim_rn->a+(dim_rn->b-dim_rn->a)*(dim_rn->puntos[n1]+1.)/2.;
+		stn_int=interpola_cmpx(stn->wf,stn->r,rn,stn->puntos);
+		for(n2=0;n2<dim_theta->num_puntos;n2++)
+		{
+			theta=dim_theta->a+(dim_theta->b-dim_theta->a)*(dim_theta->puntos[n2]+1.)/2.;
+			costheta=cos(theta);
+			sintheta=sin(theta);
+			rpnx=-2.*rn*sintheta;
+			angular=gsl_sf_legendre_sphPlm(l,0,costheta);
+			for(nd=0;nd<num_rd;nd++)
+			{
+				rpnz=rn*costheta-rd[nd];
+				rpn=sqrt(rpnx*rpnx+rpnz*rpnz);
+				Vp_int=interpola_dbl(Vp->pot,Vp->r,rpn,Vp->puntos);
+				std_int=interpola_cmpx(std->wf,std->r,rpn,std->puntos);
+				vd[nd]+=std_int*stn_int*Vp_int*rn*rn*sintheta*dim_rn->pesos[n1]*
+						dim_theta->pesos[n2]*(dim_theta->b-dim_theta->a)*(dim_rn->b-dim_rn->a)*constante;
+				gd[nd]+=std_int*stn_int*rn*rn*sintheta*dim_rn->pesos[n1]*
+						dim_theta->pesos[n2]*(dim_theta->b-dim_theta->a)*(dim_rn->b-dim_rn->a)*constante;
+			}
+		}
+	}
 }
 
 void JacobiTransform(estado* st1,estado* st2,estado* st3,estado* st4,double** ga,double** gB,double** vtx,int J,parametros* parm,int l,int lambdaa,

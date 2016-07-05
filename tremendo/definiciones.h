@@ -206,3 +206,5 @@ void SimIntegral(complejo* integral, complejo*** vcluster,distorted_wave* dwi,di
 void JacobiTransform(estado* st1,estado* st2,estado* st3,estado* st4,double** ga,double** gB,double** vtx,int J,parametros* parm,int l,int lambdaa,
 		int lambdaB,int LTa,int LTB,int S,int II,potencial* v,parametros_integral* dim2,parametros_integral* dim3,double* normaD);
 double  VertexD0(estado* st,potencial* pot, double radio, int pts, double* rms);
+void NonOrthogonalPotential(complejo* gd,complejo* vd,estado* stn,estado* std,potencial* Vp,int num_rd,double* rd,parametros_integral* dim_rn,
+		parametros_integral* dim_theta);
