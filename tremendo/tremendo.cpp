@@ -193,8 +193,8 @@ void EscribeEstados(int puntos,estado* st,int numero_estados,struct parametros *
 	for(i=0;i<puntos;i++){
 		fpst<<st[0].r[i]<<"  ";
 		for(n=0;n<numero_estados;n++){
-//			fpst<<real(st[n].wf[i])<<"  ";
-			fpst<<real(st[n].wf[i]*st[0].r[i])<<"  ";
+			fpst<<real(st[n].wf[i])<<"  ";
+//			fpst<<real(st[n].wf[i]*st[0].r[i])<<"  ";
 		}
 		fpst<<endl;
 	}
@@ -3333,23 +3333,36 @@ void Polarization(parametros* parm)
 	cout<<"Calculo del potencial de polarizacion *************************************"<<endl;
 	double *D0=new double[1];
 	double *rms=new double[1];
-	parametros_integral *dimr=new parametros_integral;
+	parametros_integral *dim_rpn=new parametros_integral;
+	parametros_integral *dim_rd=new parametros_integral;
+	parametros_integral *dim_rn=new parametros_integral;
 	parametros_integral *dimtheta=new parametros_integral;
-	int num_rd=parm->puntos;
+	int num_rd;
+	num_rd=100;
 	double* rd=new double[num_rd];
-	complejo*** Inl=tensor_cmpx(num_rd,parm->lmax,parm->lmax);
-	int indx_pot_vd,indx_pot_vp,n,m,indx_stn,indx_std,nR,indx_ingreso,indx_salida;
+	complejo*** Inl=tensor_cmpx(parm->lmax,parm->lmax,num_rd);
+	int indx_pot_vd,indx_pot_vp,n,m,indx_stn,indx_std,nR,indx_ingreso,indx_salida,lp;
 	complejo Bnl,U,polar_pot;
-	double R,step,k0;
+	double R,step,step_rd,radio_rd,k0;
+	radio_rd=5.;
+	step_rd=radio_rd/double(num_rd);
 	InicializaOneTrans(parm);
-	dimr->a=parm->r_Ccmin;
-	dimr->b=parm->r_Ccmax;
-	dimr->num_puntos=parm->rCc_puntos;
+	dim_rpn->a=0.;
+	dim_rpn->b=5.;
+	dim_rpn->num_puntos=10;
+	dim_rd->a=0.;
+	dim_rd->b=10.;
+	dim_rd->num_puntos=15;
+	dim_rn->a=0.;
+	dim_rn->b=10.;
+	dim_rn->num_puntos=20;
 	dimtheta->a=0.;
 	dimtheta->b=PI;
 	dimtheta->num_puntos=parm->theta_puntos;
 	GaussLegendre(dimtheta->puntos,dimtheta->pesos,dimtheta->num_puntos);
-	GaussLegendre(dimr->puntos,dimr->pesos,dimr->num_puntos);
+	GaussLegendre(dim_rpn->puntos,dim_rpn->pesos,dim_rpn->num_puntos);
+	GaussLegendre(dim_rd->puntos,dim_rd->pesos,dim_rd->num_puntos);
+	GaussLegendre(dim_rn->puntos,dim_rn->pesos,dim_rn->num_puntos);
 	step=parm->radio/double(parm->puntos);
 	for (n=0;n<parm->num_opt;n++)
 	{
@@ -3391,6 +3404,9 @@ void Polarization(parametros* parm)
 		if(parm->st[indx_std].energia<0.)
 			GeneraEstadosPI(&(parm->pot[indx_pot_vp]),&(parm->st[indx_std]),parm->radio,parm->puntos,0.,parm,1,parm->m_A/parm->m_B,D0,rms);
 	}
+	EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
+	EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
+	EscribePotencialOptico(parm->puntos,parm->pot_opt,parm->num_opt,parm);
 	phi_d=&(parm->st[indx_std]);
 	fl[0].energia=parm->energia_cm+parm->Qvalue;
 	gl[0].energia=parm->energia_cm+parm->Qvalue;
@@ -3407,35 +3423,39 @@ void Polarization(parametros* parm)
 	cout<<"energia: "<<fl[0].energia<<endl;
 	GeneraGreenFunction(fl,gl,&(parm->pot_opt[indx_salida]),
 							0.,parm->m_A/(parm->m_A+1.),parm->radio,parm->puntos,parm->matching_radio);
-	step=parm->radio/double(num_rd);
 	for(nR=0;nR<num_rd;nR++)
 	{
-		R=step*(nR+1);
-		rd[nR]=R;
-//		Inl[nR]=0.;
+		rd[nR]=step_rd*(nR+1);
 	}
-	NonOrthogonalPotential(gd,vdd,phi_n,phi_d,vp,num_rd,rd,dimr,dimtheta);
+//	NonOrthogonalPotential(gd,vdd,phi_d,phi_d,vp,num_rd,rd,dimr,dimtheta);
 	for(nR=0;nR<num_rd;nR++)
 	{
 		Utilde_d->r[nR]=rd[nR];
 		Utilde_d->pot[nR]=gd[nR]*vdd[nR]/(4.*PI);
-        misc1<<rd[nR]<<"  "<<real(gd[nR])<<"  "<<real(vdd[nR])<<"  "<<real(Utilde_d->pot[nR])<<endl;
+//        misc1<<rd[nR]<<"  "<<real(gd[nR])<<"  "<<real(vdd[nR])<<"  "<<real(Utilde_d->pot[nR])<<endl;
 	}
 //	cout<<"Salida"<<endl; exit(0);
 	k0=sqrt(2.*parm->mu_Aa*AMU*(parm->energia_cm))/(HC);
-	for(nR=0;nR<num_rd;nR++)
+	lp=0;
+//	for(nR=0;nR<parm->puntos;nR++)
+//	{
+//		R=step*(nR+1);
+//		U=interpola_cmpx(parm->pot_opt[indx_ingreso].pot,parm->pot_opt[indx_ingreso].r,R,parm->pot_opt[indx_ingreso].puntos);
+//		k0=sqrt(2.*parm->mu_Aa*AMU*(parm->energia_cm-real(U)))/(HC);
+//		misc3<<R<<"  "<<k0<<endl;
+//	}
+//	exit(0);
+	for(nR=0;nR<parm->puntos;nR++)
 	{
 		R=step*(nR+1);
 		cout<<"R: "<<R<<endl;
 		U=interpola_cmpx(parm->pot_opt[indx_ingreso].pot,parm->pot_opt[indx_ingreso].r,R,parm->pot_opt[indx_ingreso].puntos);
 		k0=sqrt(2.*parm->mu_Aa*AMU*(parm->energia_cm-real(U)))/(HC);
-		cout<<"En Pol 1"<<endl;
-		FuncionInl(Inl,&fl[0],&gl[0],phi_n,phi_d,vd,dimr,dimr,dimtheta,parm,num_rd,rd,k0,0);
-		cout<<"En Pol 2"<<endl;
-		Bnl=FuncionBnl(Inl,phi_n,phi_d,vp,num_rd,rd,dimr,dimtheta,R,0,parm->lmax);
-		cout<<"En Pol 3"<<endl;
-		polar_pot=gsl_sf_bessel_jl(0,k0*R)*Bnl;
+		FuncionInl(Inl,&fl[0],&gl[0],phi_n,phi_d,vp,dim_rpn,dim_rd,dimtheta,parm,num_rd,rd,k0,lp);
+		Bnl=FuncionBnl(Inl,phi_n,phi_d,vp,num_rd,rd,dim_rn,dimtheta,R,lp,parm->lmax);
+		polar_pot=gsl_sf_bessel_jl(lp,k0*R)*Bnl;
 		misc3<<R<<"  "<<(real(polar_pot))<<"  "<<(imag(polar_pot))<<endl;
+		exit(0);
 	}
 }
 void FormFactor1D(potencial* v,estado* st1,estado* st2,complejo* ff,double radio,int puntos)
@@ -3550,12 +3570,13 @@ void FuncionInl(complejo*** Inl,distorted_wave* f,distorted_wave* g,estado* std,
 		potencial* Vpn,parametros_integral* dim_rpn,parametros_integral* dim_rd,
 		parametros_integral* dim_theta,parametros* parm,int num_rd,double* rd,double k0,int lp)
 {
-	double rn,rnx,rnz,rp,rpx,rpz,rdp,rpn,sintheta,costheta,j0,Vpn_int,theta,kd,coseno_n,coseno_p;
+	double rn,rnx,rnz,rp,rpx,rpz,rdp,rpn,sintheta,costheta,j0,Vpn_int,theta,kd,coseno_n,coseno_p,constante;
 	int n1,n2,n3,n0,ld,l;
 	complejo std_int,stn_int,f_mayor,f_rd,f_rdp,g_rd,g_rdp,angular;
 	kd=sqrt(2.*parm->mu_Bb*AMU*(f->energia))/(HC);
 	ld=f->l;
 	l=stn->l;
+	constante=pow(PI,1.5)/(2.*kd*sqrt(2.*l+1.));
 	for(n0=0;n0<num_rd;n0++)
 	{
 		Inl[lp][ld][n0]=0.;
@@ -3567,7 +3588,6 @@ void FuncionInl(complejo*** Inl,distorted_wave* f,distorted_wave* g,estado* std,
 		g_rdp=interpola_cmpx(g->wf,g->r,rdp,g->puntos);
 		for(n2=0;n2<dim_rpn->num_puntos;n2++)
 		{
-
 			rpn=dim_rpn->a+(dim_rpn->b-dim_rpn->a)*(dim_rpn->puntos[n2]+1.)/2.;
 			std_int=interpola_cmpx(std->wf,std->r,rpn,std->puntos);
 			Vpn_int=interpola_dbl(Vpn->pot,Vpn->r,rpn,Vpn->puntos);
@@ -3588,23 +3608,28 @@ void FuncionInl(complejo*** Inl,distorted_wave* f,distorted_wave* g,estado* std,
 				stn_int=interpola_cmpx(stn->wf,stn->r,rn,stn->puntos);
 				j0=gsl_sf_bessel_jl(lp,k0*rp);
 				angular=FuncionAngular2(lp,l,ld,coseno_p,coseno_n);
+//				misc1<<rn<<"  "<<rpn<<"  "<<real(stn_int)<<"  "<<real(std_int)<<"  "<<Vpn_int<<endl;
 				for(n0=0;n0<num_rd;n0++)
 				{
 					if(rdp>=rd[n0]){
 						f_rd=interpola_cmpx(f->wf,f->r,rd[n0],f->puntos);
-						Inl[lp][ld][n0]+=4.*pow(PI,1.5)*f_rd*g_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*angular*dim_rd->pesos[n1]*
+						Inl[lp][ld][n0]+=constante*f_rd*g_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*angular*dim_rd->pesos[n1]*
 								dim_rpn->pesos[n2]*dim_theta->pesos[n3]*(dim_theta->b-dim_theta->a)
-								*(dim_rpn->b-dim_rpn->a)*(dim_rd->b-dim_rd->a)/(kd*rd[n0]*sqrt(2.*l+1.));
+								*(dim_rpn->b-dim_rpn->a)*(dim_rd->b-dim_rd->a)/(rd[n0]);
 					}
 					if(rdp<rd[n0]){
 						g_rd=interpola_cmpx(g->wf,g->r,rd[n0],g->puntos);
-						Inl[lp][ld][n0]+=4.*pow(PI,1.5)*g_rd*f_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*angular*dim_rd->pesos[n1]*
+						Inl[lp][ld][n0]+=constante*g_rd*f_rdp*sintheta*stn_int*std_int*Vpn_int*rdp*rpn*rpn*j0*angular*dim_rd->pesos[n1]*
 								dim_rpn->pesos[n2]*dim_theta->pesos[n3]*(dim_theta->b-dim_theta->a)
-								*(dim_rpn->b-dim_rpn->a)*(dim_rd->b-dim_rd->a)/(kd*rd[n0]*sqrt(2.*l+1.));
+								*(dim_rpn->b-dim_rpn->a)*(dim_rd->b-dim_rd->a)/(rd[n0]);
 					}
 				}
 			}
 		}
+	}
+	for(n0=0;n0<num_rd;n0++)
+	{
+//		misc1<<rd[n0]<<"  "<<abs(Inl[lp][ld][n0])<<endl;
 	}
 }
 complejo FuncionBnl(complejo*** Inl,estado* stn,estado* std,potencial* Vp,int num_rd,double* rd,parametros_integral* dim_rn,
@@ -3633,13 +3658,14 @@ complejo FuncionBnl(complejo*** Inl,estado* stn,estado* std,potencial* Vp,int nu
 			coseno_d=rdpz/rdp;
 			Vp_int=interpola_dbl(Vp->pot,Vp->r,rpn,Vp->puntos);
 			std_int=interpola_cmpx(std->wf,std->r,rpn,std->puntos);
-			for(ld=abs(l-lp);ld<=l+ld && ld<lmax;ld++)
+			for(ld=abs(l-lp);ld<=l+lp && ld<lmax;ld++)
 			{
 			angular=FuncionAngular2(l,ld,lp,costheta,coseno_d);
 			Inl_int=interpola_cmpx(&Inl[lp][ld][0],rd,rdp,num_rd);
 			suma+=sqrt(PI)*std_int*stn_int*Vp_int*Inl_int*rn*rn*sintheta*dim_rn->pesos[n1]*
 					dim_theta->pesos[n2]*(dim_theta->b-dim_theta->a)*(dim_rn->b-dim_rn->a)/(4.);
 			}
+			misc1<<rn<<"  "<<rpn<<"  "<<rdp<<"  "<<real(stn_int)<<"  "<<real(std_int)<<"  "<<Vp_int<<"  "<<abs(Inl_int)<<endl;
 		}
 	}
 	suma=suma*pow(PI,1.5)/sqrt(2.*lp+1.);

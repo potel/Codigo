@@ -1,4 +1,4 @@
-num_st 4	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
+num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
 lmin 0      # momento angular mínimo. En una reacción tiene que ser 0.
 lmax 20   # momento angular máximo. En una reacción, número de ondas parciales.
 
@@ -6,12 +6,12 @@ emin -1000.    # energía mínima.
 emax 0. 	   # energía máxima.
 puntos 1000    # número de puntos en los que se definen las funciones.
 radio 30.      #radio máximo.
-num_cm 4       # número de potenciales de campo medio.
-num_opt 3      # número de potenciales ópticos.
+num_cm 2       # número de potenciales de campo medio.
+num_opt 2      # número de potenciales ópticos.
 a_numst 1	   # número de estados monoparticulares del núcleo a (la reacción se define como A+a(=b+2)->B(=A+2)+b).
-B_numst 3       # número de estados monoparticulares del núcleo B (la reacción se define como A+a(=b+2)->B(=A+2)+b).
+B_numst 1       # número de estados monoparticulares del núcleo B (la reacción se define como A+a(=b+2)->B(=A+2)+b).
 a_estados 0    # índice de los estados del núcleo a.
-B_estados 1 2 3      # índice de los estados del núcleo B.
+B_estados 1       # índice de los estados del núcleo B.
 flcoef  matrizcoeficientes.dat   # fichero o ficheros con los coeficientes de la definición de la función de onda en una base 
                                    # de partícula independiente (usado si tipo_fun=li)
 a_potcm 0   # potencial de campo medio usado para definir los estados del núcleo a.
@@ -22,8 +22,8 @@ prior 1
 remnant 0
 core_pot 0	 
 optico_ingreso 0    # potencial optico en el canal de ingreso
-optico_intermedio 1  # potencial optico en el canal intermedio
-optico_salida 2      # potencial optico en el canal de salida
+optico_intermedio 0  # potencial optico en el canal intermedio
+optico_salida 1      # potencial optico en el canal de salida
 ++++++++++++++ Descripción de la reacción +++++++++++++++++++++++++++++++++++++
 
 base1  20   # tamaños de la base usada para describir los estados de partícula independiente
@@ -31,15 +31,15 @@ base2  20
 base3  20
 
 m_A    1   # Masas
-m_a    124
+m_a    11
 
-Z_a    50  # cargas
+Z_a    3  # cargas
 Z_A     1
 
 proyectil A		# define cual es el proyectil
-energia_lab  25
+energia_lab  4
 
-Qvalue  -5.955		# Q-value de la reacción
+Qvalue  1.83		# Q-value de la reacción
 
 int_Qvalue 0.31 # Q-value intermedio (transferencia de una partícula)
 
@@ -92,58 +92,40 @@ InicioPotencialesOpticos
 
 
 id 0                                                     
-RealVolumen   52.123	
-ImaginarioVolumen   1.429
+RealVolumen   63.2	
+ImaginarioVolumen   0.33
 RealSpinOrbita     	0.
 ImaginarioSpinOrbita   0.                      	
-ImaginarioSuperficie   8.930
-RadioRealVolumen       1.205
-RadioCoulomb          1.264                      
-RadioImaginarioVolumen  1.246                       
-DifusividadRealVolumen 0.69                     
-DifusividadImaginarioVolumen  0.69             	      	
+ImaginarioSuperficie   8.9
+RadioRealVolumen       1.12
+RadioCoulomb          1.12                      
+RadioImaginarioVolumen  1.12                       
+DifusividadRealVolumen 0.68                     
+DifusividadImaginarioVolumen  0.52             	      	
 RadioSpinOrbita 1.1                             	    
 DifusividadSpinOrbita 	0.63                                  
-RadioImaginarioSuperficie   1.2458                   
-DifusividadImaginarioSuperficie  0.69  
+RadioImaginarioSuperficie   1.31                   
+DifusividadImaginarioSuperficie  0.52 
 
 ***************
 
 id 1
-RealVolumen    91.992	
-ImaginarioVolumen    0.529
+RealVolumen    90.76	
+ImaginarioVolumen    1.6
 RealSpinOrbita      0.
 ImaginarioSpinOrbita	0.
-ImaginarioSuperficie   12.206
-RadioRealVolumen     1.17
-RadioCoulomb              1.17                         
-RadioImaginarioVolumen         1.325
-DifusividadRealVolumen           0.744
-DifusividadImaginarioVolumen     0.878
+ImaginarioSuperficie   10.58
+RadioRealVolumen     1.15
+RadioCoulomb              1.15                         
+RadioImaginarioVolumen         1.35
+DifusividadRealVolumen           0.68
+DifusividadImaginarioVolumen     0.64
 RadioSpinOrbita             	1.07
 DifusividadSpinOrbita         0.66
-RadioImaginarioSuperficie            1.325
-DifusividadImaginarioSuperficie     0.878
+RadioImaginarioSuperficie            1.4
+DifusividadImaginarioSuperficie     0.66
 
 *******************
-
-id 2
-RealVolumen      162.391	
-ImaginarioVolumen     13.469
-RealSpinOrbita      		0.
-ImaginarioSpinOrbita     0.
-ImaginarioSuperficie        16.095
-RadioRealVolumen            1.090
-RadioCoulomb                    1.422      
-RadioImaginarioVolumen        1.284
-DifusividadRealVolumen         0.778
-DifusividadImaginarioVolumen	     1.214
-RadioSpinOrbita                 0.496
-DifusividadSpinOrbita             0.096
-RadioImaginarioSuperficie         1.158
-DifusividadImaginarioSuperficie    0.869
-
-******
 
 FinPotencialesOpticos
 
@@ -157,21 +139,9 @@ VV 43.9
 VSO  6.2
 aV 0.65
 aSO 0.65
-RV    6.19959457980288
-RSO   6.19959457980288
+RV    3.
+RSO   3.
 *******
-
-#id 1
-#tipo tang  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
-#VV 43.9
-#VSO  15.5773882
-#aV 0.65
-#aSO 0.65
-#RV  2.693
-#RSO  2.693
-#k 2.5   # parámetro k de Tang-Herndon
-#rhc 0.45  # hard-core del potencial de Tang-Herndon
-#****
 
 id 1
 tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
@@ -183,35 +153,6 @@ RV    0.95
 RSO   5.04
 *******
 
-id 2
-tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
-VV 170.
-VSO  0.
-aV 0.6
-aSO 0.75
-RV    0.4
-RSO   5.04
-*******
-
-id 3
-tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
-VV 170.
-VSO  0.
-aV 0.6
-aSO 0.75
-RV    0.317
-RSO   5.04
-*******
-
-#id 1
-#tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
-#VV 170.
-#VSO  0.
-#aV 0.6
-#aSO 0.75
-#RV    0.317
-#RSO   5.04
-#*******
 
 
 FinCampoMedio
@@ -219,14 +160,6 @@ FinCampoMedio
 
 InicioEstados
 
-#id 0
-#l 2
-#j 1.5
-#nodos 1
-#spec  0.71913
-#energia -7.60589
-#file      
-#*************
 
 id 0                                    
 l 0                                     
@@ -237,58 +170,18 @@ energia -0.2
 file                                    
 *************            
 
-               
-#id 2                                    
-#l 2
-#j 2.5
-#nodos 1
-#spec 0.59927
-#energia -9.79793
-#file  
-#*************
-#id 3
-#l 4
-#j 3.5
-#nodos 0
-#spec 0.62944
-#energia -9.45267  
-#file      
-#*************
-#id 4
-#l 5
-#j 5.5
-#nodos 0
-#spec 1.24399
-#energia -6.57882      
-#file      
-#*************
+
 
 id 1
 l 0
 j 0.5
 nodos 0
 spec 1.
-energia -4.2415
+energia -2.2
 file      
 *************
 
-id 2
-l 0
-j 0.5
-nodos 0
-spec 1.
-energia -4.2415
-file      
-*************
 
-id 3
-l 0
-j 0.5
-nodos 0
-spec 1.
-energia -4.2415
-file      
-*************
 
 FinEstados
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
