@@ -208,3 +208,5 @@ void JacobiTransform(estado* st1,estado* st2,estado* st3,estado* st4,double** ga
 double  VertexD0(estado* st,potencial* pot, double radio, int pts, double* rms);
 void NonOrthogonalPotential(complejo* gd,complejo* vd,estado* stn,estado* std,potencial* Vp,int num_rd,double* rd,parametros_integral* dim_rn,
 		parametros_integral* dim_theta);
+void CH89(double E,double N,double Z,double r,complejo* potencial_p,complejo* potencial_n,
+		int l,double j,potencial_optico* pot_p,potencial_optico* pot_n);

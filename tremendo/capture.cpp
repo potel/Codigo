@@ -22,8 +22,8 @@ void Capture(struct parametros* parm)
 	int n,m,indx_pot_a,indx_pot_B,indx_st,indx_ingreso,indx_intermedio,indx_salida,indx_core,indx_transfer,indx_scatt;
 	double energia,etrial,vmax,vmin,energia_ws,absorcion,carga_out,carga_trans,masa_out,masa_trans,masaT,masaP,masa_res;
 	InicializaOneTrans(parm);
-	double* D0;
-	double* rms;
+	double* D0=new double[1];
+	double* rms=new double[1];
 	cout<<"Generando potenciales de campo medio"<<endl;
 	for(n=0;n<parm->num_cm;n++)
 	{
@@ -404,7 +404,7 @@ void AmplitudeCapture(struct parametros* parm)
 	cout<<"Radio de fusión: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
 //	for(energia_out=0.;energia_out<6.;energia_out+=0.2)
-	for (energia_trans=-3.;energia_trans<2.;energia_trans+=0.2)
+	for (energia_trans=-6.;energia_trans<7.;energia_trans+=0.2)
 	{
 //		energia_trans=parm->energia_cm-energia_out-2.2245;
 		energia_out=parm->energia_cm-energia_trans+parm->Qvalue;
@@ -422,7 +422,10 @@ void AmplitudeCapture(struct parametros* parm)
 		if(parm->koning_delaroche==1){
 				for(n=0;n<parm->puntos;n++){
 					rn=step*(n+1.);
-					KoningDelaroche(energia_trans,parm->T_N,parm->T_carga,rn,&pot_p,&pot_n,0,0.,pot_dumb,&(parm->pot_opt[indx_neutron_target]));
+					KoningDelaroche(energia_trans,parm->T_N,parm->T_carga,rn,&pot_p,
+					&pot_n,0,0.,pot_dumb,&(parm->pot_opt[indx_neutron_target]));
+//					CH89(energia_trans,parm->T_N,parm->T_carga,rn,&pot_p,
+//							&pot_n,0,0.,pot_dumb,&(parm->pot_opt[indx_neutron_target]));
 					parm->pot_opt[indx_neutron_target].r[n]=rn;
 					if(carga_trans>0.1) parm->pot_opt[indx_neutron_target].pot[n]=pot_p;
 					else  parm->pot_opt[indx_neutron_target].pot[n]=pot_n;
@@ -431,7 +434,7 @@ void AmplitudeCapture(struct parametros* parm)
 				}
 		}
 		for(l=0;l<parm->ltransfer;l++)
-//		for(l=6;l<7;l++)
+//		for(l=3;l<4;l++)
 		{
 			cout<<"L: "<<l<<endl;
 			funcion_regular_up[0].energia=energia_trans;
@@ -566,7 +569,7 @@ void AmplitudeCapture(struct parametros* parm)
 			cout<<" Termino cruzado: "<<rhoE*escala*cross_term[0]*sigma_const<<endl;
 			misc3<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<"  ";
 		}
-		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp3,&fp4,&fp7,parm->J_A);
+//		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp3,&fp4,&fp7,parm->J_A);
 		cout<<"Sección eficaz NEB:  "<<cross_total<<"   Sección eficaz EB:  "<<cross_total_elasticb<<endl;
 		misc3<<cross_total<<"  "<<cross_total_elasticb<<"  "<<cross_total+cross_total_elasticb<<endl;
 //		cout<<"Cálculo de la sección eficaz diferencial..."<<endl;
@@ -577,30 +580,30 @@ void AmplitudeCapture(struct parametros* parm)
 			inc_break_lmenos[l]=0.;
 			inc_break_lmas[l]=0.;
 		}
-		for(n=0;n<parm->cross_puntos;n++)
-		{
-			theta=PI*double(n)/double(parm->cross_puntos);
-			direct[0]=0.;
-			non_orth[0]=0.;
-			cross_term[0]=0.;
-
-			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
-			{
-				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm->lmax,theta,
-						direct,non_orth,cross_term,cross_up);
-				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm->lmax,theta,
-						direct,non_orth,cross_term,cross_down);
-				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
-				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-				for(l=0;l<parm->lmax;l++)
-				{
-					inc_break_lmenos[l]+=sigma_const*escala*rhoE*cross_down[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-					inc_break_lmas[l]+=sigma_const*escala*rhoE*cross_up[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-				}
-			}
-		}
-		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A);
+//		for(n=0;n<parm->cross_puntos;n++)
+//		{
+//			theta=PI*double(n)/double(parm->cross_puntos);
+//			direct[0]=0.;
+//			non_orth[0]=0.;
+//			cross_term[0]=0.;
+//
+//			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
+//			{
+//				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm->lmax,theta,
+//						direct,non_orth,cross_term,cross_up);
+//				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm->lmax,theta,
+//						direct,non_orth,cross_term,cross_down);
+//				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
+//				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+//				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+//				for(l=0;l<parm->lmax;l++)
+//				{
+//					inc_break_lmenos[l]+=sigma_const*escala*rhoE*cross_down[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+//					inc_break_lmas[l]+=sigma_const*escala*rhoE*cross_up[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+//				}
+//			}
+//		}
+//		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A);
 		cout<<"Sección eficaz NEB:  "<<cross_total<<"   Sección eficaz EB:  "<<cross_total_elasticb<<endl;
 	}
 /// First order approximation

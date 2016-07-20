@@ -3444,8 +3444,8 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 
     /////////////////////////////////////////////////
 	// For 95Mo:
-//	Vv=50.;
-//	if(Wd<=4.) Wd=4.;
+	Vv=50.;
+	if(Wd<=4.) Wd=4.;
 	////////////////////////////////////////////////
 
     /////////////////////////////////////////////////
@@ -3492,6 +3492,108 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 //	Wdd=v1p*(1-v2p*(E-Epf)+v3p*(E-Epf)*(E-Epf)-v4p*(E-Epf)*(E-Epf)*(E-Epf));
 //	derivada=(Wdd-Vv)/delta_E;
 //	misc1<<E-delta_E<<"  "<<Wd<<"  "<<derivada<<"  "<<Wdd<<"  "<<Vv<<endl;
+}
+void CH89(double E,double N,double Z,double r,complejo* potencial_p,complejo* potencial_n,
+		int l,double j,potencial_optico* pot_p,potencial_optico* pot_n)
+{
+	double A=N+Z;
+	double V0,Vt,Ve,r0,r00,a0,rc,rc0,Vso,rso,rso0,aso,Wv0,Wve0,Wvew,Ws0,
+	      Wst,Wse0,Wsew,rW,rW0,aW,Vrp,Vrn,R0,Rc,Rso,Wvn,Wvp,Wsp,Wsn,Rw,Ecp,Ecn,ls;
+	ls=(j*(j+1.)-l*(l+1.)-0.75);
+	V0=52.9;
+	Vt=13.1;
+	Ve=-0.299;
+	r0=1.25;
+	r00=-0.225;
+	a0=0.69;
+	rc=1.238;
+	rc0=0.116;
+	Vso=5.9;
+	rso=1.34;
+	rso0=-1.2;
+	aso=0.63;
+	Wv0=7.8;
+	Wve0=35.;
+	Wvew=16.;
+	Ws0=10.;
+    Wst=18.;
+    Wse0=36.;
+    Wsew=37.;
+    rW=1.33;
+    rW0=-0.42;
+    aW=0.69;
+    Rc=rc*pow(A,0.3333333333)+rc0;
+    Ecp=1.73*Z/Rc;
+    Ecn=0;
+    Vrp=V0+(Vt*(N-Z)/A)+(E-Ecp)*Ve;
+    Vrn=V0-(Vt*(N-Z)/A)+(E-Ecn)*Ve;
+    R0=r0*pow(A,0.3333333333)+r00;
+    Rso=rso*pow(A,0.3333333333)+rso0;
+    Wvn=Wv0/(1.+exp((Wve0-(E-Ecn))/(Wvew)));
+    Wvp=Wv0/(1.+exp((Wve0-(E-Ecp))/(Wvew)));
+    Wsp=(Ws0+Wst*((N-Z)/A))/(1.+exp(((E-Ecp)-Wse0)/(Wsew)));
+    Wsn=(Ws0-Wst*((N-Z)/A))/(1.+exp(((E-Ecn)-Wse0)/(Wsew)));
+    Rw=rW*pow(A,0.3333333333)+rW0;
+
+
+	pot_n->V=Vrn;
+	pot_n->Vso=Vso;
+	pot_n->W=Wvn;
+	pot_n->Wd=Wsn;
+	pot_n->aV=a0;
+	pot_n->aW=aW;
+	pot_n->aWd=aW;
+	pot_n->aso=aso;
+	pot_n->r0C=Rc;
+	pot_n->r0V=R0;
+	pot_n->r0W=Rw;
+	pot_n->rWd=Rw;
+	pot_n->radioV=R0;
+	pot_n->radioso=Rso;
+	pot_n->radioWd=Rw;
+	pot_n->rso=rso;
+
+    /////////////////////////////////////////////////
+	// For 95Mo:
+	Vrn=50.;
+	if(Wvn<=4.) Wvn=4.;
+	////////////////////////////////////////////////
+
+	if(j==0.)
+		*potencial_n=-Vrn/(1.+exp((r-R0)/a0))-I*Wvn/(1.+exp((r-Rw)/aW))
+		-4.*I*Wvn*exp((r-Rw)/aW)/((1.+exp((r-Rw)/aW))*(1.+exp((r-Rw)/aW)));
+	else
+		*potencial_n=-Vrn/(1.+exp((r-R0)/a0))-I*Wvn/(1.+exp((r-Rw)/aW))
+		-4.*I*Wsn*exp((r-Rw)/aW)/((1.+exp((r-Rw)/aW))*(1.+exp((r-Rw)/aW)))
+		-2.*(ls*Vso)*exp((r-Rso)/aso)/(r*aso*(1.+exp((r-Rso)/aso))*(1.+exp((r-Rso)/aso)));
+
+
+	pot_p->V=Vrp;
+	pot_p->Vso=Vso;
+	pot_p->W=Wvp;
+	pot_p->Wd=Wsp;
+	pot_p->aV=a0;
+	pot_p->aW=aW;
+	pot_p->aWd=aW;
+	pot_p->aso=aso;
+	pot_p->r0C=Rc;
+	pot_p->r0V=R0;
+	pot_p->r0W=Rw;
+	pot_p->rWd=Rw;
+	pot_p->radioV=R0;
+	pot_p->radioso=Rso;
+	pot_p->radioWd=Rw;
+	pot_p->rso=rso;
+
+
+
+	if(j==0.)
+		*potencial_p=-Vrp/(1.+exp((r-R0)/a0))-I*Wvp/(1.+exp((r-Rw)/aW))
+		-4.*I*Wvp*exp((r-Rw)/aW)/((1.+exp((r-Rw)/aW))*(1.+exp((r-Rw)/aW)));
+	else
+		*potencial_n=-Vrn/(1.+exp((r-R0)/a0))-I*Wvp/(1.+exp((r-Rw)/aW))
+		-4.*I*Wsp*exp((r-Rw)/aW)/((1.+exp((r-Rw)/aW))*(1.+exp((r-Rw)/aW)))
+		-2.*(ls*Vso)*exp((r-Rso)/aso)/(r*aso*(1.+exp((r-Rso)/aso))*(1.+exp((r-Rso)/aso)));
 }
 
 

@@ -14,7 +14,7 @@ int main()
 	if (!parm) Error("No se pudo reservar memoria para parametros");
 	const char* input="parametros.txt";
 	LeeParametros(input,parm);
-	int polarization=1;
+	int polarization=0;
 	if(polarization) {Polarization(parm);return(0);}
 	cout<<"   parm->id_pot_dens: "<<parm->id_pot_dens<<endl;
 	if ((parm->dumb+parm->gen_dens_bound+parm->two_trans+parm->knockout+parm->capture+parm->one_trans
