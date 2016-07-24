@@ -403,11 +403,11 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusión: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-//	for(energia_out=0.;energia_out<6.;energia_out+=0.2)
-	for (energia_trans=-6.;energia_trans<7.;energia_trans+=0.2)
+	for(energia_out=5.;energia_out<20.;energia_out+=100.)
+//	for (energia_trans=-0.1;energia_trans<16.;energia_trans+=0.5)
 	{
-//		energia_trans=parm->energia_cm-energia_out-2.2245;
-		energia_out=parm->energia_cm-energia_trans+parm->Qvalue;
+		energia_trans=parm->energia_cm-energia_out-2.2245;
+//		energia_out=parm->energia_cm-energia_trans+parm->Qvalue;
 		cout<<endl<<endl<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
 		cout<<"Energía de la particula emitida: "<<energia_out<<"  "<<"Energía de la particula transmitida: "<<energia_trans<<endl;
 		cout<<"Energía de la resonancia: "<<e_res<<endl;
@@ -429,12 +429,18 @@ void AmplitudeCapture(struct parametros* parm)
 					parm->pot_opt[indx_neutron_target].r[n]=rn;
 					if(carga_trans>0.1) parm->pot_opt[indx_neutron_target].pot[n]=pot_p;
 					else  parm->pot_opt[indx_neutron_target].pot[n]=pot_n;
+
+					KoningDelaroche(energia_out,parm->T_N,parm->T_carga,rn,&pot_p,
+					&pot_n,0,0.,pot_dumb,&(parm->pot_opt[indx_salida]));
+					parm->pot_opt[indx_salida].r[n]=rn;
+					if(carga_out>0.1) parm->pot_opt[indx_salida].pot[n]=pot_p;
+					else  parm->pot_opt[indx_salida].pot[n]=pot_n;
 //			cout<<parm->pot_opt[indx_neutron_target].r[n]<<"  "<<real(parm->pot_opt[indx_neutron_target].pot[n])<<"  "<<
 //								imag(parm->pot_opt[indx_neutron_target].pot[n])<<endl;
 				}
 		}
-		for(l=0;l<parm->ltransfer;l++)
-//		for(l=3;l<4;l++)
+//		for(l=0;l<parm->ltransfer;l++)
+		for(l=0;l<1;l++)
 		{
 			cout<<"L: "<<l<<endl;
 			funcion_regular_up[0].energia=energia_trans;
@@ -580,29 +586,33 @@ void AmplitudeCapture(struct parametros* parm)
 			inc_break_lmenos[l]=0.;
 			inc_break_lmas[l]=0.;
 		}
-//		for(n=0;n<parm->cross_puntos;n++)
-//		{
-//			theta=PI*double(n)/double(parm->cross_puntos);
-//			direct[0]=0.;
-//			non_orth[0]=0.;
-//			cross_term[0]=0.;
-//
-//			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
-//			{
-//				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm->lmax,theta,
-//						direct,non_orth,cross_term,cross_up);
-//				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm->lmax,theta,
-//						direct,non_orth,cross_term,cross_down);
-//				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
-//				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-//				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+		cout<<"calculando seccion eficaz diferencial"<<endl;
+		for(n=0;n<parm->cross_puntos;n++)
+		{
+			theta=PI*double(n)/double(parm->cross_puntos);
+			direct[0]=0.;
+			non_orth[0]=0.;
+			cross_term[0]=0.;
+//			cout<<"theta: "<<theta*180./PI<<endl;
+			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
+			{
+				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm->lmax,theta,
+						direct,non_orth,cross_term,cross_up);
+				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm->lmax,theta,
+						direct,non_orth,cross_term,cross_down);
+				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
+				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
 //				for(l=0;l<parm->lmax;l++)
 //				{
 //					inc_break_lmenos[l]+=sigma_const*escala*rhoE*cross_down[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
 //					inc_break_lmas[l]+=sigma_const*escala*rhoE*cross_up[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
 //				}
-//			}
-//		}
+				misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
+						"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
+						sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
+			}
+		}
 //		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A);
 		cout<<"Sección eficaz NEB:  "<<cross_total<<"   Sección eficaz EB:  "<<cross_total_elasticb<<endl;
 	}
@@ -1371,6 +1381,7 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 				}
 			}
 			cross_j[l]+=-imag(pot_int)*(C11+C22+2.*real(B33))*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//			cout<<imag(pot_int)<<"  "<<C11<<"  "<<C22<<"  "<<B33<<endl;
 		}
 		int_direct+=-imag(pot_int)*C1*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 		int_non_orth+=-imag(pot_int)*C2*dim->pesos[n]*((dim->b)-(dim->a))/2.;
@@ -1517,6 +1528,7 @@ complejo GeneraGreenFunctionLigada(distorted_wave *regular,distorted_wave *irreg
 	autofuncion->puntos=puntos;
 	autofuncion->radio=radio_max;
 	ls=(regular->j*(regular->j+1.)-regular->l*(regular->l+1.)-0.75);
+	ls=0.;
 	// añade los términos Coulomb y spin-órbita *********************************************************************
 	for (i=0;i<puntos;i++) {
 		regular->r[i]=delta_r*(i+1);
