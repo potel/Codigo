@@ -1,6 +1,6 @@
 num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
 lmin 0      # momento angular mínimo. En una reacción tiene que ser 0.
-lmax 25  # momento angular máximo. En una reacción, número de ondas parciales.
+lmax 45  # momento angular máximo. En una reacción, número de ondas parciales.
 ltransfer 10 #momento angular transferido maximo. Usado para la captura neutronica.
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
@@ -46,7 +46,7 @@ T_N 53 # numero de neutrones del blanco
 
 
 proyectil a		# define cual es el proyectil
-energia_lab  10.
+energia_lab  25.5
 Qvalue   -2.2245	# Q-value de la reacción
 
 int_Qvalue   -6.7923  # Q-value intermedio (transferencia de una partícula)
@@ -65,13 +65,13 @@ a_Sn  -7.66247 # energía de extracción de un neutrón para el núcleo a-1 (deb
 B_Sn   -9.15432 # energía de extracción de un neutrón para el núcleo B-1 (debe ser<0, típicamente será la energía del estado del núcleo B con energía mas baja)
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
 
-r_Ccmin 1.     # valor mínimo de r_Cc
-r_Ccmax  30.    # valor máximo de r_Cc
+r_Ccmin 0.     # valor mínimo de r_Cc
+r_Ccmax  40.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
-r_A2max   30.    # valor máximo de r_A2
-rCc_puntos  5   # número de puntos de integración gaussiana para r_Cc
+r_A2max   40.    # valor máximo de r_A2
+rCc_puntos  40   # número de puntos de integración gaussiana para r_Cc
 rA2_puntos   5  # número de puntos de integración gaussiana para r_A2
-theta_puntos  5    # número de puntos de integrción gaussiana para theta
+theta_puntos  10    # número de puntos de integrción gaussiana para theta
 cross_puntos  200 # número de puntos en los que se evalúa la sección eficaz
 angle0 0.     # límite inferior de integración para la sección eficaz diferencial, en grados (defecto=0)
 angle1 180.     # límite superior de integración para la sección eficaz diferencial, en grados (defecto=180)

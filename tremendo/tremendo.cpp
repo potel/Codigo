@@ -1144,6 +1144,7 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 	// ********************************************** Cálculo para j=l+1/2 ***********************************************************
 	/* actualizacion del potencial con los términos de Coulomb, centrífugo y de spin-órbita*/
 	spinorbit = double((funcion_regular[0].l)); //Término de spi-órbita para j=l+0.5
+	spinorbit=0.;
 	for (i=0;i<puntos-1;i++) {
 		if(v->r[i]>v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
 				(funcion_regular[0].l*(funcion_regular[0].l+1.))*hbarx /(v->r[i]*v->r[i])
@@ -1215,6 +1216,7 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 	// ********************************************** Cálculo para j=l-1/2 ***********************************************************
 	/* actualizacion del potencial con los términos de Coulomb, centrífugo y de spin-órbita*/
 	spinorbit = -double((funcion_regular[0].l))-1.; //Término de spi-órbita para j=l-0.5
+	spinorbit=0.;
 	if (funcion_regular[0].l==0) spinorbit=0.;
 	for (i=0;i<puntos-1;i++) {
 		if(v->r[i]>v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+

@@ -403,7 +403,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusión: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=5.;energia_out<20.;energia_out+=100.)
+	for(energia_out=14.;energia_out<20.;energia_out+=100.)
 //	for (energia_trans=-0.1;energia_trans<16.;energia_trans+=0.5)
 	{
 		energia_trans=parm->energia_cm-energia_out-2.2245;
@@ -439,8 +439,8 @@ void AmplitudeCapture(struct parametros* parm)
 //								imag(parm->pot_opt[indx_neutron_target].pot[n])<<endl;
 				}
 		}
-//		for(l=0;l<parm->ltransfer;l++)
-		for(l=0;l<1;l++)
+		for(l=0;l<parm->ltransfer;l++)
+//		for(l=1;l<2;l++)
 		{
 			cout<<"L: "<<l<<endl;
 			funcion_regular_up[0].energia=energia_trans;
@@ -596,9 +596,9 @@ void AmplitudeCapture(struct parametros* parm)
 //			cout<<"theta: "<<theta*180./PI<<endl;
 			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
 			{
-				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm->lmax,theta,
+				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
 						direct,non_orth,cross_term,cross_up);
-				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm->lmax,theta,
+				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
 						direct,non_orth,cross_term,cross_down);
 				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
 				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
@@ -1317,7 +1317,7 @@ double AbsorcionPriorTest(double* direct,double* non_orth,double* cross,double* 
 	}
 	return direct[0]+non_orth[0]-cross[0];
 }
-double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,parametros_integral* dim,int lmax,
+double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,parametros_integral* dim,parametros* parm,
 		double theta, double* direct, double* non_orth, double* cross, double* cross_j)
 {
 	int n,m,lp,lpp,l,am;
@@ -1329,7 +1329,7 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 	int_direct=0.;
 	int_non_orth=0.;
 	int_cross=0.;
-	for(l=0;l<lmax;l++)
+	for(l=0;l<parm->ltransfer;l++)
 	{
 		cross_j[l]=0.;
 	}
@@ -1340,22 +1340,22 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 		C1=0.;
 		C2=0.;
 		B3=0.;
-		for(l=0;l<lmax;l++)
+		for(l=0;l<parm->ltransfer;l++)
 		{
 			C11=0.;
 			C22=0.;
 			B33=0.;
-			for(m=0;m<lmax;m++)
+			for(m=0;m<parm->lmax;m++)
 			{
 				am=abs(m);
 				B1=0.;
 				B2=0.;
-				for(lp=m;lp<lmax;lp++)
+				for(lp=m;lp<parm->lmax;lp++)
 				{
 					armonico=gsl_sf_legendre_sphPlm(lp,m,costheta);
 					B1+=wf[n][l][m][lp]*armonico;
 					B2+=non[n][l][m][lp]*armonico;
-					for(lpp=m;lpp<lmax;lpp++)
+					for(lpp=m;lpp<10;lpp++)
 					{
 						armonicop=gsl_sf_legendre_sphPlm(lpp,m,costheta);
 						aB3=non[n][l][m][lp]*conj(wf[n][l][m][lp])*armonico*armonicop;
@@ -1394,6 +1394,7 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 
 
 	return int_direct+int_non_orth+int_cross;
+//	return int_direct;
 }
 
 double ElasticBreakupAngular(complejo*** Teb,int lmax,double theta)
@@ -1528,7 +1529,6 @@ complejo GeneraGreenFunctionLigada(distorted_wave *regular,distorted_wave *irreg
 	autofuncion->puntos=puntos;
 	autofuncion->radio=radio_max;
 	ls=(regular->j*(regular->j+1.)-regular->l*(regular->l+1.)-0.75);
-	ls=0.;
 	// añade los términos Coulomb y spin-órbita *********************************************************************
 	for (i=0;i<puntos;i++) {
 		regular->r[i]=delta_r*(i+1);

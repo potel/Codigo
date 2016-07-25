@@ -161,7 +161,7 @@ void TestIntegral(distorted_wave* f,distorted_wave* g,estado* u,potencial* v,int
 		double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2);
 complejo SphericalHarmonic(int l, int m, double costheta, double phi);
 complejo FuncionAngular3(int lp,int ld,int l,int m,double costheta, double costheta_d,double phi, double phi_d);
-double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,parametros_integral* dim,int lmax,
+double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,parametros_integral* dim,parametros* parm,
 		double theta, double* direct, double* non_orth, double* cross, double* cross_j);
 void GeneraEstadoWide(estado *st,potencial_optico *potencial, double radio_max,int puntos,double q1q2,double masa);
 complejo GeneraGreenFunctionLigada(distorted_wave *regular,distorted_wave *irregular,potencial_optico *potencial,
