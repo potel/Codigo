@@ -3103,7 +3103,7 @@ void File2State(estado *st,parametros *parm)
 	{
 		pos=delta_r*(n+1);
 		st->r[n]=pos;
-		if(pos<=r[puntos-1]) st->wf[n]=interpola_dbl(wf,r,pos,puntos-1);
+		if(pos<=r[puntos-1]) st->wf[n]=interpola_dbl(wf,r,pos,puntos-1)/pos;
 		else st->wf[n]=0.;
 	}
 	st->puntos=parm->puntos;

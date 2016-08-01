@@ -2,7 +2,6 @@ void GeneraEstadoLigado(potencial v,estado* st);
 void Error(const char *text);
 void EscribePotencial(int puntos,potencial* pot,int numero_potenciales,struct parametros *parm);
 void EscribeEstados(int puntos,estado* st,int numero_estados,struct parametros *parm);
-void GeneraEstadoLigado(potencial v,estado* st);
 void LeeParametros(const char *fname, struct parametros* parm);
 void ReadParD(char *s,const char key[20], int *par);
 void ReadParF(char *s,const char key[20],double *par);

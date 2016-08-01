@@ -403,11 +403,11 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusión: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=14.;energia_out<20.;energia_out+=100.)
-//	for (energia_trans=-0.1;energia_trans<16.;energia_trans+=0.5)
+//	for(energia_out=5.;energia_out<20.;energia_out+=100.)
+	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
-		energia_trans=parm->energia_cm-energia_out-2.2245;
-//		energia_out=parm->energia_cm-energia_trans+parm->Qvalue;
+//		energia_trans=parm->energia_cm-energia_out-2.2245;
+		energia_out=parm->energia_cm-energia_trans+parm->Qvalue;
 		cout<<endl<<endl<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
 		cout<<"Energía de la particula emitida: "<<energia_out<<"  "<<"Energía de la particula transmitida: "<<energia_trans<<endl;
 		cout<<"Energía de la resonancia: "<<e_res<<endl;
@@ -439,8 +439,8 @@ void AmplitudeCapture(struct parametros* parm)
 //								imag(parm->pot_opt[indx_neutron_target].pot[n])<<endl;
 				}
 		}
-		for(l=0;l<parm->ltransfer;l++)
-//		for(l=1;l<2;l++)
+//		for(l=0;l<parm->ltransfer;l++)
+		for(l=0;l<1;l++)
 		{
 			cout<<"L: "<<l<<endl;
 			funcion_regular_up[0].energia=energia_trans;
@@ -520,6 +520,9 @@ void AmplitudeCapture(struct parametros* parm)
 
 					S[l]=GeneraDWspin(fl,&(parm->pot_opt[indx_ingreso]),parm->T_carga*parm->P_carga,parm->mu_Aa,
 							parm->radio,parm->puntos,parm->matching_radio,&fp1);
+//					double arn,brn;
+//					arn=0.;
+//					brn=20.;
 					for(n=0;n<dim1->num_puntos;n++){
 						rn=(dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
 						for(m=0;m<=lp;m++){
@@ -536,7 +539,7 @@ void AmplitudeCapture(struct parametros* parm)
 				dim1->b=parm->r_Ccmax;
 				if(energia_trans>0.) ElasticBreakup(Teb,rho,energia_trans,&(parm->pot_opt[indx_neutron_target]),dim1,parm,l,lp,k_n);
 				for(n=0;n<dim1->num_puntos;n++){
-					rn= (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
+					r1n= (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
 					for(m=0;m<=lp;m++){
 						phim[m]=0.;
 					}
@@ -548,7 +551,7 @@ void AmplitudeCapture(struct parametros* parm)
 					for(m=0;m<=lp;m++){
 						phi_down[n][l][m][lp]=(l/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
 					}
-//					if(lp==0) misc1<<rn<<"  "<<abs(phi_up[n][l][0][0])<<"  "<<abs(phi_down[n][l][0][0])<<endl;
+//					if(lp==0) misc1<<rn<<"  "<<real(phi_up[n][l][0][0])<<"  "<<imag(phi_down[n][l][0][0])<<endl;
 //					NeutronWaveResonant(phim,rho,st_fin,e_res,energia_trans,absorcion,
 //										dim1,parm,rn,l,lp);
 //					for(m=0;m<=lp;m++){
@@ -586,7 +589,7 @@ void AmplitudeCapture(struct parametros* parm)
 			inc_break_lmenos[l]=0.;
 			inc_break_lmas[l]=0.;
 		}
-		cout<<"calculando seccion eficaz diferencial"<<endl;
+//		cout<<"calculando seccion eficaz diferencial"<<endl;
 		for(n=0;n<parm->cross_puntos;n++)
 		{
 			theta=PI*double(n)/double(parm->cross_puntos);

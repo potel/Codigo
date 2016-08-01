@@ -18,8 +18,8 @@ void OneTrans(struct parametros* parm)
 	cout<<"********************************************************************************"<<endl;
 	int n,m,indx_pot_a,indx_pot_B,indx_st,indx_ingreso,indx_intermedio,indx_salida,indx_core,indx_scatt;
 	double energia,etrial,vmax,vmin,energia_ws,absorcion;
-	double* D0;
-	double* rms;
+	double* D0=new double[1];
+	double* rms=new double[1];
 	complejo***** Tlalb;
 	complejo*** TSpinless;
 	TSpinless=tensor_cmpx(parm->lmax,parm->lmax,20);
@@ -44,6 +44,7 @@ void OneTrans(struct parametros* parm)
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_salida]),parm->m_B,parm->m_b);
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_core]),parm->m_A,parm->m_b);
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_A,parm->m_b);
+	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_scatt]),parm->m_A,parm->m_b);
 	cout<<"Generando el estado del nucleo a"<<endl;
 	/* Genera niveles del núcleo 'a' */
 	for (n=0;n<parm->a_numst;n++)
@@ -104,6 +105,19 @@ void InicializaOneTrans(struct parametros* parm)
 	parm->k_Aa=sqrt(2.*parm->mu_Aa*AMU*parm->energia_cm)/HC;
 	parm->k_Bb=sqrt(2.*parm->mu_Bb*AMU*(parm->energia_cm+parm->Qvalue))/HC;
 	parm->eta=parm->Z_a*parm->Z_A*E2HC*parm->mu_Aa*AMU/(HC*parm->k_Aa);
+	cout<<" ma: "<<parm->m_a<<endl;
+	cout<<" mB: "<<parm->m_B<<endl;
+	cout<<" mb: "<<parm->m_b<<endl;
+	cout<<" masa proyectil: "<<masa_proyectil<<endl;
+	cout<<" mA: "<<parm->m_A<<endl;
+	cout<<" masa blanco: "<<masa_blanco<<endl;
+	cout<<" energia laboratorio: "<<parm->energia_lab<<" MeV"<<endl;
+	cout<<" energia CM: "<<parm->energia_cm<<" MeV"<<endl;
+	cout<<" Q-value: "<<parm->Qvalue<<" MeV"<<endl;
+	cout<<" masa reducida canal inicial: "<<parm->mu_Aa<<endl;
+	cout<<" masa reducida canal final: "<<parm->mu_Bb<<endl;
+	cout<<" momento  canal inicial: "<<parm->k_Aa<<" fm^-1"<<endl;
+	cout<<" momento  canal final: "<<parm->k_Bb<<" fm^-1"<<endl;
 }
 void CrossSectionOneTrans(complejo *****Tlalb,complejo* Sel,struct parametros *parm,
 		struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f)
@@ -902,6 +916,8 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
 //						angsum*estado_inicial*fr_aA*fr_bB)/
 //												integrando->coords->r_aA[n1][n2][n3])*
 //														(integrando->dim1)->pesos[n1]*(integrando->dim3)->pesos[n3];
+//				if (r_An<5.) misc1<<r_An<<"   "<<integrando->coords->r_bA[n1][n2][n3]<<
+//						"  "<<abs(remnant)<<"  "<<abs(optico)<<"  "<<abs(core)<<"  "<<r_bB-integrando->coords->r_bA[n1][n2][n3]<<"  "<<endl;
 				*Ij+=kernel;
 			}
 		}
