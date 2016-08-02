@@ -3401,7 +3401,7 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 
 
 
-	v1p=59.30+21.*(N-Z)/A-0.024*A;
+	v1p=59.30-21.*(N-Z)/A-0.024*A;
 	v2p=0.007228-1.48e-6*A;
 	v3p=1.994e-5-2.e-8*A;
 	v4p=7.e-9;
@@ -3418,7 +3418,7 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 	Vc=1.73/(rC*Z*pow(A,-0.333333333333));
 	Epf=-11.2814+0.02646*A;
 
-	Vv=v1p*(1-v2p*(E-Epf)+v3p*(E-Epf)*(E-Epf)-v4p*(E-Epf)*(E-Epf)*(E-Epf));
+	Vv=v1p*(1.-v2p*(E-Epf)+v3p*(E-Epf)*(E-Epf)-v4p*(E-Epf)*(E-Epf)*(E-Epf));
 	Wv=wp1*(E-Epf)*(E-Epf)/((E-Epf)*(E-Epf)+wp2*wp2);
 	rV=1.3039-0.4054*pow(A,(-1./3.));
 	aV=0.6778-1.487e-4*A;
@@ -3483,6 +3483,7 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 	pot_n->radioso=radioSO;
 	pot_n->radioWd=radioWd;
 	pot_n->rso=radioWd;
+	misc1<<E<<"  "<<Vv<<"  "<<Wd<<"  "<<Wv<<"  "<<Vso<<endl;
 //cout<<" radio: "<<Vv/(1.+exp((r-radioV)/aV))<<"   "<<Vv<<"   "<<r<<"   "<<radioV<<"   "<<1.+exp((r-radioV)/aV)<<endl;
 //	*potencial_n=-2.*(ls*Vso)*exp((r-radioSO)/aSO)/(r*aSO*(1.+exp((r-radioSO)/aSO))*(1.+exp((r-radioSO)/aSO)));
 

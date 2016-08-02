@@ -21,6 +21,7 @@ void Capture(struct parametros* parm)
 	cout<<"********************************************************************************"<<endl;
 	int n,m,indx_pot_a,indx_pot_B,indx_st,indx_ingreso,indx_intermedio,indx_salida,indx_core,indx_transfer,indx_scatt;
 	double energia,etrial,vmax,vmin,energia_ws,absorcion,carga_out,carga_trans,masa_out,masa_trans,masaT,masaP,masa_res;
+	cout<<" Energia laboratorio **********************"<<parm->energia_lab<<endl;
 	InicializaOneTrans(parm);
 	double* D0=new double[1];
 	double* rms=new double[1];
@@ -273,6 +274,12 @@ void AmplitudeCapture(struct parametros* parm)
 	if(parm->koning_delaroche==1) cout<<"*****************************************************"<<endl<<
 									    "***** Potencial neutron-blanco Koning-Delaroche *****"<<endl<<
 									    "*****************************************************"<<endl;
+//	for(energia_trans=0;energia_trans<200.;energia_trans+=1.)
+//	{
+//	KoningDelaroche(energia_trans,30.,26.,1.,&pot_p,
+//	&pot_n,0,0.,pot_dumb,&(parm->pot_opt[indx_neutron_target]));
+//	}
+//	exit(0);
 	///////////////////////////////////////////////////////////////////////////////
 	///                                                                         ///
 	///               Zona de test                                              ///
@@ -403,11 +410,11 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusión: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-//	for(energia_out=5.;energia_out<20.;energia_out+=100.)
-	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
+	for(energia_out=2.;energia_out<12.;energia_out+=0.2)
+//	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
-//		energia_trans=parm->energia_cm-energia_out-2.2245;
-		energia_out=parm->energia_cm-energia_trans+parm->Qvalue;
+		energia_trans=parm->energia_cm-energia_out-2.2245;
+//		energia_out=parm->energia_cm-energia_trans+parm->Qvalue;
 		cout<<endl<<endl<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
 		cout<<"Energía de la particula emitida: "<<energia_out<<"  "<<"Energía de la particula transmitida: "<<energia_trans<<endl;
 		cout<<"Energía de la resonancia: "<<e_res<<endl;
@@ -439,8 +446,13 @@ void AmplitudeCapture(struct parametros* parm)
 //								imag(parm->pot_opt[indx_neutron_target].pot[n])<<endl;
 				}
 		}
+		v=&(parm->pot_opt[indx_neutron_target]);
+		if(parm->remnant==1 && parm->prior==1) {
+			GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_salida],parm->T_carga*parm->P_carga,
+					parm->T_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
+		}
 //		for(l=0;l<parm->ltransfer;l++)
-		for(l=0;l<1;l++)
+		for(l=1;l<2;l++)
 		{
 			cout<<"L: "<<l<<endl;
 			funcion_regular_up[0].energia=energia_trans;
@@ -539,7 +551,7 @@ void AmplitudeCapture(struct parametros* parm)
 				dim1->b=parm->r_Ccmax;
 				if(energia_trans>0.) ElasticBreakup(Teb,rho,energia_trans,&(parm->pot_opt[indx_neutron_target]),dim1,parm,l,lp,k_n);
 				for(n=0;n<dim1->num_puntos;n++){
-					r1n= (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
+					rn= (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
 					for(m=0;m<=lp;m++){
 						phim[m]=0.;
 					}
@@ -589,34 +601,34 @@ void AmplitudeCapture(struct parametros* parm)
 			inc_break_lmenos[l]=0.;
 			inc_break_lmas[l]=0.;
 		}
-//		cout<<"calculando seccion eficaz diferencial"<<endl;
-		for(n=0;n<parm->cross_puntos;n++)
-		{
-			theta=PI*double(n)/double(parm->cross_puntos);
-			direct[0]=0.;
-			non_orth[0]=0.;
-			cross_term[0]=0.;
-//			cout<<"theta: "<<theta*180./PI<<endl;
-			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
-			{
-				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
-						direct,non_orth,cross_term,cross_up);
-				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
-						direct,non_orth,cross_term,cross_down);
-				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
-				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-//				for(l=0;l<parm->lmax;l++)
-//				{
-//					inc_break_lmenos[l]+=sigma_const*escala*rhoE*cross_down[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-//					inc_break_lmas[l]+=sigma_const*escala*rhoE*cross_up[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-//				}
-				misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
-						"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
-						sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
-			}
-		}
-//		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A);
+		cout<<"calculando seccion eficaz diferencial"<<endl;
+//		for(n=0;n<parm->cross_puntos;n++)
+//		{
+//			theta=PI*double(n)/double(parm->cross_puntos);
+//			direct[0]=0.;
+//			non_orth[0]=0.;
+//			cross_term[0]=0.;
+////			cout<<"theta: "<<theta*180./PI<<endl;
+//			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
+//			{
+//				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
+//						direct,non_orth,cross_term,cross_up);
+//				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
+//						direct,non_orth,cross_term,cross_down);
+//				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
+//				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+//				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+////				for(l=0;l<parm->lmax;l++)
+////				{
+////					inc_break_lmenos[l]+=sigma_const*escala*rhoE*cross_down[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+////					inc_break_lmas[l]+=sigma_const*escala*rhoE*cross_up[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+////				}
+//				misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
+//						"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
+//						sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
+//			}
+//		}
+////		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A);
 		cout<<"Sección eficaz NEB:  "<<cross_total<<"   Sección eficaz EB:  "<<cross_total_elasticb<<endl;
 	}
 /// First order approximation
