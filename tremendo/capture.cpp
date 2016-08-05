@@ -109,6 +109,8 @@ void AmplitudeCapture(struct parametros* parm)
 
 	parametros_integral *dim1=new parametros_integral;
 	parametros_integral *dim2=new parametros_integral;
+	parametros_integral *dim3=new parametros_integral;
+	parametros_integral *dim4=new parametros_integral;
 	complejo* exp_delta_coulomb_i=new complejo[parm->lmax];
 	complejo* exp_delta_coulomb_f=new complejo[parm->lmax];
 	double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
@@ -116,7 +118,7 @@ void AmplitudeCapture(struct parametros* parm)
 	double step,rn,energia_out,energia_trans,k_p,k_n,cross,elastic_cross,
 	theta,costheta,D0,rhoE,sigma_const,escala,r_source,velocidad,
 	cross_total,cross_total_elasticb,redfac,r_F,absorcion,e_res,rhoE_n,N_A,
-	carga_out,carga_trans,masa_out,masa_trans,masaT,masaP,masa_res;
+	carga_out,carga_trans,masa_out,masa_trans,masaT,masaP,masa_res,km,rAn;
 	distorted_wave* fl=new distorted_wave;
 	distorted_wave* gl=new distorted_wave;
 	distorted_wave* funcion_regular_up=new distorted_wave[2];
@@ -178,8 +180,16 @@ void AmplitudeCapture(struct parametros* parm)
 	dim2->a=0.;
 	dim2->b=PI;
 	dim2->num_puntos=parm->theta_puntos;
+	dim3->a=parm->r_A2min;
+	dim3->b=parm->r_A2max;
+	dim3->num_puntos=parm->rA2_puntos;
+	dim4->a=parm->r_A2min;
+	dim4->b=parm->r_A2max;
+	dim4->num_puntos=parm->rA2_puntos;
 	GaussLegendre(dim1->puntos,dim1->pesos,dim1->num_puntos);
 	GaussLegendre(dim2->puntos,dim2->pesos,dim2->num_puntos);
+	GaussLegendre(dim3->puntos,dim3->pesos,dim3->num_puntos);
+	GaussLegendre(dim4->puntos,dim4->pesos,dim4->num_puntos);
     D0=10.;
     redfac=2.*AMU/(HC*HC);
 	masaP=parm->P_carga+parm->P_N;
@@ -199,6 +209,8 @@ void AmplitudeCapture(struct parametros* parm)
 //    redfac=1.;
 	InicializaOneTrans(parm);
 	N_A=parm->m_A-parm->Z_A;
+	km=(parm->m_A+1.)/parm->m_A;
+
 	/*Selecciona los potenciales opticos en los distintos canales*/
 	for (n=0;n<parm->num_opt;n++)
 	{
@@ -274,9 +286,9 @@ void AmplitudeCapture(struct parametros* parm)
 	if(parm->koning_delaroche==1) cout<<"*****************************************************"<<endl<<
 									    "***** Potencial neutron-blanco Koning-Delaroche *****"<<endl<<
 									    "*****************************************************"<<endl;
-//	for(energia_trans=0;energia_trans<200.;energia_trans+=1.)
+//	for(energia_trans=0;energia_trans<10.;energia_trans+=0.001)
 //	{
-//	KoningDelaroche(energia_trans,30.,26.,1.,&pot_p,
+//	KoningDelaroche(energia_trans,parm->T_N,parm->T_carga,1.,&pot_p,
 //	&pot_n,0,0.,pot_dumb,&(parm->pot_opt[indx_neutron_target]));
 //	}
 //	exit(0);
@@ -410,7 +422,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusión: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=2.;energia_out<12.;energia_out+=0.2)
+	for(energia_out=4.;energia_out<8.;energia_out+=0.2)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		energia_trans=parm->energia_cm-energia_out-2.2245;
@@ -452,7 +464,7 @@ void AmplitudeCapture(struct parametros* parm)
 					parm->T_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
 		}
 //		for(l=0;l<parm->ltransfer;l++)
-		for(l=1;l<2;l++)
+		for(l=3;l<4;l++)
 		{
 			cout<<"L: "<<l<<endl;
 			funcion_regular_up[0].energia=energia_trans;
@@ -469,12 +481,12 @@ void AmplitudeCapture(struct parametros* parm)
 			funcion_irregular_up[1].j=l+parm->n_spin;
 			if (energia_trans<=0.) wronskiano_up=GeneraGreenFunctionLigada(&(funcion_regular_up[0]),&(funcion_irregular_up[0]),
 					&(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
-					masa_trans*masaT/(masa_res));
+					masa_trans*masaT/(masa_res),parm->n_spin);
 //			cout<<"quilo1"<<endl;
 			if (energia_trans>0.)
 			{
 				GeneraGreenFunction(funcion_regular_up,funcion_irregular_up,&(parm->pot_opt[indx_neutron_target]),
-						carga_trans*(parm->T_carga),masa_trans*masaT/(masa_res),parm->radio,parm->puntos,parm->matching_radio);
+						carga_trans*(parm->T_carga),masa_trans*masaT/(masa_res),parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
 				wronskiano_up=k_n;
 			}
 //			cout<<"  wronskiano up: "<<abs(wronskiano)<<endl;
@@ -497,11 +509,11 @@ void AmplitudeCapture(struct parametros* parm)
 			if (energia_trans<=0.) wronskiano_down=GeneraGreenFunctionLigada
 					(&(funcion_regular_down[1]),&(funcion_irregular_down[1]),
 							&(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
-							masa_trans*masaT/(masa_res));
+							masa_trans*masaT/(masa_res),parm->n_spin);
 			if (energia_trans>0.)
 			{
 				GeneraGreenFunction(funcion_regular_down,funcion_irregular_down,&(parm->pot_opt[indx_neutron_target]),
-						carga_trans*(parm->T_carga),masa_trans*masaT/(masa_res),parm->radio,parm->puntos,parm->matching_radio);
+						carga_trans*(parm->T_carga),masa_trans*masaT/(masa_res),parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
 				wronskiano_down=k_n;
 //				cout<<"funcion: "<<funcion_regular_down[1].wf[5]<<"  funcion2: "<<funcion_regular_down[0].wf[5]<<endl;
 			}
@@ -540,7 +552,14 @@ void AmplitudeCapture(struct parametros* parm)
 						for(m=0;m<=lp;m++){
 							rhom[m]=0.;
 						}
-					    SourcePrior2(rhom,nonm,fl,gl,st,v,optico,core,l,rn,parm,dim1,dim2);
+						rAn=km*rn;
+						dim3->a=rAn-parm->r_A2max;
+						dim3->b=rAn+parm->r_A2max;
+						if(dim3->a<0.) dim3->a=0.;
+						if(dim3->b>parm->radio) dim3->b=parm->radio-1.;
+						dim3->num_puntos=parm->rA2_puntos;
+						GaussLegendre(dim3->puntos,dim3->pesos,dim3->num_puntos);
+					    SourcePrior2(rhom,nonm,fl,gl,st,v,optico,core,l,rn,parm,dim3,dim2);
 						for(m=0;m<=lp;m++){
 							rho[n][l][m][lp]+=(redfac*rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*rhom[0]);
 							if(parm->prior==1) non[n][l][m][lp]+=(rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*nonm[0]);
@@ -555,13 +574,15 @@ void AmplitudeCapture(struct parametros* parm)
 					for(m=0;m<=lp;m++){
 						phim[m]=0.;
 					}
-					NeutronWave(phim,rho,&(funcion_regular_up[0]),&(funcion_irregular_up[0]),dim1,parm,rn,l,lp,ld,wronskiano_up);
-					for(m=0;m<=lp;m++){
-						phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
-					}
+//					NeutronWave(phim,rho,&(funcion_regular_up[0]),&(funcion_irregular_up[0]),dim1,parm,rn,l,lp,ld,wronskiano_up);
+//					for(m=0;m<=lp;m++){
+//						phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
+////						phi_up[n][l][m][lp]=phim[m];
+//					}
 					NeutronWave(phim,rho,&(funcion_regular_down[1]),&(funcion_irregular_down[1]),dim1,parm,rn,l,lp,ld,wronskiano_down);
 					for(m=0;m<=lp;m++){
-						phi_down[n][l][m][lp]=(l/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
+//						phi_down[n][l][m][lp]=(l/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
+						phi_down[n][l][m][lp]=phim[m];
 					}
 //					if(lp==0) misc1<<rn<<"  "<<real(phi_up[n][l][0][0])<<"  "<<imag(phi_down[n][l][0][0])<<endl;
 //					NeutronWaveResonant(phim,rho,st_fin,e_res,energia_trans,absorcion,
@@ -859,6 +880,7 @@ void SourcePrior2(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* 
 			sumanon+=rBp*seno*fl*gl*ud*coupling*
 					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
 //			if(n2==4) cout<<suma<<"  "<<abs(ud*(vpn-remnant))<<"  "<<abs(vpn)<<"  "<<abs(remnant)<<"  "<<abs(ud)<<endl;
+//			misc2<<abs(rAn-rAp)<<"  "<<abs(rBp*seno*fl*gl*ud*(vpn-remnant)*coupling)<<"  "<<abs(rBp*seno*fl*gl*ud*coupling)<<endl;
 		}
 	}
 //	for (n1 =0;n1<dim1->num_puntos; n1++) {
@@ -1522,7 +1544,7 @@ complejo SphericalHarmonic(int l, int m, double costheta, double phi)
 	return valor;
 }
 complejo GeneraGreenFunctionLigada(distorted_wave *regular,distorted_wave *irregular,potencial_optico *potencial,
-		double radio_max,int puntos,double q1q2,double masa) {
+		double radio_max,int puntos,double q1q2,double masa,double spin) {
 	int ND,i,wronsk_point;
 	complejo *sx=new complejo[puntos],*vs=new complejo[puntos];
 	complejo *v=new complejo[puntos],*vv=new complejo[puntos];
@@ -1543,7 +1565,8 @@ complejo GeneraGreenFunctionLigada(distorted_wave *regular,distorted_wave *irreg
 	irregular->radio=radio_max;
 	autofuncion->puntos=puntos;
 	autofuncion->radio=radio_max;
-	ls=(regular->j*(regular->j+1.)-regular->l*(regular->l+1.)-0.75);
+	ls=(regular->j*(regular->j+1.)-regular->l*(regular->l+1.)-spin*(spin+1.));
+	cout<<"ls en GeneraGreenFunctionLigada: "<<ls<<endl;
 	// añade los términos Coulomb y spin-órbita *********************************************************************
 	for (i=0;i<puntos;i++) {
 		regular->r[i]=delta_r*(i+1);

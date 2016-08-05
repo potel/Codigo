@@ -1,0 +1,127 @@
+Directory: optical/
+File:      kd-utility.readme (December 9, 2003)
+*****************************************
+
+
+                           kd-utility.tgz 
+                   (version September 30, 2002)
+
+         Utility code KD02 for calculating Koning-Delaroche local 
+                and global optical model potentials
+               (written and provided by Arjan Koning)
+         ********************************************************
+                                                       
+
+Content
+-------
+The code KD02 (Koning-Delaroche, 2002) calculates local and/or global 
+optical model parameters for neutrons and protons between 0.001 and 200 MeV. 
+All parameters have been published in:           
+A.J. Koning and J.P. Delaroche, Nucl. Phys. A 713 (2003), 231.
+
+Files
+-----
+kd-utility.tgz contains the following files
+
+README   : 
+input1   : sample input 1
+input2   : sample input 2
+kd02.f   : source code 
+omppar.n : table with neutron OMP parameters per nucleus
+omppar.p : table with proton OMP parameters per nucleus
+
+Format
+------
+Tarred and gzipped archive. On UNIX/Linux systems use
+
+tar xvzf kd-utility.tgz
+or
+gunzip kd-utility.tgz
+tar xvf kd-utility.tar
+
+to explode the archive. On MS Windows WinZip should be used instead.
+
+Installation
+------------
+kd02.f is written in FORTRAN-77.
+
+IMPORTANT: Change the pathname in subroutine tables at the following 
+lines.
+
+   if (k0.eq.1) then
+     ompfile='/home/p2634/akoning/phoenix/kd02/source/omppar.n'
+   else
+     ompfile='/home/p2634/akoning/phoenix/kd02/source/omppar.p'
+   endif             
+
+Next, you should be able to compile it, e.g.:
+
+f90 kd02.f -o kd02
+
+Test cases
+----------
+A) Sample case 1 (file input1):
+
+1      : particle type: neutrons=1  protons=2              (i7)
+ 26    : charge number of nucleus                          (i7)
+ 56    : mass number of nucleus                            (i7)
+  7.   : incident energy in MeV (E=0.: range of energies)  (f7.3)
+y      : local OMP (y, if available) or global OMP (n)     (a1)
+
+The OMP parameters for n + 56Fe at 7 MeV are calculated, using the LOCAL 
+optical model, i.e. as read from the file omppar.n
+
+If you do
+
+   kd02 < input1 > out1
+
+two files are created:
+
+out1 - contains the OMP parameters at 7 MeV as well as the integral values
+       (volume integrals and mean square radius)
+
+ecis.inp - the input file for the ECIS-code
+
+B) Sample case 2 (file input2):
+
+2      : particle type: neutrons=1  protons=2              (i7)
+ 82    : charge number of nucleus                          (i7)
+208    : mass number of nucleus                            (i7)
+       : incident energy in MeV (E=0.: range of energies)  (f7.3)
+n      : local OMP (y, if available) or global OMP (n)     (a1)             
+
+The OMP parameters for p + 208Pb at a whole range of energies are 
+calculated, using the GLOBAL optical model.
+
+If you do
+
+   kd02 < input2 > out2
+
+two files are created:
+
+out2 - contains the OMP parameters at all energies as well as the 
+       integral values (volume integrals and mean square radius)
+
+ecis.inp - the input file for the ECIS-code, at all different incident 
+           energies.
+
+NOTE:
+
+- The built-in energy grid for neutrons is somewhat different (i.e. 
+  starts at lower energies) from that of protons.
+
+- If you ask for a local OMP (by means of a 'y' on the last input line)   it is not available in the omppar.n(p) file, the built-in global OMP is
+  automatically used.
+
+Platform
+--------
+Presumably any
+
+
+Contact
+-------
+A. Koning, Nuclear Research and Consultancy Group
+Westerduinweg 3, P.O. Box 25, NL-1755 ZG  Petten, The Netherlands
+e-mail: koning@nrg-nl.com    
+
+

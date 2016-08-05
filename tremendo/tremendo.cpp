@@ -1110,7 +1110,7 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 Función de Green
  *****************************************************************************/
 complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* funcion_irregular,potencial_optico *v, double q1q2,
-		double masa, double radio_max,int puntos,double radio_match)
+		double masa, double radio_max,int puntos,double radio_match,double spin)
  {
 	int i, i_1, i_2;
 	double hbarx, dd, radio_1, radio_2, x, y, ex1, ex2, etac, q,delta_r,spinorbit;
@@ -1127,24 +1127,26 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 	etac=q1q2*masa*E2HC*AMU/(HC*q);
 	funcion_regular[0].puntos=puntos;
 	funcion_regular[0].radio=radio_max;
-	funcion_regular[0].j=funcion_regular[0].l+0.5;
+	funcion_regular[0].j=funcion_regular[0].l+spin;
 	funcion_regular[1].puntos=puntos;
 	funcion_regular[1].radio=radio_max;
-	funcion_regular[1].j=funcion_regular[0].l-0.5;
-    if(funcion_regular[0].l==0) funcion_regular[1].j=0.5;
+	funcion_regular[1].j=funcion_regular[0].l-spin;
+    if(funcion_regular[1].l==0) funcion_regular[1].j=spin;
 
 	funcion_irregular[0].puntos=puntos;
 	funcion_irregular[0].radio=radio_max;
-	funcion_irregular[0].j=funcion_irregular[0].l+0.5;
+	funcion_irregular[0].j=funcion_irregular[0].l+spin;
 	funcion_irregular[1].puntos=puntos;
 	funcion_irregular[1].radio=radio_max;
-	funcion_irregular[1].j=funcion_irregular[0].l-0.5;
-	if(funcion_irregular[0].l==0) funcion_irregular[1].j=0.5;
+	funcion_irregular[1].j=funcion_irregular[0].l-spin;
+	if(funcion_irregular[1].l==0) funcion_irregular[1].j=spin;
 //misc2<<" l: "<<funcion_regular[0].l<<"    energia: "<<funcion_regular[0].energia<<"********************************************************************"<<endl;
 	// ********************************************** Cálculo para j=l+1/2 ***********************************************************
 	/* actualizacion del potencial con los términos de Coulomb, centrífugo y de spin-órbita*/
-	spinorbit = double((funcion_regular[0].l)); //Término de spi-órbita para j=l+0.5
-	spinorbit=0.;
+	spinorbit =(funcion_regular[0].j*(funcion_regular[0].j+1.)-funcion_regular[0].l*(funcion_regular[0].l+1.)-spin*(spin+1.));
+//	cout<<"spinorbit en GeneraGreenFunction: "<<ls<<"  ";
+//	spinorbit = double((funcion_regular[0].l)); //Término de spi-órbita para j=l+0.5
+//	spinorbit=0.;
 	for (i=0;i<puntos-1;i++) {
 		if(v->r[i]>v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
 				(funcion_regular[0].l*(funcion_regular[0].l+1.))*hbarx /(v->r[i]*v->r[i])
@@ -1215,8 +1217,9 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 
 	// ********************************************** Cálculo para j=l-1/2 ***********************************************************
 	/* actualizacion del potencial con los términos de Coulomb, centrífugo y de spin-órbita*/
-	spinorbit = -double((funcion_regular[0].l))-1.; //Término de spi-órbita para j=l-0.5
-	spinorbit=0.;
+//	spinorbit = -double((funcion_regular[0].l))-1.; //Término de spi-órbita para j=l-0.5
+	spinorbit =(funcion_regular[0].j*(funcion_regular[0].j+1.)-funcion_regular[0].l*(funcion_regular[0].l+1.)-spin*(spin+1.));
+//	spinorbit=0.;
 	if (funcion_regular[0].l==0) spinorbit=0.;
 	for (i=0;i<puntos-1;i++) {
 		if(v->r[i]>v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
@@ -2074,7 +2077,7 @@ void Successive(struct parametros *parm,complejo*** Clalb)
 										ints->funcion_irregular[1].l=lc;
 										if(lc==abs(la-P)) cout<<"Energía dw intermedia: "<<ints->funcion_regular[0].energia<<endl;
 										GeneraGreenFunction(ints->funcion_regular,ints->funcion_irregular,&(parm->pot_opt[indx_intermedio]),
-												parm->Z_A*parm->Z_a,parm->mu_Cc,parm->radio,parm->puntos,parm->matching_radio);
+												parm->Z_A*parm->Z_a,parm->mu_Cc,parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
 										SChica(ints,P,la,lc,schica_mas,schica_menos);
 										SGrande(intS,K,la,lb,lc,sgrande_mas,sgrande_menos);
 										Clalb[la][lb][0]+=fase*pow(I,la-lb)*ints->inicial_st->spec*intS->final_st->spec*
@@ -2464,7 +2467,7 @@ void SuccessiveTipoLi(struct parametros *parm,complejo*** Clalb)
 										ints->funcion_irregular[1].l=lc;
 										if(lc==abs(la-P)) cout<<"Energía dw intermedia: "<<ints->funcion_regular[0].energia<<endl;
 										GeneraGreenFunction(ints->funcion_regular,ints->funcion_irregular,&(parm->pot_opt[indx_intermedio]),
-												parm->Z_A*parm->Z_a,parm->mu_Cc,parm->radio,parm->puntos,parm->matching_radio);
+												parm->Z_A*parm->Z_a,parm->mu_Cc,parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
 										SChica(ints,P,la,lc,schica_mas,schica_menos);
 										SGrande(intS,K,la,lb,lc,sgrande_mas,sgrande_menos);
 										Clalb[la][lb][0]+=anm[estado1][estado2]*fase*pow(I,la-lb)*
@@ -3424,7 +3427,7 @@ void Polarization(parametros* parm)
 	gl[1].j=0+parm->n_spin;
 	cout<<"energia: "<<fl[0].energia<<endl;
 	GeneraGreenFunction(fl,gl,&(parm->pot_opt[indx_salida]),
-							0.,parm->m_A/(parm->m_A+1.),parm->radio,parm->puntos,parm->matching_radio);
+							0.,parm->m_A/(parm->m_A+1.),parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
 	for(nR=0;nR<num_rd;nR++)
 	{
 		rd[nR]=step_rd*(nR+1);

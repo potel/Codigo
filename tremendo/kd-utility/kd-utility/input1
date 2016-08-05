@@ -1,0 +1,5 @@
+1      : particle type: neutrons=1  protons=2              (i7)
+ 26    : charge number of nucleus                          (i7)
+ 56    : mass number of nucleus                            (i7)
+  7.   : incident energy in MeV (E=0.: range of energies)  (f7.3)
+y      : local OMP (y, if available) or global OMP (n)     (a1)      

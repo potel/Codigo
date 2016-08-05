@@ -22,7 +22,7 @@ void GeneraCoordenadasSuccessive(parametros *parm_rec, coordenadas_successive* c
 complejo GeneraDW(distorted_wave* funcion,potencial_optico *v, double q1q2, double masa,double radio_max,
 		int puntos,double radio_match,ofstream* fp);
 complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* funcion_irregular,potencial_optico *v, double q1q2,
-		double masa, double radio_max,int puntos,double radio_match);
+		double masa, double radio_max,int puntos,double radio_match,double spin);
 void SChica(integrando_schica *integrando,int P,int la,int lc,complejo* schica_mas,complejo* schica_menos);
 complejo interpola_cmpx(complejo* funcion,double* r,double posicion,int puntos);
 double interpola_dbl(double* funcion,double* r,double posicion,int puntos);
@@ -164,7 +164,7 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 		double theta, double* direct, double* non_orth, double* cross, double* cross_j);
 void GeneraEstadoWide(estado *st,potencial_optico *potencial, double radio_max,int puntos,double q1q2,double masa);
 complejo GeneraGreenFunctionLigada(distorted_wave *regular,distorted_wave *irregular,potencial_optico *potencial,
-		double radio_max,int puntos,double q1q2,double masa);
+		double radio_max,int puntos,double q1q2,double masa,double spin);
 complejo NeutronWaveTest(complejo* phi,complejo* rho,distorted_wave* fl,distorted_wave* Pl,
 		parametros_integral* dim,parametros* parm,double rBn,int l,int lp,int ld,complejo wronskiano);
 double AbsorcionPriorTest(double* direct,double* non_orth,double* cross,double* r,int puntos,
