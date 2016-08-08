@@ -1,6 +1,6 @@
 num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
 lmin 0      # momento angular mínimo. En una reacción tiene que ser 0.
-lmax 10 # momento angular máximo. En una reacción, número de ondas parciales.
+lmax 15 # momento angular máximo. En una reacción, número de ondas parciales.
 ltransfer 6 #momento angular transferido maximo. Usado para la captura neutronica.
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
@@ -48,8 +48,8 @@ res_N 53
 
 
 proyectil a		# define cual es el proyectil
-energia_lab  10.
-Qvalue   2.3755# Q-value de la reacción
+energia_lab  10.22
+Qvalue   -2.2245 # Q-value de la reacción
 
 int_Qvalue   -6.7923  # Q-value intermedio (transferencia de una partícula)
 
@@ -127,7 +127,7 @@ DifusividadImaginarioSuperficie  0.64
 ***************
 
 id 1
-RealVolumen   60.6
+RealVolumen   160.6
 ImaginarioVolumen   0.
 RealSpinOrbita     	0.
 ImaginarioSpinOrbita   0.                      	
@@ -145,7 +145,7 @@ DifusividadImaginarioSuperficie  0.47
 *******************
 
 id 2
-RealVolumen   48.8
+RealVolumen   60.8
 ImaginarioVolumen   0
 RealSpinOrbita     	0.
 ImaginarioSpinOrbita   0.                      	

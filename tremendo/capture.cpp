@@ -422,11 +422,11 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusión: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=2.;energia_out<8.;energia_out+=0.5)
+	for(energia_out=3.;energia_out<8.5;energia_out+=0.2)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm=parm->energia_cm-((parm->T_carga+parm->T_N)*energia_out/(1.+(parm->T_carga+parm->T_N)))
-				-2.2245;
+				-2.2;
 //		energia_trans=parm->energia_cm-energia_out-2.2245;
 		energia_trans=(parm->T_carga+parm->T_N+1.)*Ecm/(parm->T_carga+parm->T_N);
 //		energia_out=parm->energia_cm-energia_trans+parm->Qvalue;
@@ -446,6 +446,7 @@ void AmplitudeCapture(struct parametros* parm)
 		if(parm->koning_delaroche==1){
 				for(n=0;n<parm->puntos;n++){
 					rn=step*(n+1.);
+//					cout<<endl<<"neutron"<<endl;
 					KoningDelaroche(energia_trans,parm->T_N,parm->T_carga,rn,&pot_p,
 					&pot_n,0,0.,pot_dumb,&(parm->pot_opt[indx_neutron_target]));
 //					CH89(energia_trans,parm->T_N,parm->T_carga,rn,&pot_p,
@@ -454,13 +455,13 @@ void AmplitudeCapture(struct parametros* parm)
 					parm->pot_opt[indx_neutron_target].pot[n]=pot_n;
 //					if(carga_trans>0.1) parm->pot_opt[indx_neutron_target].pot[n]=pot_p;
 //					else  parm->pot_opt[indx_neutron_target].pot[n]=pot_n;
-
-//					KoningDelaroche(energia_out,parm->T_N,parm->T_carga,rn,&pot_p,
-//					&pot_n,0,0.,&(parm->pot_opt[indx_salida]),pot_dumb);
+//					cout<<"proton"<<endl;
+					KoningDelaroche(energia_out,parm->T_N,parm->T_carga,rn,&pot_p,
+					&pot_n,0,0.,&(parm->pot_opt[indx_salida]),pot_dumb);
 //					KoningDelaroche(energia_out,40.,50.,rn,&pot_p,
 //					&pot_n,0,0.,&(parm->pot_opt[indx_salida]),pot_dumb);
-//					parm->pot_opt[indx_salida].r[n]=rn;
-//					parm->pot_opt[indx_salida].pot[n]=pot_p;
+					parm->pot_opt[indx_salida].r[n]=rn;
+					parm->pot_opt[indx_salida].pot[n]=pot_p;
 //					if(carga_out>0.1) {parm->pot_opt[indx_salida].pot[n]=pot_p;}
 //					else  parm->pot_opt[indx_salida].pot[n]=pot_n;
 //			misc1<<parm->pot_opt[indx_salida].r[n]<<"  "<<-real(parm->pot_opt[indx_salida].pot[n])<<"  "<<
@@ -494,14 +495,14 @@ void AmplitudeCapture(struct parametros* parm)
 			if (energia_trans<=0.) wronskiano_up=GeneraGreenFunctionLigada(&(funcion_regular_up[0]),&(funcion_irregular_up[0]),
 					&(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
 					masa_trans*masaT/(masa_res),parm->n_spin);
-//			cout<<"quilo1"<<endl;
 			if (energia_trans>0.)
 			{
+//				GeneraGreenFunction(funcion_regular_up,funcion_irregular_up,&(parm->pot_opt[indx_neutron_target]),
+//						carga_trans*(parm->T_carga),masa_trans*masaT/(masa_res),parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
 				GeneraGreenFunction(funcion_regular_up,funcion_irregular_up,&(parm->pot_opt[indx_neutron_target]),
-						carga_trans*(parm->T_carga),masa_trans*masaT/(masa_res),parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
+						carga_trans*(parm->T_carga),1.,parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
 				wronskiano_up=k_n;
 			}
-//			cout<<"  wronskiano up: "<<abs(wronskiano)<<endl;
 			funcion_regular_down[1].energia=energia_trans;
 			funcion_irregular_down[1].energia=energia_trans;
 			funcion_regular_down[1].l=l;
@@ -524,12 +525,12 @@ void AmplitudeCapture(struct parametros* parm)
 							masa_trans*masaT/(masa_res),parm->n_spin);
 			if (energia_trans>0.)
 			{
+//				GeneraGreenFunction(funcion_regular_down,funcion_irregular_down,&(parm->pot_opt[indx_neutron_target]),
+//						carga_trans*(parm->T_carga),masa_trans*masaT/(masa_res),parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
 				GeneraGreenFunction(funcion_regular_down,funcion_irregular_down,&(parm->pot_opt[indx_neutron_target]),
-						carga_trans*(parm->T_carga),masa_trans*masaT/(masa_res),parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
+						carga_trans*(parm->T_carga),1.,parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
 				wronskiano_down=k_n;
-//				cout<<"funcion: "<<funcion_regular_down[1].wf[5]<<"  funcion2: "<<funcion_regular_down[0].wf[5]<<endl;
 			}
-//			cout<<"  wronskiano down: "<<abs(wronskiano)<<endl;
 //			for(lp=3;lp<4;lp++)
 			for(lp=0;lp<parm->lmax;lp++)
 			{
@@ -537,7 +538,7 @@ void AmplitudeCapture(struct parametros* parm)
 				gl->l=lp;
 				gl->spin=0.;
 				gl->j=lp;
-				GeneraDWspin(gl,&(parm->pot_opt[indx_salida]),parm->res_carga*carga_out,masa_out*masa_res/(masa_res+masa_out),
+				GeneraDWspin(gl,&(parm->pot_opt[indx_salida]),parm->res_carga*carga_out,masa_out*masaT/(masa_res),
 						parm->radio,parm->puntos,parm->matching_radio,&fp2);
 				for(n=0;n<dim1->num_puntos;n++){
 					for(m=0;m<=lp;m++){

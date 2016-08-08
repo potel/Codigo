@@ -1140,13 +1140,9 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 	funcion_irregular[1].radio=radio_max;
 	funcion_irregular[1].j=funcion_irregular[0].l-spin;
 	if(funcion_irregular[1].l==0) funcion_irregular[1].j=spin;
-//misc2<<" l: "<<funcion_regular[0].l<<"    energia: "<<funcion_regular[0].energia<<"********************************************************************"<<endl;
 	// ********************************************** Cálculo para j=l+1/2 ***********************************************************
 	/* actualizacion del potencial con los términos de Coulomb, centrífugo y de spin-órbita*/
 	spinorbit =(funcion_regular[0].j*(funcion_regular[0].j+1.)-funcion_regular[0].l*(funcion_regular[0].l+1.)-spin*(spin+1.));
-//	cout<<"spinorbit en GeneraGreenFunction: "<<ls<<"  ";
-//	spinorbit = double((funcion_regular[0].l)); //Término de spi-órbita para j=l+0.5
-//	spinorbit=0.;
 	for (i=0;i<puntos-1;i++) {
 		if(v->r[i]>v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
 				(funcion_regular[0].l*(funcion_regular[0].l+1.))*hbarx /(v->r[i]*v->r[i])
@@ -1167,7 +1163,6 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 		funcion_regular[0].wf[i+1]=(2.*(1.-0.416666667*dd*(-potencial[i]+funcion_regular[0].energia))
 				*funcion_regular[0].wf[i]-(1.+0.083333333*dd*(-potencial[i-1]+funcion_regular[0].energia))*funcion_regular[0].wf[i-1])
 				/(1.+0.083333333*dd*(-potencial[i+1]+funcion_regular[0].energia));
-//		misc1<<delta_r*(i+1.)<<"   "<<real(funcion_regular[0].wf[i])<<"   "<<abs(potencial[i])<<"   "<<funcion_regular[0].energia<<endl;
 	}
 
 	radio_1=radio_match;
@@ -1207,18 +1202,13 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 		funcion_irregular[0].r[i]=delta_r*(i+1.);
 		gsl_sf_coulomb_wave_FG_e(etac,q*funcion_regular[0].r[i],funcion_irregular[0].l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
 		funcion_regular[0].wf[i]= factor_regular*funcion_regular[0].wf[i];
-//		misc4<<funcion_regular[0].r[i]<<"   "<<real(funcion_regular[0].wf[i])<<"   "<<real(funcion_irregular[0].wf[i])<<endl;
-//		misc2<<funcion_regular[0].r[i]<<"  "<<abs(funcion_regular[0].wf[i])<<"  "<<
-//				abs(funcion_irregular[0].wf[i])<<endl;
 	}
 
 
 
 	// ********************************************** Cálculo para j=l-1/2 ***********************************************************
 	/* actualizacion del potencial con los términos de Coulomb, centrífugo y de spin-órbita*/
-//	spinorbit = -double((funcion_regular[0].l))-1.; //Término de spi-órbita para j=l-0.5
 	spinorbit =(funcion_regular[1].j*(funcion_regular[1].j+1.)-funcion_regular[1].l*(funcion_regular[1].l+1.)-spin*(spin+1.));
-//	spinorbit=0.;
 	if (funcion_regular[1].l==0) spinorbit=0.;
 	for (i=0;i<puntos-1;i++) {
 		if(v->r[i]>v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
@@ -1230,6 +1220,7 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 				-2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
 		/((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
 //		misc2<<v->r[i]<<"  "<<real(potencial[i])<<"  "<<imag(potencial[i])<<endl;
+
 	}
 	// ********************************************* Solucion regular j=l-1/2 **********************************************************
 	funcion_regular[1].wf[0]=1.e-10;
