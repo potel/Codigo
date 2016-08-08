@@ -3337,9 +3337,11 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 {
 	double A=N+Z;
 	double v1p,v2p,v3p,v4p,wp1,wp2,dp1,dp2,dp3,vpso1,vpso2,wpso1,wpso2,rC,Vc,
-	Epf,Vv,Wv,rV,aV,Wd,rD,aD,rSO,aSO,rwd,awd,radioV,radioW,radioWd,radio_coul,derivada,Wdd,delta_E,Vso,Wso,radioSO,ls;
+	Epf,Vv,Wv,rV,aV,Wd,rD,aD,rSO,aSO,rwd,awd,radioV,radioW,radioWd,radio_coul,
+	derivada,Wdd,delta_E,Vso,Wso,radioSO,ls,alpha,DVc;
 	ls=(j*(j+1.)-l*(l+1.)-0.75);
-	v1p=59.30+21*(N-Z)/A-0.024*A;
+	alpha=(N-Z)/A;
+	v1p=59.30+(21.*(N-Z)/A)-0.024*A;
 	v2p=0.007067+4.23e-6*A;
 	v3p=1.729e-5+1.136e-8*A;
 	v4p=7e-9;
@@ -3355,7 +3357,8 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 	rC=1.198+0.697*pow(A,(-2./3.))+12.994*pow(A,(-5./3.));
 	Vc=1.73/(rC*Z*pow(A,-0.333333333333));
 	Epf=-8.4075 + 0.01378*A;
-	Vv=v1p*(1-v2p*(E-Epf)+v3p*(E-Epf)*(E-Epf)-v4p*(E-Epf)*(E-Epf)*(E-Epf))+Vc*v1p*(v2p-2*v3p*(E-Epf)+3*v4p*(E-Epf)*(E-Epf));
+	Vv=v1p*(1.-v2p*(E-Epf)+v3p*(E-Epf)*(E-Epf)-v4p*(E-Epf)*(E-Epf)*(E-Epf))
+			+Vc*v1p*(v2p-2.*v3p*(E-Epf)+3.*v4p*(E-Epf)*(E-Epf));
 	Wv=wp1*(E-Epf)*(E-Epf)/((E-Epf)*(E-Epf)+wp2*wp2);
 	rV=1.3039-0.4054*pow(A,(-1./3.));
 	aV=0.6778-1.487e-4*A;
@@ -3373,7 +3376,7 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 	radioW=rV*pow(A,0.33333333333333);
 	radioWd=rwd*pow(A,0.33333333333333);
 	radio_coul=rC*pow(A,0.33333333333333);
-
+//	cout<<"Vv: "<<Vv<<endl;
 	if(j==0.)
 		*potencial_p=-Vv/(1.+exp((r-radioV)/aV))-I*Wv/(1.+exp((r-radioW)/aV))
 		-4.*I*Wd*exp((r-radioWd)/awd)/((1.+exp((r-radioWd)/awd))*(1.+exp((r-radioWd)/awd)));
@@ -3381,7 +3384,9 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 		*potencial_p=-Vv/(1.+exp((r-radioV)/aV))-I*Wv/(1.+exp((r-radioW)/aV))
 		-4.*I*Wd*exp((r-radioWd)/awd)/((1.+exp((r-radioWd)/awd))*(1.+exp((r-radioWd)/awd)))
 		-2.*(ls*Vso)*exp((r-radioSO)/aSO)/(r*aSO*(1.+exp((r-radioSO)/aSO))*(1.+exp((r-radioSO)/aSO)));
-//misc2<<r<<"  "<<real(*potencial_p)<<"  "<<imag(*potencial_p)<<endl;
+//   misc2<<r<<"  "<<real(*potencial_p)<<"  "<<imag(*potencial_p)<<endl;
+//	cout<<" rV: "<<rV<<" aV: "<<aV<<" v1p: "<<v1p<<" v2p: "<<v2p<<" v3p: "<<v3p<<" Epf: "<<Epf<<endl;
+
 	pot_p->V=Vv;
 	pot_p->Vso=2.*Vso;
 	pot_p->W=Wv;
@@ -3454,7 +3459,7 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 //	if(Wd<=4.) Wd=4.;
 	////////////////////////////////////////////////
 
-
+//	cout<<" rV: "<<rV<<" aV: "<<aV<<" v1p: "<<v1p<<" v2p: "<<v2p<<" v3p: "<<v3p<<" Epf: "<<Epf<<endl;
 	if(j==0.)
 	*potencial_n=-Vv/(1.+exp((r-radioV)/aV))-I*Wv/(1.+exp((r-radioW)/aV))
 			-4.*I*Wd*exp((r-radioWd)/awd)/((1.+exp((r-radioWd)/awd))*(1.+exp((r-radioWd)/awd)));

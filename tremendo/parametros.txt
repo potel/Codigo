@@ -1,7 +1,7 @@
 num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
 lmin 0      # momento angular mínimo. En una reacción tiene que ser 0.
 lmax 10 # momento angular máximo. En una reacción, número de ondas parciales.
-ltransfer 10 #momento angular transferido maximo. Usado para la captura neutronica.
+ltransfer 6 #momento angular transferido maximo. Usado para la captura neutronica.
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
 puntos 2000    # número de puntos en los que se definen las funciones.
@@ -62,7 +62,7 @@ dw_spinA 0.   #spin de las ondas distorsionadas entrantes
 dw_spinB 0.   #spin de las ondas distorsionadas salientes
 
 lambda  0.	# momento angular del cluster transferido
-n_spin 0.5
+n_spin 0.
 a_Sn  -7.66247 # energía de extracción de un neutrón para el núcleo a-1 (debe ser<0, típicamente será la energía del estado del núcleo a con energía mas baja)
 B_Sn   -4.24091 # energía de extracción de un neutrón para el núcleo B-1 (debe ser<0, típicamente será la energía del estado del núcleo B con energía mas baja)
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
@@ -127,7 +127,7 @@ DifusividadImaginarioSuperficie  0.64
 ***************
 
 id 1
-RealVolumen   50.6
+RealVolumen   60.6
 ImaginarioVolumen   0.
 RealSpinOrbita     	0.
 ImaginarioSpinOrbita   0.                      	
