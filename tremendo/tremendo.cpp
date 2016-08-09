@@ -339,8 +339,12 @@ void LeeParametros(const char *fname,struct parametros *x)
 		ReadParD(aux,"lmax_RN",&(x->lmax_RN));
 		ReadParF(aux,"m_A",&(x->m_A));
 		ReadParF(aux,"m_a",&(x->m_a));
+		ReadParF(aux,"m_B",&(x->m_B));
+		ReadParF(aux,"m_b",&(x->m_b));
 		ReadParF(aux,"Z_A",&(x->Z_A));
 		ReadParF(aux,"Z_a",&(x->Z_a));
+		ReadParF(aux,"Z_B",&(x->Z_A));
+		ReadParF(aux,"Z_b",&(x->Z_a));
 		ReadParF(aux,"energia_lab",&(x->energia_lab));
 		ReadParF(aux,"Qvalue",&(x->Qvalue));
 		ReadParF(aux,"int_Qvalue",&(x->int_Qvalue));

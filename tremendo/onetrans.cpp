@@ -92,9 +92,9 @@ void OneTrans(struct parametros* parm)
 void InicializaOneTrans(struct parametros* parm)
 {
 	double masa_proyectil,masa_blanco;
-	parm->m_B=parm->m_A+1.;
-	parm->m_b=parm->m_a-1.;
-	if (parm->m_b<1.) Error("m_b menor que 1");
+//	parm->m_B=parm->m_A+1.;
+//	parm->m_b=parm->m_a-1.;
+//	if (parm->m_b<1.) Error("m_b menor que 1");
 	if (!strcmp(parm->proyectil,"a")) {masa_proyectil=parm->m_a; masa_blanco=parm->m_A;}
 	if (!strcmp(parm->proyectil,"A")) {masa_proyectil=parm->m_A; masa_blanco=parm->m_a;}
 	if ((strcmp(parm->proyectil,"A")!=0) && ((strcmp(parm->proyectil,"a")!=0))) Error("Proyectil debe ser 'a' o 'A' ");

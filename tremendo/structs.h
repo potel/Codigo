@@ -98,6 +98,8 @@ double m_B;
 double m_b;
 double Z_a;
 double Z_A;
+double Z_b;
+double Z_B;
 double energia_lab;
 double energia_cm;
 double Qvalue;

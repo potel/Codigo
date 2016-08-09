@@ -31,19 +31,27 @@ base1  20   # tamaños de la base usada para describir los estados de partícula
 base2  20
 base3  20
 
-m_A    93   # Masas
-m_a    2
+m_A    92.906373   # Masas
+m_a    2.014101
+m_B	   93.907278
+m_b    1.007825
+n1_masa 1.008664
+T_masa 93.907278
+P_masa 2.014101
+res_masa  93.907278  
 
 Z_a    1  # cargas
 Z_A     41
-
+Z_b  1
+Z_B   41
 P_carga 1
-P_N 1
-T_carga 41
-T_N 52
 res_carga 41
-res_N 53
+T_carga 41
 
+
+P_N 1
+T_N 52
+res_N 53
 
 
 
