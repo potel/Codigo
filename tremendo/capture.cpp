@@ -289,7 +289,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusión: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=3.;energia_out<8.5;energia_out+=0.2)
+	for(energia_out=5.;energia_out<7.;energia_out+=200.)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm=parm->energia_cm-((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)))
@@ -437,15 +437,15 @@ void AmplitudeCapture(struct parametros* parm)
 					for(m=0;m<=lp;m++){
 						phim[m]=0.;
 					}
-					NeutronWave(phim,rho,&(funcion_regular_up[0]),&(funcion_irregular_up[0]),dim1,parm,rn,l,lp,ld,wronskiano_up);
-					for(m=0;m<=lp;m++){
-						phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
+//					NeutronWave(phim,rho,&(funcion_regular_up[0]),&(funcion_irregular_up[0]),dim1,parm,rn,l,lp,ld,wronskiano_up);
+//					for(m=0;m<=lp;m++){
+////						phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
 //						phi_up[n][l][m][lp]=phim[m];
-					}
+//					}
 					NeutronWave(phim,rho,&(funcion_regular_down[1]),&(funcion_irregular_down[1]),dim1,parm,rn,l,lp,ld,wronskiano_down);
 					for(m=0;m<=lp;m++){
-						phi_down[n][l][m][lp]=(l/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
-//						phi_down[n][l][m][lp]=phim[m];
+//						phi_down[n][l][m][lp]=(l/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
+						phi_down[n][l][m][lp]=phim[m];
 					}
 //					if(lp==0) misc1<<rn<<"  "<<real(phi_up[n][l][0][0])<<"  "<<imag(phi_down[n][l][0][0])<<endl;
 //					NeutronWaveResonant(phim,rho,st_fin,e_res,energia_trans,absorcion,
@@ -487,32 +487,32 @@ void AmplitudeCapture(struct parametros* parm)
 			inc_break_lmas[l]=0.;
 		}
 		cout<<"calculando seccion eficaz diferencial"<<endl;
-//		for(n=0;n<parm->cross_puntos;n++)
-//		{
-//			theta=PI*double(n)/double(parm->cross_puntos);
-//			direct[0]=0.;
-//			non_orth[0]=0.;
-//			cross_term[0]=0.;
-////			cout<<"theta: "<<theta*180./PI<<endl;
-//			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
-//			{
-//				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
-//						direct,non_orth,cross_term,cross_up);
-//				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
-//						direct,non_orth,cross_term,cross_down);
-//				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
-//				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-//				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-////				for(l=0;l<parm->lmax;l++)
-////				{
-////					inc_break_lmenos[l]+=sigma_const*escala*rhoE*cross_down[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-////					inc_break_lmas[l]+=sigma_const*escala*rhoE*cross_up[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-////				}
-//				misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
-//						"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
-//						sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
-//			}
-//		}
+		for(n=0;n<parm->cross_puntos;n++)
+		{
+			theta=PI*double(n)/double(parm->cross_puntos);
+			direct[0]=0.;
+			non_orth[0]=0.;
+			cross_term[0]=0.;
+//			cout<<"theta: "<<theta*180./PI<<endl;
+			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
+			{
+				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
+						direct,non_orth,cross_term,cross_up);
+				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
+						direct,non_orth,cross_term,cross_down);
+				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
+				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+//				for(l=0;l<parm->lmax;l++)
+//				{
+//					inc_break_lmenos[l]+=sigma_const*escala*rhoE*cross_down[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+//					inc_break_lmas[l]+=sigma_const*escala*rhoE*cross_up[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+//				}
+				misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
+						"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
+						sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
+			}
+		}
 ////		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A);
 		cout<<"Sección eficaz NEB:  "<<cross_total<<"   Sección eficaz EB:  "<<cross_total_elasticb<<endl;
 	}
@@ -1143,41 +1143,59 @@ double AbsorcionPrior(double* direct,double* non_orth,double* cross,
 {
 	int n,m,lp;
 	double R,suma;
-	complejo pot_int;
-	double** suma2=matriz_dbl(lmax+1,lmax);
+	complejo pot_int,UT,HM;
 	suma=0.;
     direct[0]=0.;
     non_orth[0]=0.;
     cross[0]=0.;
+//    for(lp=0;lp<lmax;lp++)
+//    {
+//    	for(n=0;n<dim->num_puntos;n++)
+//    	{
+//    		R=(dim->a)+((dim->b)-(dim->a))*((dim->puntos[n])+1.)/2.;
+//    		if (R<r_F)
+//    		{
+//    			pot_int=interpola_cmpx(pot->pot,pot->r,R,pot->puntos);
+//    			direct[0]+=-imag(pot_int)*abs(wf[n][l][0][lp])*abs(wf[n][l][0][lp])*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//    			non_orth[0]+=-imag(pot_int)*abs(non[n][l][0][lp])*abs(non[n][l][0][lp])*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//    			cross[0]+=-2.*imag(pot_int)*real(wf[n][l][0][lp]*conj(non[n][l][0][lp]))*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//    			suma+=direct[0]+non_orth[0]-cross[0];
+//    			for(m=1;m<=lp;m++)
+//    			{
+//    				direct[0]+=-2.*imag(pot_int)*abs(wf[n][l][m][lp])*abs(wf[n][l][m][lp])*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//    				non_orth[0]+=-2.*imag(pot_int)*abs(non[n][l][m][lp])*abs(non[n][l][m][lp])*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//    				cross[0]+=-4.*imag(pot_int)*real(wf[n][l][m][lp]*conj(non[n][l][m][lp]))*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//    				suma+=direct[0]+non_orth[0]-cross[0];
+//    			}
+//    		}
+//    	}
+//    }
+    suma=0.;
     for(lp=0;lp<lmax;lp++)
     {
-    	for(n=0;n<dim->num_puntos;n++)
+    	for(m=0;m<=lp;m++)
     	{
-    		R=(dim->a)+((dim->b)-(dim->a))*((dim->puntos[n])+1.)/2.;
-    		if (R<r_F)
+    		for(n=0;n<dim->num_puntos;n++)
     		{
+    			R=(dim->a)+((dim->b)-(dim->a))*((dim->puntos[n])+1.)/2.;
     			pot_int=interpola_cmpx(pot->pot,pot->r,R,pot->puntos);
-    			direct[0]+=-imag(pot_int)*abs(wf[n][l][0][lp])*abs(wf[n][l][0][lp])*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-    			non_orth[0]+=-imag(pot_int)*abs(non[n][l][0][lp])*abs(non[n][l][0][lp])*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-    			cross[0]+=-2.*imag(pot_int)*real(wf[n][l][0][lp]*conj(non[n][l][0][lp]))*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-    			suma+=direct[0]+non_orth[0]-cross[0];
-    			suma2[0][lp]+=(-imag(pot_int)*abs(wf[n][l][0][lp])*abs(wf[n][l][0][lp]))*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-    			for(m=1;m<=lp;m++)
+    			if(m==0){
+    				UT=wf[n][l][0][lp];
+    				HM=non[n][l][0][lp];
+    			}
+    			if(m>0){
+    				UT=sqrt(2.)*wf[n][l][m][lp];
+    				HM=sqrt(2.)*non[n][l][m][lp];
+    			}
+    			if (R<r_F)
     			{
-    				direct[0]+=-2.*imag(pot_int)*abs(wf[n][l][m][lp])*abs(wf[n][l][m][lp])*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-    				non_orth[0]+=-2.*imag(pot_int)*abs(non[n][l][m][lp])*abs(non[n][l][m][lp])*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-    				cross[0]+=-4.*imag(pot_int)*real(wf[n][l][m][lp]*conj(non[n][l][m][lp]))*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-    				suma+=direct[0]+non_orth[0]-cross[0];
-    				suma2[m][lp]+=(-4.*imag(pot_int)*abs(wf[n][l][m][lp])*abs(wf[n][l][m][lp]))*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+    				suma+=-imag(pot_int)*abs(UT+HM)*abs(UT+HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
     			}
     		}
     	}
     }
-	delete[] suma2;
-//	cout<<"funcion Abs: "<<abs(wf[5][l][0][l])<<endl;
-//	cout<<"In Abs: "<<direct[0]<<"  "<<non_orth[0]<<"  "<<cross[0]<<endl;
-	return direct[0]+non_orth[0]+cross[0];
-//	return cross[0];
+//	return direct[0]+non_orth[0]+cross[0];
+	return suma;
 
 }
 double ElasticBreakupCross(complejo*** Teb,int l,int lmax)
@@ -1222,80 +1240,105 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 		double theta, double* direct, double* non_orth, double* cross, double* cross_j)
 {
 	int n,m,lp,lpp,l,am;
-	double R,suma,armonico,armonicop,costheta,int_direct,
+	double R,suma,armonico,armonicop,costheta,int_direct,phase,
 	int_non_orth,int_cross,C1,C2,C11,C22,aB1,aB2;
-	complejo pot_int,B1,B2,B3,B33,aB3;
-	suma=0.;
+	complejo pot_int,B1,B2,B3,B33,aB3,UT,HM;
 	costheta=cos(theta);
-	int_direct=0.;
-	int_non_orth=0.;
-	int_cross=0.;
-	for(l=0;l<parm->ltransfer;l++)
-	{
-		cross_j[l]=0.;
-	}
+//	int_direct=0.;
+//	int_non_orth=0.;
+//	int_cross=0.;
+//	for(l=0;l<parm->ltransfer;l++)
+//	{
+//		cross_j[l]=0.;
+//	}
+//	for(n=0;n<dim->num_puntos;n++)
+//	{
+//		R=(dim->a)+((dim->b)-(dim->a))*((dim->puntos[n])+1.)/2.;
+//		pot_int=interpola_cmpx(pot->pot,pot->r,R,pot->puntos);
+//		C1=0.;
+//		C2=0.;
+//		B3=0.;
+//		for(l=0;l<parm->ltransfer;l++)
+//		{
+//			C11=0.;
+//			C22=0.;
+//			B33=0.;
+//			for(m=0;m<parm->lmax;m++)
+//			{
+//				am=abs(m);
+//				B1=0.;
+//				B2=0.;
+//				for(lp=m;lp<parm->lmax;lp++)
+//				{
+//					armonico=gsl_sf_legendre_sphPlm(lp,m,costheta);
+//					B1+=wf[n][l][m][lp]*armonico;
+//					B2+=non[n][l][m][lp]*armonico;
+//					for(lpp=m;lpp<parm->lmax;lpp++)
+//					{
+//						armonicop=gsl_sf_legendre_sphPlm(lpp,m,costheta);
+//						aB3=non[n][l][m][lp]*conj(wf[n][l][m][lp])*armonico*armonicop;
+//						B3+=aB3;
+//						B33+=aB3;
+//						if(m!=0) {
+//							B3+=aB3;
+//							B33+=aB3;
+//						}
+//					}
+//				}
+//				aB1=abs(B1)*abs(B1);
+//				aB2=abs(B2)*abs(B2);
+//				C11+=aB1;
+//				C22+=aB2;
+//				C1+=aB1;
+//				C2+=aB2;
+//				if(m!=0) {
+//					C11+=aB1;
+//					C22+=aB2;
+//					C1+=aB1;
+//					C2+=aB2;
+//				}
+//			}
+//			cross_j[l]+=-imag(pot_int)*(C11+C22+2.*real(B33))*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//		}
+//		int_direct+=-imag(pot_int)*C1*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//		int_non_orth+=-imag(pot_int)*C2*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//		int_cross+=-2.*imag(pot_int)*real(B3)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//
+//	}
+
+
+	suma=0.;
 	for(n=0;n<dim->num_puntos;n++)
 	{
 		R=(dim->a)+((dim->b)-(dim->a))*((dim->puntos[n])+1.)/2.;
 		pot_int=interpola_cmpx(pot->pot,pot->r,R,pot->puntos);
-		C1=0.;
-		C2=0.;
-		B3=0.;
 		for(l=0;l<parm->ltransfer;l++)
 		{
-			C11=0.;
-			C22=0.;
-			B33=0.;
 			for(m=0;m<parm->lmax;m++)
 			{
-				am=abs(m);
-				B1=0.;
-				B2=0.;
+				UT=0.;
+				HM=0.;
 				for(lp=m;lp<parm->lmax;lp++)
 				{
 					armonico=gsl_sf_legendre_sphPlm(lp,m,costheta);
-					B1+=wf[n][l][m][lp]*armonico;
-					B2+=non[n][l][m][lp]*armonico;
-					for(lpp=m;lpp<10;lpp++)
-					{
-						armonicop=gsl_sf_legendre_sphPlm(lpp,m,costheta);
-						aB3=non[n][l][m][lp]*conj(wf[n][l][m][lp])*armonico*armonicop;
-						B3+=aB3;
-						B33+=aB3;
-						if(m!=0) {
-							B3+=aB3;
-							B33+=aB3;
-						}
+//					phase=(1.+pow(-1.,l-m));
+					phase=sqrt(2.);
+					if(m==0){
+						UT+=wf[n][l][m][lp]*armonico;
+						HM+=non[n][l][m][lp]*armonico;
+					}
+					if(m>0){
+						UT+=wf[n][l][m][lp]*armonico*phase;
+						HM+=non[n][l][m][lp]*armonico*phase;
 					}
 				}
-				aB1=abs(B1)*abs(B1);
-				aB2=abs(B2)*abs(B2);
-				C11+=aB1;
-				C22+=aB2;
-				C1+=aB1;
-				C2+=aB2;
-				if(m!=0) {
-					C11+=aB1;
-					C22+=aB2;
-					C1+=aB1;
-					C2+=aB2;
-				}
+				suma+=-imag(pot_int)*abs(UT+HM)*abs(UT+HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//				suma+=-imag(pot_int)*abs(UT)*abs(UT)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 			}
-			cross_j[l]+=-imag(pot_int)*(C11+C22+2.*real(B33))*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-//			cout<<imag(pot_int)<<"  "<<C11<<"  "<<C22<<"  "<<B33<<endl;
 		}
-		int_direct+=-imag(pot_int)*C1*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-		int_non_orth+=-imag(pot_int)*C2*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-		int_cross+=-2.*imag(pot_int)*real(B3)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-
 	}
-    *direct+=int_direct;
-    *non_orth+=int_non_orth;
-    *cross+=int_cross;
-
-
-	return int_direct+int_non_orth+int_cross;
-//	return int_direct;
+	return suma;
+//	return int_direct+int_non_orth+int_cross;
 }
 
 double ElasticBreakupAngular(complejo*** Teb,int lmax,double theta)

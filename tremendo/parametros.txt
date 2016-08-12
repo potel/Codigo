@@ -76,12 +76,12 @@ B_Sn   -4.24091 # energía de extracción de un neutrón para el núcleo B-1 (de
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
 
 r_Ccmin 0.     # valor mínimo de r_Cc
-r_Ccmax  15.    # valor máximo de r_Cc
+r_Ccmax  40.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
-r_A2max   15.    # valor máximo de r_A2
-rCc_puntos  15    # número de puntos de integración gaussiana para r_Cc
-rA2_puntos   15  # número de puntos de integración gaussiana para r_A2
-theta_puntos  10    # número de puntos de integrción gaussiana para theta
+r_A2max   40.    # valor máximo de r_A2
+rCc_puntos  60    # número de puntos de integración gaussiana para r_Cc
+rA2_puntos   60  # número de puntos de integración gaussiana para r_A2
+theta_puntos  20    # número de puntos de integrción gaussiana para theta
 cross_puntos  200 # número de puntos en los que se evalúa la sección eficaz
 matching_radio 20.  #radio de matching para implementar las condiciones de contorno
 
