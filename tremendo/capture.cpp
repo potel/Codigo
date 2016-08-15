@@ -289,7 +289,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusión: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=5.;energia_out<7.;energia_out+=200.)
+	for(energia_out=5.;energia_out<8.;energia_out+=200)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm=parm->energia_cm-((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)))
@@ -333,7 +333,7 @@ void AmplitudeCapture(struct parametros* parm)
 					parm->T_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
 		}
 		for(l=0;l<parm->ltransfer;l++)
-//		for(l=3;l<4;l++)
+//		for(l=1;l<2;l++)
 		{
 			cout<<"L: "<<l<<endl;
 			funcion_regular_up[0].energia=energia_trans;
@@ -1071,6 +1071,7 @@ void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* o
 //		misc1<<T[l][m][lp]<<"  "<<suma[m]<<endl;
 	}
 	delete[] suma;
+	delete[] chi_l;
 }
 complejo NeutronWaveResonantTest(complejo* phi,complejo* rho, estado* st,double En, double E, double absorcion,
 		parametros_integral* dim,parametros* parm,double rBn)

@@ -3601,6 +3601,61 @@ void CH89(double E,double N,double Z,double r,complejo* potencial_p,complejo* po
 		-4.*I*Wsp*exp((r-Rw)/aW)/((1.+exp((r-Rw)/aW))*(1.+exp((r-Rw)/aW)))
 		-2.*(ls*Vso)*exp((r-Rso)/aso)/(r*aso*(1.+exp((r-Rso)/aso))*(1.+exp((r-Rso)/aso)));
 }
+///////////////////////////////////////////////////////////////////////
+//                                                                   //
+//       Potencial optico de Han, Shi and Shen                        //
+//                                                                   //
+//////////////////////////////////////////////////////////////////////
+void HanShiShen(double E,double N,double Z)
+{
+	double A=N+Z;
+	double V0,V1,V2,V3,V4,W0,W1,W2,U0,U1,U2,U3;
+	double VR,WD,WS,WSO,VSO,RR,aR,RD,aD,RS,aS,RSO,aSO,RC,ad,as;
+	double rR,rD,rS,rSO,rC;
+	ofstream fp("HanShiShenPotential.txt");
+	V0=82.18;
+	V1=-0.148;
+	V2=-0.000886;
+	V3=-34.811;
+	V4=1.058;
+	W0=20.968;
+	W1=-0.0794;
+	W2=-43.398;
+	U0=-4.916;
+	U1=0.0555;
+	U2=0.0000442;
+	U3=35.0;
+	VSO=3.703;
+	WSO=-0.206;
+	rR=1.174;
+	rD=1.328;
+	rS=1.563;
+	rSO=1.234;
+	rC=1.698;
+	aR=0.809;
+	ad=0.465;
+	as=0.7;
+	aD=ad+0.045*pow(A,1./3.);
+	aS=as+0.045*pow(A,1./3.);
+	aSO=0.813;
+	VR=V0+V1*E+V2*E*E+V3*((N-Z)/A)+V4*Z*pow(A,1./3.);
+	WD=W0+W1*E+W2*(N-Z)/A;
+	WS=U0+U1*E+U2*E*E+U3*((N-Z)/A);
+	fp<<"RealVolumen "<<VR<<endl<<
+			"ImaginarioVolumen  "<<WS<<endl<<
+			"RealSpinOrbita  "   <<VSO<<endl<<
+			"ImaginarioSpinOrbita	"<<WSO<<endl<<
+			"ImaginarioSuperficie  " <<WD<<endl<<
+			"RadioRealVolumen  "   <<rR<<endl<<
+			"RadioCoulomb  "            <<rC<<endl<<
+			"RadioImaginarioVolumen  "       <<rS<<endl<<
+			"DifusividadRealVolumen  "         <<aR<<endl<<
+			"DifusividadImaginarioVolumen  "   <<aS<<endl<<
+			"RadioSpinOrbita    "         	<<rSO<<endl<<
+			"DifusividadSpinOrbita  "       <<aSO<<endl<<
+			"RadioImaginarioSuperficie  "          <<rD<<endl<<
+			"DifusividadImaginarioSuperficie "    <<aD<<endl;
+}
 
 
 
