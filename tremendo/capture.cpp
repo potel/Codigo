@@ -26,6 +26,8 @@ void Capture(struct parametros* parm)
 	double* D0=new double[1];
 	double* rms=new double[1];
 	cout<<"Generando potenciales de campo medio"<<endl;
+	HanShiShen(10.,52,41);
+//	exit(0);
 	for(n=0;n<parm->num_cm;n++)
 	{
 		GeneraPotencialCM(parm,&(parm->pot[n]));
@@ -332,8 +334,8 @@ void AmplitudeCapture(struct parametros* parm)
 			GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_salida],parm->T_carga*parm->P_carga,
 					parm->T_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
 		}
-		for(l=0;l<parm->ltransfer;l++)
-//		for(l=1;l<2;l++)
+//		for(l=0;l<parm->ltransfer;l++)
+		for(l=3;l<4;l++)
 		{
 			cout<<"L: "<<l<<endl;
 			funcion_regular_up[0].energia=energia_trans;
@@ -1348,23 +1350,34 @@ double ElasticBreakupAngular(complejo*** Teb,int lmax,double theta)
 	double armonico,costheta,B;
 	complejo A;
 	costheta=cos(theta);
-    B=0.;
-    for(l=0;l<lmax;l++)
-    {
-    	for(m=0;m<lmax;m++)
-    	{
-    		A=0.;
-    		for(lp=m;lp<lmax;lp++)
-    		{
-    			armonico=gsl_sf_legendre_sphPlm(lp,m,costheta);
-    			A+=Teb[l][m][lp]*armonico;
-    		}
-    		B+=abs(A)*abs(A);
-    		if(m!=0) {
-    			B+=abs(A)*abs(A);
-    		}
-    	}
-    }
+	B=0.;
+//	for(l=0;l<lmax;l++)
+//	{
+//		for(m=0;m<lmax;m++)
+//		{
+//			A=0.;
+//			for(lp=m;lp<lmax;lp++)
+//			{
+//				armonico=gsl_sf_legendre_sphPlm(lp,m,costheta);
+//				A+=Teb[l][m][lp]*armonico;
+//			}
+//			B+=abs(A)*abs(A);
+//			if(m!=0) {
+//				B+=abs(A)*abs(A);
+//			}
+//		}
+//	}
+	for(l=0;l<lmax;l++)
+	{
+			m=3.;
+			A=0.;
+			for(lp=m;lp<lmax;lp++)
+			{
+				armonico=gsl_sf_legendre_sphPlm(lp,m,costheta);
+				A+=Teb[l][m][lp]*armonico;
+			}
+			B+=abs(A)*abs(A);
+	}
 	return B;
 }
 

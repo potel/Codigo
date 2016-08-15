@@ -1,7 +1,7 @@
 num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
 lmin 0      # momento angular mínimo. En una reacción tiene que ser 0.
 lmax 15 # momento angular máximo. En una reacción, número de ondas parciales.
-ltransfer 8 #momento angular transferido maximo. Usado para la captura neutronica.
+ltransfer 5 #momento angular transferido maximo. Usado para la captura neutronica.
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
 puntos 2000    # número de puntos en los que se definen las funciones.
@@ -76,12 +76,12 @@ B_Sn   -4.24091 # energía de extracción de un neutrón para el núcleo B-1 (de
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
 
 r_Ccmin 0.     # valor mínimo de r_Cc
-r_Ccmax  50.    # valor máximo de r_Cc
+r_Ccmax  15.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
-r_A2max   25.    # valor máximo de r_A2
-rCc_puntos  60    # número de puntos de integración gaussiana para r_Cc
-rA2_puntos   35  # número de puntos de integración gaussiana para r_A2
-theta_puntos  20    # número de puntos de integrción gaussiana para theta
+r_A2max   15.    # valor máximo de r_A2
+rCc_puntos  15    # número de puntos de integración gaussiana para r_Cc
+rA2_puntos   15  # número de puntos de integración gaussiana para r_A2
+theta_puntos  10    # número de puntos de integrción gaussiana para theta
 cross_puntos  200 # número de puntos en los que se evalúa la sección eficaz
 matching_radio 20.  #radio de matching para implementar las condiciones de contorno
 
@@ -135,23 +135,42 @@ InicioPotencialesOpticos
 #***************
 
 
-id 0
-RealVolumen    95.1814	
-ImaginarioVolumen    1.726
-RealSpinOrbita      0.
-ImaginarioSpinOrbita	0.
-ImaginarioSuperficie   10.524
-RadioRealVolumen     1.15029
-RadioCoulomb              1.1                            
-RadioImaginarioVolumen         1.32701
-DifusividadRealVolumen           0.776086
-DifusividadImaginarioVolumen     0.401935
-RadioSpinOrbita             	0.97160242115162
-DifusividadSpinOrbita         0.955
-RadioImaginarioSuperficie            1.36755
-DifusividadImaginarioSuperficie     0.811901
+#id 0
+#RealVolumen    95.1814	
+#ImaginarioVolumen    1.726
+#RealSpinOrbita      0.
+#ImaginarioSpinOrbita	0.
+#ImaginarioSuperficie   10.524
+#RadioRealVolumen     1.15029
+#RadioCoulomb              1.1                            
+#RadioImaginarioVolumen         1.32701
+#DifusividadRealVolumen           0.776086
+#DifusividadImaginarioVolumen     0.401935
+#RadioSpinOrbita             	0.97160242115162
+#DifusividadSpinOrbita         0.955
+#RadioImaginarioSuperficie            1.36755
+#DifusividadImaginarioSuperficie     0.811901
+#
+#****************************
 
-****************************
+
+id 0
+RealVolumen 86.0683
+ImaginarioVolumen  0
+RealSpinOrbita  0
+ImaginarioSpinOrbita	-0.206
+ImaginarioSuperficie  15.0409
+RadioRealVolumen  1.174
+RadioCoulomb  1.698
+RadioImaginarioVolumen  1.563
+DifusividadRealVolumen  0.809
+DifusividadImaginarioVolumen  0.903879
+RadioSpinOrbita    1.234
+DifusividadSpinOrbita  0.813
+RadioImaginarioSuperficie  1.328
+DifusividadImaginarioSuperficie 0.668879
+
+**************************
 
 id 1
 RealVolumen   160.6

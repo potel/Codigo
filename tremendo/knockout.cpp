@@ -3638,9 +3638,10 @@ void HanShiShen(double E,double N,double Z)
 	aD=ad+0.045*pow(A,1./3.);
 	aS=as+0.045*pow(A,1./3.);
 	aSO=0.813;
-	VR=V0+V1*E+V2*E*E+V3*((N-Z)/A)+V4*Z*pow(A,1./3.);
+	VR=V0+V1*E+V2*E*E+V3*((N-Z)/A)+V4*Z/pow(A,1./3.);
 	WD=W0+W1*E+W2*(N-Z)/A;
 	WS=U0+U1*E+U2*E*E+U3*((N-Z)/A);
+	if(WS<0.) WS=0.;
 	fp<<"RealVolumen "<<VR<<endl<<
 			"ImaginarioVolumen  "<<WS<<endl<<
 			"RealSpinOrbita  "   <<VSO<<endl<<

@@ -209,3 +209,4 @@ void NonOrthogonalPotential(complejo* gd,complejo* vd,estado* stn,estado* std,po
 		parametros_integral* dim_theta);
 void CH89(double E,double N,double Z,double r,complejo* potencial_p,complejo* potencial_n,
 		int l,double j,potencial_optico* pot_p,potencial_optico* pot_n);
+void HanShiShen(double E,double N,double Z);
