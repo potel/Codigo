@@ -334,8 +334,8 @@ void AmplitudeCapture(struct parametros* parm)
 			GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_salida],parm->T_carga*parm->P_carga,
 					parm->T_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
 		}
-//		for(l=0;l<parm->ltransfer;l++)
-		for(l=3;l<4;l++)
+		for(l=0;l<parm->ltransfer;l++)
+//		for(l=3;l<4;l++)
 		{
 			cout<<"L: "<<l<<endl;
 			funcion_regular_up[0].energia=energia_trans;
@@ -403,7 +403,9 @@ void AmplitudeCapture(struct parametros* parm)
 				}
 				for(ld=abs(l-lp);(ld<=l+lp)&&(ld<parm->lmax);ld++)
 				{
-					rhofac=(16.*pow(PI,2.5)*pow(I,ld-lp)*
+//					rhofac=(16.*pow(PI,2.5)*pow(I,ld-lp)*pow(-1.,l)*
+//							exp_delta_coulomb_f[lp]*exp_delta_coulomb_i[ld]*sqrt(2.*ld+1.))/(parm->k_Aa*k_p*sqrt(2.*l+1.));
+					rhofac=(16.*pow(PI,2.5)*pow(I,ld-lp)*pow(-1.,l)*
 							exp_delta_coulomb_f[lp]*exp_delta_coulomb_i[ld]*sqrt(2.*ld+1.))/(parm->k_Aa*k_p*sqrt(2.*l+1.));
 					fl->energia=parm->energia_cm;
 					fl->l=ld;
@@ -745,20 +747,12 @@ void SourcePrior2(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* 
 					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
 			sumanon+=rBp*seno*fl*gl*ud*coupling*
 					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
-//			if(n2==4) cout<<suma<<"  "<<abs(ud*(vpn-remnant))<<"  "<<abs(vpn)<<"  "<<abs(remnant)<<"  "<<abs(ud)<<endl;
-//			misc2<<abs(rAn-rAp)<<"  "<<abs(rBp*seno*fl*gl*ud*(vpn-remnant)*coupling)<<"  "<<abs(rBp*seno*fl*gl*ud*coupling)<<endl;
+//			suma+=rAp*seno*fl*gl*ud*(vpn-remnant)*coupling*
+//					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
+//			sumanon+=rAp*seno*fl*gl*ud*coupling*
+//					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
 		}
 	}
-//	for (n1 =0;n1<dim1->num_puntos; n1++) {
-//		rAp = (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n1])+1.)/2.;
-//			ud=interpola_cmpx(u->wf,u->r,rAp,u->puntos);
-//			N0+=ud*rAp*rAp*2.*sqrt(PI)*dim1->pesos[n1];
-//	}
-//	N0=N0*((dim1->b)-(dim1->a))/2.;
-////	cout<<"N0: "<<N0<<endl;
-//	fl=interpola_cmpx(f->wf,f->r,rBn,f->puntos);
-//	gl=interpola_cmpx(g->wf,g->r,km*rBn,g->puntos);
-//	sumanonZR=N0*ClebsGordan(lp,0,ld,0,l,0)*fl*gl/(km*rBn*rBn);
 	rho[0]=suma*((dim1->b)-(dim1->a))*((dim2->b)-(dim2->a))/4.;
 	non[0]=sumanon*((dim1->b)-(dim1->a))*((dim2->b)-(dim2->a))/4.;
 //	cout<<rBn<<"  "<<abs(rho[0])<<"  "<<abs(non[0])<<endl;
@@ -1242,74 +1236,10 @@ double AbsorcionPriorTest(double* direct,double* non_orth,double* cross,double* 
 double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,parametros_integral* dim,parametros* parm,
 		double theta, double* direct, double* non_orth, double* cross, double* cross_j)
 {
-	int n,m,lp,lpp,l,am;
-	double R,suma,armonico,armonicop,costheta,int_direct,phase,
-	int_non_orth,int_cross,C1,C2,C11,C22,aB1,aB2;
-	complejo pot_int,B1,B2,B3,B33,aB3,UT,HM;
+	int n,m,lp,l;
+	double R,suma,armonico,costheta,phase;
+	complejo pot_int,UT,HM,phase2;
 	costheta=cos(theta);
-//	int_direct=0.;
-//	int_non_orth=0.;
-//	int_cross=0.;
-//	for(l=0;l<parm->ltransfer;l++)
-//	{
-//		cross_j[l]=0.;
-//	}
-//	for(n=0;n<dim->num_puntos;n++)
-//	{
-//		R=(dim->a)+((dim->b)-(dim->a))*((dim->puntos[n])+1.)/2.;
-//		pot_int=interpola_cmpx(pot->pot,pot->r,R,pot->puntos);
-//		C1=0.;
-//		C2=0.;
-//		B3=0.;
-//		for(l=0;l<parm->ltransfer;l++)
-//		{
-//			C11=0.;
-//			C22=0.;
-//			B33=0.;
-//			for(m=0;m<parm->lmax;m++)
-//			{
-//				am=abs(m);
-//				B1=0.;
-//				B2=0.;
-//				for(lp=m;lp<parm->lmax;lp++)
-//				{
-//					armonico=gsl_sf_legendre_sphPlm(lp,m,costheta);
-//					B1+=wf[n][l][m][lp]*armonico;
-//					B2+=non[n][l][m][lp]*armonico;
-//					for(lpp=m;lpp<parm->lmax;lpp++)
-//					{
-//						armonicop=gsl_sf_legendre_sphPlm(lpp,m,costheta);
-//						aB3=non[n][l][m][lp]*conj(wf[n][l][m][lp])*armonico*armonicop;
-//						B3+=aB3;
-//						B33+=aB3;
-//						if(m!=0) {
-//							B3+=aB3;
-//							B33+=aB3;
-//						}
-//					}
-//				}
-//				aB1=abs(B1)*abs(B1);
-//				aB2=abs(B2)*abs(B2);
-//				C11+=aB1;
-//				C22+=aB2;
-//				C1+=aB1;
-//				C2+=aB2;
-//				if(m!=0) {
-//					C11+=aB1;
-//					C22+=aB2;
-//					C1+=aB1;
-//					C2+=aB2;
-//				}
-//			}
-//			cross_j[l]+=-imag(pot_int)*(C11+C22+2.*real(B33))*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-//		}
-//		int_direct+=-imag(pot_int)*C1*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-//		int_non_orth+=-imag(pot_int)*C2*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-//		int_cross+=-2.*imag(pot_int)*real(B3)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-//
-//	}
-
-
 	suma=0.;
 	for(n=0;n<dim->num_puntos;n++)
 	{
@@ -1324,15 +1254,16 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 				for(lp=m;lp<parm->lmax;lp++)
 				{
 					armonico=gsl_sf_legendre_sphPlm(lp,m,costheta);
-//					phase=(1.+pow(-1.,l-m));
 					phase=sqrt(2.);
+					phase2=pow(I,lp);
+					phase2=1.;
 					if(m==0){
-						UT+=wf[n][l][m][lp]*armonico;
-						HM+=non[n][l][m][lp]*armonico;
+						UT+=wf[n][l][m][lp]*armonico*phase2;
+						HM+=non[n][l][m][lp]*armonico*phase2;
 					}
 					if(m>0){
-						UT+=wf[n][l][m][lp]*armonico*phase;
-						HM+=non[n][l][m][lp]*armonico*phase;
+						UT+=wf[n][l][m][lp]*armonico*phase*phase2;
+						HM+=non[n][l][m][lp]*armonico*phase*phase2;
 					}
 				}
 				suma+=-imag(pot_int)*abs(UT+HM)*abs(UT+HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
@@ -1341,7 +1272,6 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 		}
 	}
 	return suma;
-//	return int_direct+int_non_orth+int_cross;
 }
 
 double ElasticBreakupAngular(complejo*** Teb,int lmax,double theta)
@@ -1351,10 +1281,26 @@ double ElasticBreakupAngular(complejo*** Teb,int lmax,double theta)
 	complejo A;
 	costheta=cos(theta);
 	B=0.;
+	for(l=0;l<lmax;l++)
+	{
+		for(m=0;m<=lmax;m++)
+		{
+			A=0.;
+			for(lp=m;lp<lmax;lp++)
+			{
+				armonico=gsl_sf_legendre_sphPlm(lp,m,costheta);
+				A+=Teb[l][m][lp]*armonico;
+				if(m>0){
+					A+=Teb[l][m][lp]*armonico;
+				}
+			}
+			B+=abs(A)*abs(A);
+		}
+	}
+//	B=abs(A)*abs(A);
 //	for(l=0;l<lmax;l++)
 //	{
-//		for(m=0;m<lmax;m++)
-//		{
+//			m=3.;
 //			A=0.;
 //			for(lp=m;lp<lmax;lp++)
 //			{
@@ -1362,22 +1308,7 @@ double ElasticBreakupAngular(complejo*** Teb,int lmax,double theta)
 //				A+=Teb[l][m][lp]*armonico;
 //			}
 //			B+=abs(A)*abs(A);
-//			if(m!=0) {
-//				B+=abs(A)*abs(A);
-//			}
-//		}
 //	}
-	for(l=0;l<lmax;l++)
-	{
-			m=3.;
-			A=0.;
-			for(lp=m;lp<lmax;lp++)
-			{
-				armonico=gsl_sf_legendre_sphPlm(lp,m,costheta);
-				A+=Teb[l][m][lp]*armonico;
-			}
-			B+=abs(A)*abs(A);
-	}
 	return B;
 }
 
