@@ -116,7 +116,7 @@ void AmplitudeCapture(struct parametros* parm)
 	double step,rn,energia_out,energia_trans,k_p,k_n,cross,elastic_cross,
 	theta,costheta,D0,rhoE,sigma_const,escala,r_source,velocidad,
 	cross_total,cross_total_elasticb,redfac,r_F,absorcion,e_res,rhoE_n,N_A,
-	carga_out,carga_trans,km,rAn,Ecm;
+	carga_out,carga_trans,km,rAn,Ecm,cross_total_breakup;
 	distorted_wave* fl=new distorted_wave;
 	distorted_wave* gl=new distorted_wave;
 	distorted_wave* funcion_regular_up=new distorted_wave[2];
@@ -160,6 +160,7 @@ void AmplitudeCapture(struct parametros* parm)
 	complejo* wf=new complejo[1000];
 	complejo pot_p;
 	complejo pot_n;
+	double* total_break=new double[parm->lmax+1];
 	double* inc_break=new double[parm->lmax+1];
 	double* inc_break_lmas=new double[parm->lmax+1];
 	double* inc_break_lmenos=new double[parm->lmax+1];
@@ -291,7 +292,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusión: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=5.;energia_out<8.;energia_out+=200)
+	for(energia_out=5.;energia_out<6.;energia_out+=200)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm=parm->energia_cm-((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)))
@@ -403,8 +404,6 @@ void AmplitudeCapture(struct parametros* parm)
 				}
 				for(ld=abs(l-lp);(ld<=l+lp)&&(ld<parm->lmax);ld++)
 				{
-//					rhofac=(16.*pow(PI,2.5)*pow(I,ld-lp)*pow(-1.,l)*
-//							exp_delta_coulomb_f[lp]*exp_delta_coulomb_i[ld]*sqrt(2.*ld+1.))/(parm->k_Aa*k_p*sqrt(2.*l+1.));
 					rhofac=(16.*pow(PI,2.5)*pow(I,ld-lp)*pow(-1.,l)*
 							exp_delta_coulomb_f[lp]*exp_delta_coulomb_i[ld]*sqrt(2.*ld+1.))/(parm->k_Aa*k_p*sqrt(2.*l+1.));
 					fl->energia=parm->energia_cm;
@@ -462,6 +461,9 @@ void AmplitudeCapture(struct parametros* parm)
 			}
 			inc_break[l]=0.;
 			elastic_break[l]=0.;
+			total_break[l]=rhoE*escala*sigma_const*TotalBreakup(phi_down,rho,parm,dim1,l);
+			total_break[l]+=rhoE*escala*sigma_const*TotalBreakup(phi_up,rho,parm,dim1,l);
+
 			inc_break_lmas[l]=rhoE*escala*sigma_const*AbsorcionPrior(direct,non_orth,cross_term,&(parm->pot_opt[indx_neutron_target]),
 					phi_up,non,dim1,l,parm->lmax,r_F);
 			inc_break[l]=inc_break_lmas[l];
@@ -471,18 +473,15 @@ void AmplitudeCapture(struct parametros* parm)
 			if(energia_trans>0.) elastic_break[l]=rhoE*rhoE_n*escala*sigma_const*PI*ElasticBreakupCross(Teb,l,parm->lmax);
 			cross_total+=inc_break[l];
 			cross_total_elasticb+=elastic_break[l];
-
-			cout<<" Seccion eficaz total: "<<inc_break[l]<<endl<<endl;
-			cout<<" Seccion eficaz breakup elastico: "<<elastic_break[l]<<endl<<endl;
-			cout<<" Termino breakup: "<<rhoE*escala*direct[0]*sigma_const<<endl;
-			cout<<" No ortogonal: "<<rhoE*escala*non_orth[0]*sigma_const<<endl;
-			cout<<" Termino cruzado: "<<rhoE*escala*cross_term[0]*sigma_const<<endl;
-			misc3<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<"  ";
+			cross_total_breakup+=total_break[l];
+			cout<<" Seccion eficaz NEB: "<<inc_break[l]<<endl<<endl;
+			cout<<" Seccion eficaz EB: "<<elastic_break[l]<<endl<<endl;
+			cout<<" Seccion total (conservacion de flujo): "<<total_break[l]<<endl<<endl;
+			misc3<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<"  "<<"  "<<total_break[l]<<"  ";
 		}
 //		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp3,&fp4,&fp7,parm->J_A);
 		cout<<"Sección eficaz NEB:  "<<cross_total<<"   Sección eficaz EB:  "<<cross_total_elasticb<<endl;
-		misc3<<cross_total<<"  "<<cross_total_elasticb<<"  "<<cross_total+cross_total_elasticb<<endl;
-//		cout<<"Cálculo de la sección eficaz diferencial..."<<endl;
+		misc3<<cross_total<<"  "<<cross_total_elasticb<<"  "<<cross_total+cross_total_elasticb<<"  "<<cross_total_breakup<<endl;
 		cross_total=0.;
 		cross_total_elasticb=0.;
 		for(l=0;l<parm->lmax;l++)
@@ -547,6 +546,7 @@ void AmplitudeCapture(struct parametros* parm)
 	delete[] phi_res;
 	delete[] cross_up;
 	delete[] cross_down;
+	delete[] total_break;
 
 }
 void Source(complejo* rho,distorted_wave* f,distorted_wave* g,estado* u,potencial* v,int l,
@@ -928,6 +928,7 @@ complejo GreenIntegrando(int pts,complejo**** rho,distorted_wave* fl,distorted_w
 			}
 		}
 	}
+	return suma;
 }
 complejo NeutronWave(complejo* phi,complejo**** rho,distorted_wave* fl,distorted_wave* Pl,
 		parametros_integral* dim,parametros* parm,double rBn,int l,int lp,int ld,complejo wronskiano)
@@ -1044,7 +1045,6 @@ void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* o
 	masa_res=parm->res_carga+parm->res_N;
 	carga_trans=parm->res_carga-parm->T_carga;
 	masa_trans=masa_res-masaT;
-//	cout<<"carga: "<<carga_trans*parm->T_carga<<"  masa: "<<masa_trans*masaT/(masa_trans+masaT)<<"  energia: "<<En<<endl;
 	GeneraDWspin(chi_l,optico,carga_trans*parm->T_carga,masa_trans*masaT/(masa_trans+masaT),
 			parm->radio,parm->puntos,parm->matching_radio,&fp);
 	for(m=0;m<=l;m++)
@@ -1058,13 +1058,10 @@ void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* o
 		{
 			suma[m]+=rho[n][l][m][lp]*stint*rBnp*dim->pesos[n];
 		}
-//		misc1<<rBnp<<"  "<<real(rho[n][l][0][lp])<<"  "<<real(stint)<<"  "<<real(suma[0])<<endl;
-
 	}
 	for(m=0;m<=l;m++)
 	{
 		T[l][m][lp]=4.*PI*(suma[m]*((dim->b)-(dim->a))*0.5)/(kn*redfac);
-//		misc1<<T[l][m][lp]<<"  "<<suma[m]<<endl;
 	}
 	delete[] suma;
 	delete[] chi_l;
@@ -1237,7 +1234,7 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 		double theta, double* direct, double* non_orth, double* cross, double* cross_j)
 {
 	int n,m,lp,l;
-	double R,suma,armonico,costheta,phase;
+	double R,suma,armonico,costheta;
 	complejo pot_int,UT,HM,phase2;
 	costheta=cos(theta);
 	suma=0.;
@@ -1247,27 +1244,27 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 		pot_int=interpola_cmpx(pot->pot,pot->r,R,pot->puntos);
 		for(l=0;l<parm->ltransfer;l++)
 		{
-			for(m=0;m<parm->lmax;m++)
+			UT=0.;
+			HM=0.;
+			for(lp=0;lp<parm->lmax;lp++)
+			{
+				armonico=gsl_sf_legendre_sphPlm(lp,0,costheta);
+				UT+=wf[n][l][0][lp]*armonico;
+				HM+=non[n][l][0][lp]*armonico;
+			}
+			suma+=-imag(pot_int)*abs(UT+HM)*abs(UT+HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+			for(m=1;m<parm->lmax;m++)
 			{
 				UT=0.;
 				HM=0.;
 				for(lp=m;lp<parm->lmax;lp++)
 				{
 					armonico=gsl_sf_legendre_sphPlm(lp,m,costheta);
-					phase=sqrt(2.);
-					phase2=pow(I,lp);
-					phase2=1.;
-					if(m==0){
-						UT+=wf[n][l][m][lp]*armonico*phase2;
-						HM+=non[n][l][m][lp]*armonico*phase2;
-					}
-					if(m>0){
-						UT+=wf[n][l][m][lp]*armonico*phase*phase2;
-						HM+=non[n][l][m][lp]*armonico*phase*phase2;
-					}
+					UT+=wf[n][l][m][lp]*armonico;
+					HM+=non[n][l][m][lp]*armonico;
 				}
-				suma+=-imag(pot_int)*abs(UT+HM)*abs(UT+HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-//				suma+=-imag(pot_int)*abs(UT)*abs(UT)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+				suma+=-2.*imag(pot_int)*abs(UT+HM)*abs(UT+HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//								suma+=-imag(pot_int)*abs(UT)*abs(UT)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 			}
 		}
 	}
@@ -1283,33 +1280,45 @@ double ElasticBreakupAngular(complejo*** Teb,int lmax,double theta)
 	B=0.;
 	for(l=0;l<lmax;l++)
 	{
-		for(m=0;m<=lmax;m++)
+		A=0.;
+		for(lp=0;lp<lmax;lp++)
+		{
+			armonico=gsl_sf_legendre_sphPlm(lp,0,costheta);
+			A+=Teb[l][0][lp]*armonico;
+		}
+		B+=abs(A)*abs(A);
+		for(m=1;m<=lmax;m++)
 		{
 			A=0.;
 			for(lp=m;lp<lmax;lp++)
 			{
 				armonico=gsl_sf_legendre_sphPlm(lp,m,costheta);
 				A+=Teb[l][m][lp]*armonico;
-				if(m>0){
-					A+=Teb[l][m][lp]*armonico;
-				}
 			}
-			B+=abs(A)*abs(A);
+			B+=2.*abs(A)*abs(A);
 		}
 	}
-//	B=abs(A)*abs(A);
-//	for(l=0;l<lmax;l++)
-//	{
-//			m=3.;
-//			A=0.;
-//			for(lp=m;lp<lmax;lp++)
-//			{
-//				armonico=gsl_sf_legendre_sphPlm(lp,m,costheta);
-//				A+=Teb[l][m][lp]*armonico;
-//			}
-//			B+=abs(A)*abs(A);
-//	}
 	return B;
+}
+double TotalBreakup(complejo**** wf,complejo**** rho,parametros* parm, parametros_integral* dim,int l)
+{
+	int m,lp,n;
+	double R;
+	double suma;
+	suma=0.;
+    for(lp=0;lp<parm->lmax;lp++)
+    {
+    	for(m=0;m<=lp;m++)
+    	{
+    		for(n=0;n<dim->num_puntos;n++)
+    		{
+    			R=(dim->a)+((dim->b)-(dim->a))*((dim->puntos[n])+1.)/2.;
+    				suma+=imag(wf[n][l][m][lp]*conj(rho[n][l][m][lp]))*R*R*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+    				if(m>0) suma+=imag(wf[n][l][m][lp]*conj(rho[n][l][m][lp]))*R*R*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+    		}
+    	}
+    }
+	return suma;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
