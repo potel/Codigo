@@ -72,7 +72,7 @@ dw_spinB 0.   #spin de las ondas distorsionadas salientes
 lambda  0.	# momento angular del cluster transferido
 n_spin 0.
 a_Sn  -7.66247 # energía de extracción de un neutrón para el núcleo a-1 (debe ser<0, típicamente será la energía del estado del núcleo a con energía mas baja)
-B_Sn   -4.24091 # energía de extracción de un neutrón para el núcleo B-1 (debe ser<0, típicamente será la energía del estado del núcleo B con energía mas baja)
+B_Sn      -4.24091 # energía de extracción de un neutrón para el núcleo B-1 (debe ser<0, típicamente será la energía del estado del núcleo B con energía mas baja)
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
 
 r_Ccmin 0.     # valor mínimo de r_Cc
