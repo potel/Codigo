@@ -111,7 +111,7 @@ form_factor 0			# si=1 calcula el factor de forma no local (two_trans tiene que 
 unidades milib				# unidades de la sección eficaz: milib->milibarn, fm2->fermi^2, b->barn, microb->microbarn
 adiabatico 1        
 zerorange 0     
-koning_delaroche 1 # potencial de Koning-Delaroche
+koning_delaroche 0 # potencial de Koning-Delaroche
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 InicioPotencialesOpticos
 
@@ -191,11 +191,11 @@ DifusividadImaginarioSuperficie  0.47
 *******************
 
 id 2
-RealVolumen   60.8
+RealVolumen   38.146
 ImaginarioVolumen   0
 RealSpinOrbita     	0.
 ImaginarioSpinOrbita   0.                      	
-ImaginarioSuperficie   9.76
+ImaginarioSuperficie   0.5
 RadioRealVolumen       1.22
 RadioCoulomb          1.35                      
 RadioImaginarioVolumen  1.25                        
@@ -228,7 +228,7 @@ RSO   1.25
 
 id 1
 tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
-VV 48.8
+VV 38.146
 VSO  0.
 aV 0.68
 aSO 0.65
@@ -265,11 +265,11 @@ file
 *************
 
 id 1
-l 0
-j 0.
-nodos 2
+l 3
+j 3.
+nodos 0
 spec 1.
-energia -4.5
+energia -8.5
 file      
 *************
 
