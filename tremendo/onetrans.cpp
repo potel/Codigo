@@ -433,29 +433,42 @@ void CrossSectionOneTransSpinless(complejo ***Tlalb,complejo* Sel,struct paramet
 			}
 		}
 
-		for(K=Kmin;K<=Kmax;K++)
-		{
-			for(la=0;la<parm->lmax;la++){
-				for(lb=abs(la-K);(lb<=la+Kmax) && (lb<parm->lmax);lb++){
-					for(M=-K;M<=K;M++)
-					{
-						MM=M+K;
-						if(abs(M)<=lb)
-						{
-							mm=0;
-							for(m=-ji;m<=ji;m++)
-							{
-								mm=long(m+ji);
-								if((abs(M-m)<=jf))
-								{
-									fase=1.;
-									amp[MM][mm]+=Tlalb[la][lb][K]*fase*ClebsGordan(ji,m,jf,M-m,K,M)*
-											ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
-//									if(lb==4 && M==0) amp[MM][mm]+=Tlalb[la][lb][K]*fase*ClebsGordan(ji,m,jf,M-m,K,M)*
+//		for(K=Kmin;K<=Kmax;K++)
+//		{
+//			for(la=0;la<parm->lmax;la++){
+//				for(lb=abs(la-K);(lb<=la+Kmax) && (lb<parm->lmax);lb++){
+//					for(M=-K;M<=K;M++)
+//					{
+//						MM=M+K;
+//						if(abs(M)<=lb)
+//						{
+//							mm=0;
+//							for(m=-ji;m<=ji;m++)
+//							{
+//								mm=long(m+ji);
+//								if((abs(M-m)<=jf))
+//								{
+//									fase=1.;
+//									amp[MM][mm]+=Tlalb[la][lb][K]*fase*ClebsGordan(ji,m,jf,M-m,K,M)*
 //											ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
-								}
-							}
-						}
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+		K=3;
+		for(la=0;la<parm->lmax;la++){
+			for(lb=abs(la-K);(lb<=la+Kmax) && (lb<parm->lmax);lb++){
+				for(M=-K;M<=K;M++)
+				{
+					MM=M+K;
+					if(abs(M)<=lb)
+					{
+						mm=0;
+						amp[MM][mm]+=Tlalb[la][lb][K]*
+								ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
 					}
 				}
 			}
@@ -463,17 +476,19 @@ void CrossSectionOneTransSpinless(complejo ***Tlalb,complejo* Sel,struct paramet
 		cross=0.;
 		for(M=0;M<=2.*Kmax+1;M++)
 		{
-			for(mm=0;mm<=long(2*ji+1);mm++)
-			{
-//				cross+=abs(amp[M][mm])*abs(amp[M][mm])*constante*escala;
-				cross+=abs(amp[M][mm])*abs(amp[M][mm])*constante*escala;
-//				if(n==13) misc3<<M<<"  "<<abs(amp[M][mm])*abs(amp[M][mm])*constante*escala<<"  "<<cross<<endl;
-			}
+				cross+=abs(amp[M][0])*abs(amp[M][0])*constante*escala;
 		}
+//		cross=0.;
+//		for(M=0;M<=2.*Kmax+1;M++)
+//		{
+//			for(mm=0;mm<=long(2*ji+1);mm++)
+//			{
+//				cross+=abs(amp[M][mm])*abs(amp[M][mm])*constante*escala;
+//			}
+//		}
 		fp<<theta*180./PI<<"  "<<cross<<endl;
 		if(((theta*180./PI)>=thetamin) && ((theta*180./PI)<=thetamax)) totalcross+=cross*sin(theta)*2.*PI*delta_theta;
 	}
-	cout<<"T: "<<Tlalb[1][2][3]<<"  "<<abs(Tlalb[1][2][3])<<endl;
 	cout<<"Seccion eficaz total entre "<<thetamin<<" y "<<thetamax<<": "<<totalcross<<endl;
 	energia_res=26.6;
 	gamma=0.076;

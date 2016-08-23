@@ -89,6 +89,8 @@ void Capture(struct parametros* parm)
 		if(parm->st[indx_st].energia<0.)
 			GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,
 					carga_trans*parm->T_carga,parm,0,parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa),D0,rms);
+//			GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,
+//					carga_trans*parm->T_carga,parm,0,0.989342,D0,rms);
 		else
 		{
 			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,
@@ -293,7 +295,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusión: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=16.5;energia_out<16.7;energia_out+=0.02)
+	for(energia_out=16.539;energia_out<16.6;energia_out+=200)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm=parm->energia_cm-((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)))
@@ -355,6 +357,9 @@ void AmplitudeCapture(struct parametros* parm)
 			if (energia_trans<=0.) wronskiano_up=GeneraGreenFunctionLigada(&(funcion_regular_up[0]),&(funcion_irregular_up[0]),
 					&(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
 					parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),parm->n_spin);
+//			if (energia_trans<=0.) wronskiano_up=GeneraGreenFunctionLigada(&(funcion_regular_up[0]),&(funcion_irregular_up[0]),
+//					&(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
+//					0.989342,parm->n_spin);
 			if (energia_trans>0.)
 			{
 				GeneraGreenFunction(funcion_regular_up,funcion_irregular_up,&(parm->pot_opt[indx_neutron_target]),
@@ -382,6 +387,10 @@ void AmplitudeCapture(struct parametros* parm)
 					(&(funcion_regular_down[1]),&(funcion_irregular_down[1]),
 							&(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
 							parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),parm->n_spin);
+//			if (energia_trans<=0.) wronskiano_down=GeneraGreenFunctionLigada
+//								(&(funcion_regular_down[1]),&(funcion_irregular_down[1]),
+//										&(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
+//										0.989342,parm->n_spin);
 			if (energia_trans>0.)
 			{
 				GeneraGreenFunction(funcion_regular_down,funcion_irregular_down,&(parm->pot_opt[indx_neutron_target]),
@@ -426,7 +435,7 @@ void AmplitudeCapture(struct parametros* parm)
 						if(dim3->b>parm->radio) dim3->b=parm->radio-1.;
 						dim3->num_puntos=parm->rA2_puntos;
 						GaussLegendre(dim3->puntos,dim3->pesos,dim3->num_puntos);
-					    SourcePrior2(rhom,nonm,fl,gl,st,v,optico,core,l,rn,parm,dim3,dim2);
+						SourcePrior2(rhom,nonm,fl,gl,st,v,optico,core,l,rn,parm,dim3,dim2);
 						for(m=0;m<=lp;m++){
 							rho[n][l][m][lp]+=(redfac*rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*rhom[0]);
 							if(parm->prior==1) non[n][l][m][lp]+=(rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*nonm[0]);
@@ -441,17 +450,20 @@ void AmplitudeCapture(struct parametros* parm)
 					for(m=0;m<=lp;m++){
 						phim[m]=0.;
 					}
-//					NeutronWave(phim,rho,&(funcion_regular_up[0]),&(funcion_irregular_up[0]),dim1,parm,rn,l,lp,ld,wronskiano_up);
-//					for(m=0;m<=lp;m++){
-////						phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
+					NeutronWave(phim,rho,&(funcion_regular_up[0]),&(funcion_irregular_up[0]),dim1,parm,rn,l,lp,ld,wronskiano_up);
+					for(m=0;m<=lp;m++){
+						phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
 //						phi_up[n][l][m][lp]=phim[m];
-//					}
+					}
 					NeutronWave(phim,rho,&(funcion_regular_down[1]),&(funcion_irregular_down[1]),dim1,parm,rn,l,lp,ld,wronskiano_down);
 					for(m=0;m<=lp;m++){
-//						phi_down[n][l][m][lp]=(l/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
-						phi_down[n][l][m][lp]=phim[m];
+						phi_down[n][l][m][lp]=(l/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
+//						misc1<<rn<<"  "<<abs(phi_up[n][l][m][lp])<<"  "<<abs(non[n][l][m][lp])<<endl;
+//						phi_down[n][l][m][lp]=phim[m];
 					}
-//					if(lp==0) misc1<<rn<<"  "<<real(phi_up[n][l][0][0])<<"  "<<imag(phi_down[n][l][0][0])<<endl;
+					if(lp==0) misc1<<rn<<"  "<<abs(phi_up[n][l][0][0])<<"  "<<abs(non[n][l][0][0])<<endl;
+
+
 //					NeutronWaveResonant(phim,rho,st_fin,e_res,energia_trans,absorcion,
 //										dim1,parm,rn,l,lp);
 //					for(m=0;m<=lp;m++){
@@ -494,32 +506,32 @@ void AmplitudeCapture(struct parametros* parm)
 			inc_break_lmas[l]=0.;
 		}
 		cout<<"calculando seccion eficaz diferencial"<<endl;
-//		for(n=0;n<parm->cross_puntos;n++)
-//		{
-//			theta=PI*double(n)/double(parm->cross_puntos);
-//			direct[0]=0.;
-//			non_orth[0]=0.;
-//			cross_term[0]=0.;
-////			cout<<"theta: "<<theta*180./PI<<endl;
-//			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
-//			{
-//				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
-//						direct,non_orth,cross_term,cross_up);
-//				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
-//						direct,non_orth,cross_term,cross_down);
-//				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
-//				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-//				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-////				for(l=0;l<parm->lmax;l++)
-////				{
-////					inc_break_lmenos[l]+=sigma_const*escala*rhoE*cross_down[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-////					inc_break_lmas[l]+=sigma_const*escala*rhoE*cross_up[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-////				}
-//				misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
-//						"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
-//						sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
-//			}
-//		}
+		for(n=0;n<parm->cross_puntos;n++)
+		{
+			theta=PI*double(n)/double(parm->cross_puntos);
+			direct[0]=0.;
+			non_orth[0]=0.;
+			cross_term[0]=0.;
+//			cout<<"theta: "<<theta*180./PI<<endl;
+			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
+			{
+				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
+						direct,non_orth,cross_term,cross_up);
+				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
+						direct,non_orth,cross_term,cross_down);
+				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
+				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+//				for(l=0;l<parm->lmax;l++)
+//				{
+//					inc_break_lmenos[l]+=sigma_const*escala*rhoE*cross_down[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+//					inc_break_lmas[l]+=sigma_const*escala*rhoE*cross_up[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+//				}
+				misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
+						"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
+						sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
+			}
+		}
 ////		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A);
 		cout<<"Sección eficaz NEB:  "<<cross_total<<"   Sección eficaz EB:  "<<cross_total_elasticb<<endl;
 	}
@@ -1256,7 +1268,8 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 				UT+=wf[n][l][0][lp]*armonico;
 				HM+=non[n][l][0][lp]*armonico;
 			}
-			suma+=-imag(pot_int)*abs(UT+HM)*abs(UT+HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//			suma+=-imag(pot_int)*abs(UT+HM)*abs(UT+HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+			suma+=-imag(pot_int)*abs(UT)*abs(UT)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 			for(m=1;m<parm->lmax;m++)
 			{
 				UT=0.;
@@ -1267,8 +1280,9 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 					UT+=wf[n][l][m][lp]*armonico;
 					HM+=non[n][l][m][lp]*armonico;
 				}
-				suma+=-2.*imag(pot_int)*abs(UT+HM)*abs(UT+HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
-//								suma+=-imag(pot_int)*abs(UT)*abs(UT)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//				suma+=-2.*imag(pot_int)*abs(UT+HM)*abs(UT+HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+				suma+=-2.*imag(pot_int)*abs(UT)*abs(UT)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+//								suma+=-imag(pot_int)*abs(HM)*abs(HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 			}
 		}
 	}

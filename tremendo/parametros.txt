@@ -76,11 +76,11 @@ B_Sn      -4.24091 # energía de extracción de un neutrón para el núcleo B-1 
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
 
 r_Ccmin 0.     # valor mínimo de r_Cc
-r_Ccmax  15.    # valor máximo de r_Cc
+r_Ccmax  40.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
-r_A2max   15.    # valor máximo de r_A2
-rCc_puntos  15    # número de puntos de integración gaussiana para r_Cc
-rA2_puntos   15  # número de puntos de integración gaussiana para r_A2
+r_A2max   40.    # valor máximo de r_A2
+rCc_puntos  45    # número de puntos de integración gaussiana para r_Cc
+rA2_puntos   45  # número de puntos de integración gaussiana para r_A2
 theta_puntos  10    # número de puntos de integrción gaussiana para theta
 cross_puntos  200 # número de puntos en los que se evalúa la sección eficaz
 matching_radio 20.  #radio de matching para implementar las condiciones de contorno
@@ -99,8 +99,8 @@ pexp  1.
 # gen12 1               # si=1, genera estados de dos partículas (r1,r2) a partir de la matriz de coeficientes en flcoef.
 gen_dens_bound 0      # si=1, genera una densidad y un potencial efectivo tipo Bertsch-Esbensen.
 two_trans 0          # si=1, calcula una reacción de transferencia de 2 nucleones.
-one_trans 0     # si=1, calcula una reacción de transferencia de 1 nucleon.
-capture 1
+one_trans 1     # si=1, calcula una reacción de transferencia de 1 nucleon.
+capture 0
 debug 0              # nivel de debug.
 a_tipo_fun sn           # modo de descripcion de la función de onda del núcleo a. Si=li-> tipo 11Li, si=sn->tipo 120Sn.
 B_tipo_fun sn           # modo de descripcion de la función de onda del núcleo a. Si=li-> tipo 11Li, si=sn->tipo 120Sn.
@@ -192,10 +192,10 @@ DifusividadImaginarioSuperficie  0.47
 
 id 2
 RealVolumen   38.146
-ImaginarioVolumen   0
+ImaginarioVolumen   0.1
 RealSpinOrbita     	0.
 ImaginarioSpinOrbita   0.                      	
-ImaginarioSuperficie   0.5
+ImaginarioSuperficie   0.
 RadioRealVolumen       1.22
 RadioCoulomb          1.35                      
 RadioImaginarioVolumen  1.25                        
