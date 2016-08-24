@@ -3294,6 +3294,7 @@ void GeneraRemnant(potencial_optico *pot,potencial_optico *core,potencial_optico
 	hbarx_core=HC*HC/(2.*AMU*masa_core);
 	l_pot=0;
 	l_core=0;
+//	misc1<<"+++++++++++++++++++++++++++++++++++++++++++"<<endl<<endl;
 	for (i=0;i<in_pot->puntos;i++)
 	{
 		pot->r[i]=in_pot->r[i];
@@ -3308,6 +3309,7 @@ void GeneraRemnant(potencial_optico *pot,potencial_optico *core,potencial_optico
 		if(pot->r[i]<in_pot->radio_coul) pot->pot[i]=in_pot->pot[i]+E_CUADRADO*q1q2_pot*(3.-(pot->r[i]/in_pot->radio_coul)
 				* (pot->r[i]/in_pot->radio_coul))/(2.*in_pot->radio_coul)+
 				(l_pot*(l_pot+1.))*hbarx_pot /(pot->r[i]*pot->r[i]);
+//		misc1<<pot->r[i]<<"  "<<real(core->pot[i])<<"  "<<imag(core->pot[i])<<"  "<<real(pot->pot[i])<<"  "<<imag(pot->pot[i])<<endl;
 	}
 	core->puntos=in_core->puntos;
 	pot->puntos=in_pot->puntos;

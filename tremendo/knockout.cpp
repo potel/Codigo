@@ -3403,6 +3403,7 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 	pot_p->radioso=radioSO;
 	pot_p->radioWd=radioWd;
 	pot_p->rso=radioWd;
+	pot_p->radio_coul=radio_coul;
 
 
 

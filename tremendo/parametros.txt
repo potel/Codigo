@@ -1,11 +1,11 @@
 num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
 lmin 0      # momento angular mínimo. En una reacción tiene que ser 0.
-lmax 15 # momento angular máximo. En una reacción, número de ondas parciales.
-ltransfer 12 #momento angular transferido maximo. Usado para la captura neutronica.
+lmax 20 # momento angular máximo. En una reacción, número de ondas parciales.
+ltransfer 25 #momento angular transferido maximo. Usado para la captura neutronica.
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
 puntos 3000    # número de puntos en los que se definen las funciones.
-radio 40.      #radio máximo.
+radio 60.      #radio máximo.
 num_cm 2       # número de potenciales de campo medio.
 num_opt 3      # número de potenciales ópticos.
 a_numst 1	   # número de estados monoparticulares del núcleo a (la reacción se define como A+a(=b+2)->B(=A+2)+b).
@@ -56,8 +56,9 @@ res_N 53
 
 
 proyectil a		# define cual es el proyectil
-energia_lab  10.22
-Qvalue   -2.2245 # Q-value de la reacción
+energia_lab  10.
+# Qvalue   -2.2245 # Q-value de la reacción
+Qvalue 6.2755
 
 int_Qvalue   -6.7923  # Q-value intermedio (transferencia de una partícula)
 
@@ -76,11 +77,11 @@ B_Sn      -4.24091 # energía de extracción de un neutrón para el núcleo B-1 
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
 
 r_Ccmin 0.     # valor mínimo de r_Cc
-r_Ccmax  40.    # valor máximo de r_Cc
+r_Ccmax  50.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
-r_A2max   40.    # valor máximo de r_A2
-rCc_puntos  45    # número de puntos de integración gaussiana para r_Cc
-rA2_puntos   45  # número de puntos de integración gaussiana para r_A2
+r_A2max   50.    # valor máximo de r_A2
+rCc_puntos  60    # número de puntos de integración gaussiana para r_Cc
+rA2_puntos   60  # número de puntos de integración gaussiana para r_A2
 theta_puntos  10    # número de puntos de integrción gaussiana para theta
 cross_puntos  200 # número de puntos en los que se evalúa la sección eficaz
 matching_radio 20.  #radio de matching para implementar las condiciones de contorno
@@ -99,8 +100,8 @@ pexp  1.
 # gen12 1               # si=1, genera estados de dos partículas (r1,r2) a partir de la matriz de coeficientes en flcoef.
 gen_dens_bound 0      # si=1, genera una densidad y un potencial efectivo tipo Bertsch-Esbensen.
 two_trans 0          # si=1, calcula una reacción de transferencia de 2 nucleones.
-one_trans 1     # si=1, calcula una reacción de transferencia de 1 nucleon.
-capture 0
+one_trans 0     # si=1, calcula una reacción de transferencia de 1 nucleon.
+capture 1
 debug 0              # nivel de debug.
 a_tipo_fun sn           # modo de descripcion de la función de onda del núcleo a. Si=li-> tipo 11Li, si=sn->tipo 120Sn.
 B_tipo_fun sn           # modo de descripcion de la función de onda del núcleo a. Si=li-> tipo 11Li, si=sn->tipo 120Sn.
@@ -111,7 +112,7 @@ form_factor 0			# si=1 calcula el factor de forma no local (two_trans tiene que 
 unidades milib				# unidades de la sección eficaz: milib->milibarn, fm2->fermi^2, b->barn, microb->microbarn
 adiabatico 1        
 zerorange 0     
-koning_delaroche 0 # potencial de Koning-Delaroche
+koning_delaroche 1 # potencial de Koning-Delaroche
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 InicioPotencialesOpticos
 
@@ -153,12 +154,12 @@ InicioPotencialesOpticos
 #
 #****************************
 
-
+# optical potential at Ed=10 MeV
 id 0
 RealVolumen 86.0683
 ImaginarioVolumen  0
-RealSpinOrbita  0
-ImaginarioSpinOrbita	-0.206
+RealSpinOrbita  0.
+ImaginarioSpinOrbita	0.
 ImaginarioSuperficie  15.0409
 RadioRealVolumen  1.174
 RadioCoulomb  1.698
@@ -190,9 +191,11 @@ DifusividadImaginarioSuperficie  0.47
 
 *******************
 
+
+
 id 2
 RealVolumen   38.146
-ImaginarioVolumen   0.1
+ImaginarioVolumen   0.3
 RealSpinOrbita     	0.
 ImaginarioSpinOrbita   0.                      	
 ImaginarioSuperficie   0.
@@ -207,6 +210,25 @@ RadioImaginarioSuperficie   1.13
 DifusividadImaginarioSuperficie  0.48
 
 *******************
+
+# optical potential at Ed=25.5 MeV
+#id 0
+#RealVolumen 83.2868
+#ImaginarioVolumen  0.667776
+#RealSpinOrbita  0.
+#ImaginarioSpinOrbita	0.
+#ImaginarioSuperficie  13.8102
+#RadioRealVolumen  1.174
+#RadioCoulomb  1.698
+#RadioImaginarioVolumen  1.563
+#DifusividadRealVolumen  0.809
+#DifusividadImaginarioVolumen  0.903879
+#RadioSpinOrbita    1.234
+#DifusividadSpinOrbita  0.813
+#RadioImaginarioSuperficie  1.328
+#DifusividadImaginarioSuperficie 0.668879
+#
+#*******************
 
 
 FinPotencialesOpticos
