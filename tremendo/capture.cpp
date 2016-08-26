@@ -312,9 +312,7 @@ void AmplitudeCapture(struct parametros* parm)
 		k_p=sqrt(2.*parm->m_b*AMU*Ecm_out)/HC;
 		rhoE=parm->m_b*AMU*k_p/(8.*PI*PI*PI*HC*HC);
 		rhoE_n=parm->n1_masa*AMU*k_n/(8.*PI*PI*PI*HC*HC);
-		cout<<"eta :"<<eta_f<<endl;
 		eta_f=carga_out*parm->res_carga*E2HC*(parm->m_b*parm->T_masa/(parm->m_b+parm->T_masa))*AMU/(HC*k_p);
-		cout<<"eta :"<<eta_f<<endl;
 		cross_total=0.;
 		cross_total_elasticb=0.;
 		if(parm->koning_delaroche==1){
@@ -401,6 +399,7 @@ void AmplitudeCapture(struct parametros* parm)
 				wronskiano_down=k_n;
 			}
 			for(lp=0;lp<parm->lmax;lp++)
+//			for(lp=0;lp<1;lp++)
 			{
 				gl->energia=Ecm_out;
 				gl->l=lp;
@@ -494,6 +493,7 @@ void AmplitudeCapture(struct parametros* parm)
 			cout<<" Seccion total (conservacion de flujo): "<<total_break[l]<<endl<<endl;
 //			misc3<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<"  "<<"  "<<total_break[l]<<"  ";
 			misc3<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<"  ";
+			misc1<<l<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<endl;
 		}
 //		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp3,&fp4,&fp7,parm->J_A);
 		cout<<"Sección eficaz NEB:  "<<cross_total<<"   Sección eficaz EB:  "<<cross_total_elasticb<<endl;
@@ -1071,6 +1071,7 @@ void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* o
 		{
 			suma[m]+=rho[n][l][m][lp]*stint*rBnp*dim->pesos[n];
 		}
+		if (lp==0) misc2<<rBnp<<"  "<<abs(suma[0])*((dim->b)-(dim->a))<<endl;
 	}
 	for(m=0;m<=l;m++)
 	{
