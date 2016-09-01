@@ -1,11 +1,11 @@
 num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
 lmin 0      # momento angular mínimo. En una reacción tiene que ser 0.
-lmax 25 # momento angular máximo. En una reacción, número de ondas parciales.
+lmax 15 # momento angular máximo. En una reacción, número de ondas parciales.
 ltransfer 10 #momento angular transferido maximo. Usado para la captura neutronica.
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
 puntos 3000    # número de puntos en los que se definen las funciones.
-radio 80.      #radio máximo.
+radio 50.      #radio máximo.
 num_cm 2       # número de potenciales de campo medio.
 num_opt 3      # número de potenciales ópticos.
 a_numst 1	   # número de estados monoparticulares del núcleo a (la reacción se define como A+a(=b+2)->B(=A+2)+b).
@@ -77,11 +77,11 @@ B_Sn      -4.24091 # energía de extracción de un neutrón para el núcleo B-1 
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
 
 r_Ccmin 0.     # valor mínimo de r_Cc
-r_Ccmax  45.    # valor máximo de r_Cc
+r_Ccmax  20.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
-r_A2max   45.    # valor máximo de r_A2
-rCc_puntos  60    # número de puntos de integración gaussiana para r_Cc
-rA2_puntos   60  # número de puntos de integración gaussiana para r_A2
+r_A2max   20.    # valor máximo de r_A2
+rCc_puntos  80    # número de puntos de integración gaussiana para r_Cc
+rA2_puntos   30  # número de puntos de integración gaussiana para r_A2
 theta_puntos  10    # número de puntos de integrción gaussiana para theta
 cross_puntos  200 # número de puntos en los que se evalúa la sección eficaz
 matching_radio 20.  #radio de matching para implementar las condiciones de contorno

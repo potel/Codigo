@@ -295,7 +295,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusión: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=5.;energia_out<17.5;energia_out+=200)
+	for(energia_out=5.054;energia_out<17.5;energia_out+=200)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
@@ -339,8 +339,8 @@ void AmplitudeCapture(struct parametros* parm)
 			GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_salida],parm->T_carga*parm->P_carga,
 					parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
 		}
-		for(l=0;l<parm->ltransfer;l++)
-//		for(l=3;l<4;l++)
+//		for(l=0;l<parm->ltransfer;l++)
+		for(l=0;l<1;l++)
 		{
 			cout<<"L: "<<l<<endl;
 			funcion_regular_up[0].energia=Ecm;
@@ -442,7 +442,8 @@ void AmplitudeCapture(struct parametros* parm)
 							rho[n][l][m][lp]+=(redfac*rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*rhom[0]);
 							if(parm->prior==1) non[n][l][m][lp]+=(rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*nonm[0]);
 						}
-//						misc2<<rn<<"  "<<abs(rho[n][l][0][0])<<"  "<<abs(non[n][l][0][0])<<endl;
+//						misc2<<rn<<"  "<<real(rho[n][0][0][0])<<"  "<<imag(rho[n][0][0][0])
+//		                          <<"  "<<abs(rho[n][0][0][0])<<endl;
 					}
 				}
 				dim1->a=parm->r_Ccmin;
@@ -455,8 +456,8 @@ void AmplitudeCapture(struct parametros* parm)
 					}
 					NeutronWave(phim,rho,&(funcion_regular_up[0]),&(funcion_irregular_up[0]),dim1,parm,rn,l,lp,ld,wronskiano_up);
 					for(m=0;m<=lp;m++){
-						phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
-//						phi_up[n][l][m][lp]=phim[m];
+//						phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
+						phi_up[n][l][m][lp]=phim[m];
 					}
 					NeutronWave(phim,rho,&(funcion_regular_down[1]),&(funcion_irregular_down[1]),dim1,parm,rn,l,lp,ld,wronskiano_down);
 					for(m=0;m<=lp;m++){
@@ -470,6 +471,7 @@ void AmplitudeCapture(struct parametros* parm)
 //					for(m=0;m<=lp;m++){
 //						phi_resonant[n][l][m][lp]=phim[m];
 //					}
+//					misc2<<rn<<"  "<<real(phi_up[n][0][0][0])<<"  "<<imag(phi_up[n][0][0][0])<<endl;
 				}
 
 			}
@@ -508,26 +510,26 @@ void AmplitudeCapture(struct parametros* parm)
 			inc_break_lmas[l]=0.;
 		}
 		cout<<"calculando seccion eficaz diferencial"<<endl;
-		for(n=0;n<parm->cross_puntos;n++)
-		{
-			theta=PI*double(n)/double(parm->cross_puntos);
-			direct[0]=0.;
-			non_orth[0]=0.;
-			cross_term[0]=0.;
-			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
-			{
-				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
-						direct,non_orth,cross_term,cross_up);
-				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
-						direct,non_orth,cross_term,cross_down);
-				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
-				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-				misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
-						"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
-						sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
-			}
-		}
+//		for(n=0;n<parm->cross_puntos;n++)
+//		{
+//			theta=PI*double(n)/double(parm->cross_puntos);
+//			direct[0]=0.;
+//			non_orth[0]=0.;
+//			cross_term[0]=0.;
+//			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
+//			{
+//				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
+//						direct,non_orth,cross_term,cross_up);
+//				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
+//						direct,non_orth,cross_term,cross_down);
+//				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
+//				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+//				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+//				misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
+//						"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
+//						sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
+//			}
+//		}
 //////		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A);
 		cout<<"Sección eficaz NEB:  "<<cross_total<<"   Sección eficaz EB:  "<<cross_total_elasticb<<endl;
 	}
@@ -1071,7 +1073,7 @@ void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* o
 		{
 			suma[m]+=rho[n][l][m][lp]*stint*rBnp*dim->pesos[n];
 		}
-		if (lp==0) misc2<<rBnp<<"  "<<abs(suma[0])*((dim->b)-(dim->a))<<endl;
+//		if (lp==0) misc2<<rBnp<<"  "<<abs(suma[0])*((dim->b)-(dim->a))<<endl;
 	}
 	for(m=0;m<=l;m++)
 	{

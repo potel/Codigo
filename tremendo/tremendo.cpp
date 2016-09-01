@@ -193,8 +193,8 @@ void EscribeEstados(int puntos,estado* st,int numero_estados,struct parametros *
 	for(i=0;i<puntos;i++){
 		fpst<<st[0].r[i]<<"  ";
 		for(n=0;n<numero_estados;n++){
-			fpst<<real(st[n].wf[i])<<"  ";
-//			fpst<<real(st[n].wf[i]*st[0].r[i])<<"  ";
+//			fpst<<real(st[n].wf[i])<<"  ";
+			fpst<<real(st[n].wf[i]*st[0].r[i])<<"  "<<real(st[n].wf[i])<<"  ";
 		}
 		fpst<<endl;
 	}
