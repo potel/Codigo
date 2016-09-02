@@ -471,9 +471,9 @@ void AmplitudeCapture(struct parametros* parm)
 //					for(m=0;m<=lp;m++){
 //						phi_resonant[n][l][m][lp]=phim[m];
 //					}
-//					misc2<<rn<<"  "<<real(phi_up[n][0][0][0])<<"  "<<imag(phi_up[n][0][0][0])<<endl;
+//					misc2<<rn<<"  "<<real(phi_up[n][0][0][0])<<"  "<<imag(phi_up[n][0][0][0])<<"  "<<abs(phi_up[n][0][0][0])<<endl;
 				}
-
+//					exit(0);
 			}
 			inc_break[l]=0.;
 			elastic_break[l]=0.;
@@ -735,7 +735,7 @@ void SourcePrior2(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* 
 	remnant=0.;
 	for (n1 =0;n1<dim1->num_puntos; n1++) {
 		rAp = (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n1])+1.)/2.;
-//		gl=interpola_cmpx(g->wf,g->r,rAp,g->puntos);
+		gl=interpola_cmpx(g->wf,g->r,rAp,g->puntos);
 		if(parm->remnant==1) corepot=interpola_cmpx(core->pot,core->r,rAp,core->puntos);
 		for (n2=0;n2<dim2->num_puntos;n2++) {
 			theta=(dim2->a)+((dim2->b)-(dim2->a))*((dim2->puntos[n2])+1.)/2.;
@@ -752,19 +752,19 @@ void SourcePrior2(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* 
 			rBpx=rAp*seno;
 			rBpz=(-1./parm->m_A)*rBn+rAp*coseno;
 			rBp=sqrt(rBpx*rBpx+rBpz*rBpz);
-			gl=interpola_cmpx(g->wf,g->r,rBp,g->puntos);
+//			gl=interpola_cmpx(g->wf,g->r,rBp,g->puntos);
 			fl=interpola_cmpx(f->wf,f->r,rd,f->puntos);
 			ud=interpola_cmpx(u->wf,u->r,rpn,u->puntos);
 			coupling=FuncionAngular2(lp,ld,l,coseno,coseno_d);
 			if (parm->remnant==1) remnant=inpot-corepot;
-			suma+=rBp*seno*fl*gl*ud*(vpn-remnant)*coupling*
-					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
-			sumanon+=rBp*seno*fl*gl*ud*coupling*
-					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
-//			suma+=rAp*seno*fl*gl*ud*(vpn-remnant)*coupling*
+//			suma+=rBp*seno*fl*gl*ud*(vpn-remnant)*coupling*
 //					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
-//			sumanon+=rAp*seno*fl*gl*ud*coupling*
+//			sumanon+=rBp*seno*fl*gl*ud*coupling*
 //					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
+			if(n2==0) suma+=rAp*seno*fl*gl*ud*(vpn-remnant)*coupling*
+					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
+			sumanon+=rAp*seno*fl*gl*ud*coupling*
+					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
 		}
 //		if(lp==0) misc1<<abs(rAp-rAn)<<"  "<<abs(suma)<<endl;
 	}
