@@ -6,7 +6,7 @@ ltransfer 1 #momento angular transferido maximo. Usado para la captura neutronic
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
 puntos 1000    # número de puntos en los que se definen las funciones.
-radio 21.      #radio máximo.
+radio 40.      #radio máximo.
 num_cm 2       # número de potenciales de campo medio.
 num_opt 3      # número de potenciales ópticos.
 a_numst 1	   # número de estados monoparticulares del núcleo a (la reacción se define como A+a(=b+2)->B(=A+2)+b).
@@ -17,7 +17,7 @@ flcoef  matrizcoeficientes.dat   # fichero o ficheros con los coeficientes de la
                                    # de partícula independiente (usado si tipo_fun=li)
 a_potcm 0   # potencial de campo medio usado para definir los estados del núcleo a.
 B_potcm 1    # potencial de campo medio usado para definir los estados del núcleo B.
-pot_transfer 1  # potencial de campo medio utilizado para calcular la transferencia (Si es igual a a_potcm, la representación es post,
+pot_transfer 0  # potencial de campo medio utilizado para calcular la transferencia (Si es igual a a_potcm, la representación es post,
                  # si es igual a B_potcm, prior).
 				 
 optico_ingreso 0    # potencial optico en el canal de ingreso
@@ -25,7 +25,7 @@ optico_salida 1      # potencial optico en el canal de salida
 optico_intermedio 2
 core_pot 1
 scatt_pot 2
-prior 1
+prior 0
 remnant 1
 ++++++++++++++ Descripción de la reacción +++++++++++++++++++++++++++++++++++++
 
@@ -59,15 +59,17 @@ res_N 7
 
 proyectil a		# define cual es el proyectil
 energia_lab  12.
-#Qvalue  -2.0048	# Q-value de la reacción
-Qvalue  -1.5996	# Q-value de la reacción
+
+#Qvalue  -2.0048	# Q-value de la reacción (1/2-)
+Qvalue  -4.	# Q-value de la reacción (5/2+)
+#Qvalue  -1.5996	# Q-value de la reacción (1/2+)
 
 int_Qvalue   -6.88028  # Q-value intermedio (transferencia de una partícula)
 
 J_a 1.			# momentos angulares de las especies nucleares
 J_A 0.
 J_b 0.5
-J_B  0.5
+J_B  2.5
 
 dw_spinA 1   #spin de las ondas distorsionadas entrantes
 dw_spinB 0.5   #spin de las ondas distorsionadas salientes
@@ -79,11 +81,11 @@ B_Sn   -4.24091 # energía de extracción de un neutrón para el núcleo B-1 (de
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
 
 r_Ccmin 0.     # valor mínimo de r_Cc
-r_Ccmax  20.    # valor máximo de r_Cc
+r_Ccmax  40.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
-r_A2max   20.    # valor máximo de r_A2
-rCc_puntos  25    # número de puntos de integración gaussiana para r_Cc
-rA2_puntos   20  # número de puntos de integración gaussiana para r_A2
+r_A2max   40.    # valor máximo de r_A2
+rCc_puntos  35    # número de puntos de integración gaussiana para r_Cc
+rA2_puntos   35  # número de puntos de integración gaussiana para r_A2
 theta_puntos  15   # número de puntos de integrción gaussiana para theta
 cross_puntos  200 # número de puntos en los que se evalúa la sección eficaz
 matching_radio 20.  #radio de matching para implementar las condiciones de contorno
@@ -119,38 +121,38 @@ InicioPotencialesOpticos
 
 
 id 1                                                     
-RealVolumen   56.982
-ImaginarioVolumen   0.83843
-RealSpinOrbita     	0.
-ImaginarioSpinOrbita   0.                      	
-ImaginarioSuperficie   9.79175
-RadioRealVolumen       1.12161
-RadioCoulomb          1.12161                 
-RadioImaginarioVolumen  1.12161                        
-DifusividadRealVolumen 0.676164                    
-DifusividadImaginarioVolumen   0.524426         	      	
-RadioSpinOrbita 1.25                             	    
-DifusividadSpinOrbita 	0.7                                  
-RadioImaginarioSuperficie   1.30715                  
-DifusividadImaginarioSuperficie  0.524426
+RealVolumen 57.3423
+ImaginarioVolumen  0.882205
+RealSpinOrbita  5.52458
+ImaginarioSpinOrbita	0
+ImaginarioSuperficie  9.83254
+RadioRealVolumen  1.12161
+RadioCoulomb  1.57775
+RadioImaginarioVolumen  1.12161
+DifusividadRealVolumen  0.676164
+DifusividadImaginarioVolumen  0.676164
+RadioSpinOrbita    1.98931
+DifusividadSpinOrbita  0.59
+RadioImaginarioSuperficie  1.30715
+DifusividadImaginarioSuperficie 0.524426
 
 ***************
 
 id 0
-RealVolumen    90.0707	
-ImaginarioVolumen    1.8504
-RealSpinOrbita      0.
-ImaginarioSpinOrbita	0.
-ImaginarioSuperficie   10.4628
-RadioRealVolumen     1.1484
-RadioCoulomb              1.1484                         
-RadioImaginarioVolumen         1.35128
-DifusividadRealVolumen           0.746146
-DifusividadImaginarioVolumen     0.639557
-RadioSpinOrbita             	0.97160242115162
-DifusividadSpinOrbita         0.955
-RadioImaginarioSuperficie            1.40455
-DifusividadImaginarioSuperficie     0.664575
+RealVolumen 75.2785
+ImaginarioVolumen  2.75636
+RealSpinOrbita  0.
+ImaginarioSpinOrbita	-0.206
+ImaginarioSuperficie  11.3356
+RadioRealVolumen  1.174
+RadioCoulomb  1.698
+RadioImaginarioVolumen  1.563
+DifusividadRealVolumen  0.809
+DifusividadImaginarioVolumen  0.79695
+RadioSpinOrbita    1.234
+DifusividadSpinOrbita  0.813
+RadioImaginarioSuperficie  1.328
+DifusividadImaginarioSuperficie 0.56195
 
 *******************
 
@@ -239,6 +241,25 @@ InicioEstados
 #*********************
 
 #id 1                                                        
+#l 2
+#j 2.5
+#nodos 0
+#spec 0.68
+#energia 1.06
+#file C:\Gregory\Be\11Be\d5_2_1.txt
+#*********************
+
+
+id 1                                                        
+l 2
+j 2.5
+nodos 0
+spec 0.57
+energia 1.32
+file C:\Gregory\Be\11Be\d5_2_2.txt
+*********************
+
+#id 1                                                        
 #l 1
 #j 0.5
 #nodos 0
@@ -247,14 +268,14 @@ InicioEstados
 #file 
 #*********************
 
-id 1                                                        
-l 0
-j 0.5
-nodos 1
-spec 0.9
-energia -0.6249
-file 
-*********************
+#id 1                                                        
+#l 0
+#j 0.5
+#nodos 1
+#spec 0.9
+#energia -0.6249
+#file 
+#*********************
 
 
 id 0

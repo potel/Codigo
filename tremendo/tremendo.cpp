@@ -3086,6 +3086,7 @@ void File2State(estado *st,parametros *parm)
 	double pos,delta_r;
 	double *r=new double[MAX_PTS];
 	double *wf=new double[MAX_PTS];
+	double *wf_r=new double[MAX_PTS];
 	delta_r=parm->radio/double(parm->puntos);
 	puntos=0;
 	while(!fp.eof())
@@ -3093,18 +3094,24 @@ void File2State(estado *st,parametros *parm)
 		puntos++;
 		fp>>r[puntos];
 		fp>>wf[puntos];
+		wf_r[puntos]=wf[puntos]/r[puntos];
 		if(puntos>=MAX_PTS) {cout<<"Número de puntos en "<<st->file<<" mayor que MAX_PTS"<<endl; exit(0);}
+//		misc3<<r[puntos]<<"  "<<wf[puntos]<<"  "<<wf_r[puntos]<<endl;
 	}
 
 	for(n=0;n<parm->puntos;n++)
 	{
 		pos=delta_r*(n+1);
 		st->r[n]=pos;
-		if(pos<=r[puntos-1]) st->wf[n]=interpola_dbl(wf,r,pos,puntos-1)/pos;
+		if(pos<=r[puntos-1]) st->wf[n]=interpola_dbl(wf_r,r,pos,puntos-1);
 		else st->wf[n]=0.;
+//		misc2<<pos<<"  "<<st->wf[n]*st->r[n]<<"  "<<st->wf[n]<<endl;
 	}
 	st->puntos=parm->puntos;
 	st->radio=parm->radio;
+	delete[] r;
+	delete[] wf;
+	delete[] wf_r;
 }
 //////////////////////////////////////////////////////
 //  Lee potencial de un archivo                       //
@@ -3279,11 +3286,13 @@ void GeneraEstadosContinuo(potencial_optico* pot_optico,estado* st,double radio,
 		st->puntos=puntos;
 		cout<<"energia nivel: "<<st->energia<<"   l: "<<st->l
 				<<"   nodos: "<<st->nodos<<"   j: "<<st->j<<endl;
+
+		for (i=0;i<puntos;i++) {
+			st->wf[i]=dw->wf[i]/(q*dw->r[i]);
+			st->r[i]=dw->r[i];
+		}
 	}
-	for (i=0;i<puntos;i++) {
-		st->wf[i]=dw->wf[i]/(q*dw->r[i]);
-		st->r[i]=dw->r[i];
-	}
+	else File2State(st,parm);
 }
 void GeneraRemnant(potencial_optico *pot,potencial_optico *core,potencial_optico *in_pot,
 		potencial_optico *in_core,double q1q2_pot,double q1q2_core,int l_pot,int l_core,double masa_pot,int masa_core)

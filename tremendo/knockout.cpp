@@ -3339,6 +3339,9 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 	double v1p,v2p,v3p,v4p,wp1,wp2,dp1,dp2,dp3,vpso1,vpso2,wpso1,wpso2,rC,Vc,
 	Epf,Vv,Wv,rV,aV,Wd,rD,aD,rSO,aSO,rwd,awd,radioV,radioW,radioWd,radio_coul,
 	derivada,Wdd,delta_E,Vso,Wso,radioSO,ls,alpha,DVc;
+	ofstream fp("KDPotential.txt");
+	fp<<"Lab Energy: "<<E<<" MeV. N: "<<N<<". Z: "<<Z<<endl;
+	fp<<"*********************************************"<<endl<<endl;
 	ls=(j*(j+1.)-l*(l+1.)-0.75);
 	alpha=(N-Z)/A;
 	v1p=59.30+(21.*(N-Z)/A)-0.024*A;
@@ -3405,6 +3408,21 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 	pot_p->rso=radioWd;
 	pot_p->radio_coul=radio_coul;
 
+	fp<<"Protons: "<<endl<<endl;
+	fp<<"RealVolumen "<<Vv<<endl<<
+			"ImaginarioVolumen  "<<Wv<<endl<<
+			"RealSpinOrbita  "   <<Vso<<endl<<
+			"ImaginarioSpinOrbita	"<<0.<<endl<<
+			"ImaginarioSuperficie  " <<Wd<<endl<<
+			"RadioRealVolumen  "   <<rV<<endl<<
+			"RadioCoulomb  "            <<rC<<endl<<
+			"RadioImaginarioVolumen  "       <<rV<<endl<<
+			"DifusividadRealVolumen  "         <<aV<<endl<<
+			"DifusividadImaginarioVolumen  "   <<aV<<endl<<
+			"RadioSpinOrbita    "         	<<radioSO<<endl<<
+			"DifusividadSpinOrbita  "       <<aSO<<endl<<
+			"RadioImaginarioSuperficie  "          <<rwd<<endl<<
+			"DifusividadImaginarioSuperficie "    <<awd<<endl;
 
 
 	v1p=59.30-21.*(N-Z)/A-0.024*A;
@@ -3489,6 +3507,22 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 	pot_n->radioso=radioSO;
 	pot_n->radioWd=radioWd;
 	pot_n->rso=radioWd;
+
+	fp<<"Neutrons: "<<endl<<endl;
+	fp<<"RealVolumen "<<Vv<<endl<<
+			"ImaginarioVolumen  "<<Wv<<endl<<
+			"RealSpinOrbita  "   <<Vso<<endl<<
+			"ImaginarioSpinOrbita	"<<0.<<endl<<
+			"ImaginarioSuperficie  " <<Wd<<endl<<
+			"RadioRealVolumen  "   <<rV<<endl<<
+			"RadioCoulomb  "            <<rC<<endl<<
+			"RadioImaginarioVolumen  "       <<rV<<endl<<
+			"DifusividadRealVolumen  "         <<aV<<endl<<
+			"DifusividadImaginarioVolumen  "   <<aV<<endl<<
+			"RadioSpinOrbita    "         	<<radioSO<<endl<<
+			"DifusividadSpinOrbita  "       <<aSO<<endl<<
+			"RadioImaginarioSuperficie  "          <<rwd<<endl<<
+			"DifusividadImaginarioSuperficie "    <<awd<<endl;
 //	misc1<<E<<"  "<<Vv<<"  "<<Wd<<"  "<<Wv<<"  "<<Vso<<"  "<<rV<<"  "<<aV<<"  "<<rwd<<"  "<<awd<<endl;
 //cout<<" radio: "<<Vv/(1.+exp((r-radioV)/aV))<<"   "<<Vv<<"   "<<r<<"   "<<radioV<<"   "<<1.+exp((r-radioV)/aV)<<endl;
 //	*potencial_n=-2.*(ls*Vso)*exp((r-radioSO)/aSO)/(r*aSO*(1.+exp((r-radioSO)/aSO))*(1.+exp((r-radioSO)/aSO)));
@@ -3506,6 +3540,9 @@ void CH89(double E,double N,double Z,double r,complejo* potencial_p,complejo* po
 	double A=N+Z;
 	double V0,Vt,Ve,r0,r00,a0,rc,rc0,Vso,rso,rso0,aso,Wv0,Wve0,Wvew,Ws0,
 	      Wst,Wse0,Wsew,rW,rW0,aW,Vrp,Vrn,R0,Rc,Rso,Wvn,Wvp,Wsp,Wsn,Rw,Ecp,Ecn,ls;
+	ofstream fp("CH89Potential.txt");
+	fp<<"Lab Energy: "<<E<<" MeV. N: "<<N<<". Z: "<<Z<<endl;
+	fp<<"*********************************************"<<endl<<endl;
 	ls=(j*(j+1.)-l*(l+1.)-0.75);
 	V0=52.9;
 	Vt=13.1;
@@ -3562,17 +3599,33 @@ void CH89(double E,double N,double Z,double r,complejo* potencial_p,complejo* po
 
     /////////////////////////////////////////////////
 	// For 95Mo:
-	Vrn=50.;
-	if(Wvn<=4.) Wvn=4.;
+//	Vrn=50.;
+//	if(Wvn<=4.) Wvn=4.;
 	////////////////////////////////////////////////
 
 	if(j==0.)
 		*potencial_n=-Vrn/(1.+exp((r-R0)/a0))-I*Wvn/(1.+exp((r-Rw)/aW))
-		-4.*I*Wvn*exp((r-Rw)/aW)/((1.+exp((r-Rw)/aW))*(1.+exp((r-Rw)/aW)));
+		-4.*I*Wsn*exp((r-Rw)/aW)/((1.+exp((r-Rw)/aW))*(1.+exp((r-Rw)/aW)));
 	else
 		*potencial_n=-Vrn/(1.+exp((r-R0)/a0))-I*Wvn/(1.+exp((r-Rw)/aW))
 		-4.*I*Wsn*exp((r-Rw)/aW)/((1.+exp((r-Rw)/aW))*(1.+exp((r-Rw)/aW)))
 		-2.*(ls*Vso)*exp((r-Rso)/aso)/(r*aso*(1.+exp((r-Rso)/aso))*(1.+exp((r-Rso)/aso)));
+
+	fp<<"Neutrons: "<<endl<<endl;
+	fp<<"RealVolumen "<<Vrn<<endl<<
+			"ImaginarioVolumen  "<<Wvn<<endl<<
+			"RealSpinOrbita  "   <<Vso<<endl<<
+			"ImaginarioSpinOrbita	"<<0.<<endl<<
+			"ImaginarioSuperficie  " <<Wsn<<endl<<
+			"RadioRealVolumen  "   <<r0<<endl<<
+			"RadioCoulomb  "            <<rc<<endl<<
+			"RadioImaginarioVolumen  "       <<rW<<endl<<
+			"DifusividadRealVolumen  "         <<a0<<endl<<
+			"DifusividadImaginarioVolumen  "   <<aW<<endl<<
+			"RadioSpinOrbita    "         	<<rso<<endl<<
+			"DifusividadSpinOrbita  "       <<aso<<endl<<
+			"RadioImaginarioSuperficie  "          <<rW<<endl<<
+			"DifusividadImaginarioSuperficie "    <<aW<<endl;
 
 
 	pot_p->V=Vrp;
@@ -3601,6 +3654,21 @@ void CH89(double E,double N,double Z,double r,complejo* potencial_p,complejo* po
 		*potencial_n=-Vrn/(1.+exp((r-R0)/a0))-I*Wvp/(1.+exp((r-Rw)/aW))
 		-4.*I*Wsp*exp((r-Rw)/aW)/((1.+exp((r-Rw)/aW))*(1.+exp((r-Rw)/aW)))
 		-2.*(ls*Vso)*exp((r-Rso)/aso)/(r*aso*(1.+exp((r-Rso)/aso))*(1.+exp((r-Rso)/aso)));
+	fp<<"Protons: "<<endl<<endl;
+	fp<<"RealVolumen "<<Vrp<<endl<<
+			"ImaginarioVolumen  "<<Wvp<<endl<<
+			"RealSpinOrbita  "   <<Vso<<endl<<
+			"ImaginarioSpinOrbita	"<<0.<<endl<<
+			"ImaginarioSuperficie  " <<Wsp <<endl<<
+			"RadioRealVolumen  "   <<r0<<endl<<
+			"RadioCoulomb  "            <<rc<<endl<<
+			"RadioImaginarioVolumen  "       <<rW<<endl<<
+			"DifusividadRealVolumen  "         <<a0<<endl<<
+			"DifusividadImaginarioVolumen  "   <<aW<<endl<<
+			"RadioSpinOrbita    "         	<<rso<<endl<<
+			"DifusividadSpinOrbita  "       <<aso<<endl<<
+			"RadioImaginarioSuperficie  "          <<rW<<endl<<
+			"DifusividadImaginarioSuperficie "    <<aW<<endl;
 }
 ///////////////////////////////////////////////////////////////////////
 //                                                                   //
@@ -3614,6 +3682,8 @@ void HanShiShen(double E,double N,double Z)
 	double VR,WD,WS,WSO,VSO,RR,aR,RD,aD,RS,aS,RSO,aSO,RC,ad,as;
 	double rR,rD,rS,rSO,rC;
 	ofstream fp("HanShiShenPotential.txt");
+	fp<<"Lab Energy: "<<E<<" MeV. N: "<<N<<". Z: "<<Z<<endl;
+	fp<<"*********************************************"<<endl<<endl;
 	V0=82.18;
 	V1=-0.148;
 	V2=-0.000886;

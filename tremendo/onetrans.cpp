@@ -22,9 +22,15 @@ void OneTrans(struct parametros* parm)
 	double* rms=new double[1];
 	complejo***** Tlalb;
 	complejo*** TSpinless;
+	complejo* dumb_pot=new complejo[1];
+	potencial_optico*  dumb_pot_opt=new potencial_optico[1];
 	TSpinless=tensor_cmpx(parm->lmax,parm->lmax,20);
 	Tlalb=tensor5_cmpx(10,parm->lmax,parm->lmax,3,3);
 	InicializaOneTrans(parm);
+	HanShiShen(parm->energia_lab,parm->T_N,parm->T_carga);
+	CH89(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+//	KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+	KoningDelaroche(10.5,7,4.,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
 	cout<<"Generando potenciales de campo medio"<<endl;
 	for(n=0;n<parm->num_cm;n++)
 	{
@@ -798,6 +804,7 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 				{
 					fase=pow(I,la-lb);
 					IntegralOneTransSpinless(intk,Ij,K);
+//					exit(0);
 //					IntegralOneTransSpinlessZR(intk,Ij,K);
 					T[la][lb][K]+=c2*c1*sqrt(2.*lb+1.)*sqrt(2.*la+1.)*fase*intk->inicial_st->spec*intk->final_st->spec*
 							exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb]*factor*(*Ij);
@@ -912,8 +919,8 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
 //						angsum*estado_inicial*fr_aA*fr_bB)/
 //												integrando->coords->r_aA[n1][n2][n3])*
 //														(integrando->dim1)->pesos[n1]*(integrando->dim3)->pesos[n3];
-//				if (r_An<5.) misc1<<r_An<<"   "<<integrando->coords->r_bA[n1][n2][n3]<<
-//						"  "<<abs(remnant)<<"  "<<abs(optico)<<"  "<<abs(core)<<"  "<<r_bB-integrando->coords->r_bA[n1][n2][n3]<<"  "<<endl;
+//				if (n3==1 ) misc1<<r_An<<"   "<<integrando->coords->r_bA[n1][n2][n3]<<
+//						"  "<<abs(kernel)<<"  "<<real(estado_final)<<endl;
 				*Ij+=kernel;
 			}
 		}
