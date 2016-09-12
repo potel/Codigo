@@ -1206,6 +1206,10 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 		funcion_irregular[0].r[i]=delta_r*(i+1.);
 		gsl_sf_coulomb_wave_FG_e(etac,q*funcion_regular[0].r[i],funcion_irregular[0].l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
 		funcion_regular[0].wf[i]= factor_regular*funcion_regular[0].wf[i];
+//		misc1<<funcion_regular[0].r[i]<<"  "<<real(funcion_regular[0].wf[i])
+//				<<"  "<<imag(funcion_regular[0].wf[i])<<endl;
+//		misc2<<funcion_regular[0].r[i]<<"  "<<real(funcion_irregular[0].wf[i])
+//				<<"  "<<imag(funcion_irregular[0].wf[i])<<endl;
 	}
 
 
