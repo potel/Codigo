@@ -30,7 +30,7 @@ void OneTrans(struct parametros* parm)
 	HanShiShen(parm->energia_lab,parm->T_N,parm->T_carga);
 	CH89(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
 //	KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
-	KoningDelaroche(10.5,7,4.,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+	KoningDelaroche(17.4,7.,4.,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
 	cout<<"Generando potenciales de campo medio"<<endl;
 	for(n=0;n<parm->num_cm;n++)
 	{
@@ -66,6 +66,8 @@ void OneTrans(struct parametros* parm)
 		{
 			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->m_b/parm->m_a);
 		}
+		cout<<"D0: "<<*D0<<"  rms: "<<*rms<<endl;
+		cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
 	}
 	cout<<"Generando niveles nucleo B"<<endl;
 	/* Genera niveles del núcleo 'B' */
@@ -83,8 +85,10 @@ void OneTrans(struct parametros* parm)
 			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->m_A/parm->m_B);
 		}
 		absorcion=Absorcion2(&(parm->pot_opt[indx_intermedio]),&(parm->st[indx_st]));
+		cout<<"D0: "<<*D0<<"  rms: "<<*rms<<endl;
+		cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
 	}
-	cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
+
 	cout<<"Absorcion: "<<absorcion<<" MeV"<<endl;
 	/*Genera los potenciales opticos (sin términos coulombiano y spin-órbita) */
 	EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
