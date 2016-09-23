@@ -292,7 +292,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusión: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=7.;energia_out<17.;energia_out+=200.)
+	for(energia_out=3.;energia_out<9.;energia_out+=0.5)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
@@ -337,7 +337,7 @@ void AmplitudeCapture(struct parametros* parm)
 					parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
 		}
 		for(l=0;l<parm->ltransfer;l++)
-//		for(l=1;l<2;l++)
+//		for(l=3;l<4;l++)
 		{
 			cout<<"L: "<<l<<endl;
 			funcion_regular_up[0].energia=Ecm;
@@ -429,11 +429,14 @@ void AmplitudeCapture(struct parametros* parm)
 						dim3->b=rAn+parm->r_A2max;
 						if(dim3->a<0.) dim3->a=0.;
 						if(dim3->b>parm->radio) dim3->b=parm->radio-1.;
-						dim3->num_puntos=parm->rA2_puntos;
+//						dim3->a=0;
+//						dim3->b=parm->r_A2max;
+//						if(dim3->b>parm->radio) dim3->b=parm->radio-1.;
+//						dim3->num_puntos=parm->rA2_puntos;
 						GaussLegendre(dim3->puntos,dim3->pesos,dim3->num_puntos);
 //						rn=1;
 						SourcePrior2(rhom,nonm,fl,gl,st,v,optico,core,l,rn,parm,dim3,dim2);
-						exit(0);
+//						exit(0);
 						for(m=0;m<=lp;m++){
 							rho[n][l][m][lp]+=(redfac*rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*rhom[0]);
 //							rho[n][l][m][lp]+=(redfac*rhofac*rhom[0]);
@@ -443,6 +446,8 @@ void AmplitudeCapture(struct parametros* parm)
 //		                          <<"  "<<abs(redfac*rhofac*rhom[0])<<endl;
 //						misc2<<rn<<"  "<<real(rho[n][1][0][0])<<"  "<<-imag(rho[n][1][0][0])
 //		                          <<"  "<<abs(rho[n][l][0][0])<<endl;
+//						misc2<<rn<<"  "<<real(rho[n][1][0][0])<<"  "<<-imag(rho[n][1][0][0])<<"  "<<abs(rho[n][1][0][0])
+//		                <<"  "<<-redfac*real(rn*non[n][1][0][0])<<"  "<<-redfac*imag(rn*non[n][1][0][0])<<"  "<<redfac*abs(rn*non[n][1][0][0])<<endl;
 
 					}
 //					exit(0);
@@ -768,8 +773,7 @@ void SourcePrior2(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* 
 //					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
 //			sumanon+=rAp*seno*fl*gl*ud*coupling*
 //					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
-			misc2<<rBp<<"  "<<real(rBp*seno*fl*gl*ud*(vpn-remnant)*coupling/(rd))<<"  "<<imag(rBp*seno*fl*gl*ud*(vpn-remnant)*coupling/(rd))
-					<<"  "<<abs(rBp*seno*fl*gl*ud*(vpn-remnant)*coupling/(rd))<<endl;
+//			misc1<<rBp<<"  "<<real(rBp*seno*fl*gl*ud*(vpn-remnant)*coupling)<<"  "<<imag(rBp*seno*fl*gl*ud*coupling)<<endl;
 		}
 //		if(lp==0) misc1<<abs(rAp-rAn)<<"  "<<abs(suma)<<endl;
 	}
