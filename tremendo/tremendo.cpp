@@ -14,9 +14,10 @@ int main()
 	if (!parm) Error("No se pudo reservar memoria para parametros");
 	const char* input="parametros.txt";
 	LeeParametros(input,parm);
+	SpinAlignment(parm);
+	exit(0);
 	int polarization=0;
 	if(polarization) {Polarization(parm);return(0);}
-	cout<<"   parm->id_pot_dens: "<<parm->id_pot_dens<<endl;
 	if ((parm->dumb+parm->gen_dens_bound+parm->two_trans+parm->knockout+parm->capture+parm->one_trans
 			)>1) Error("Has elegido varios modos de funcionamiento incompatibles");
 	if(parm->dumb) {cout<<"Dumb activado, salida del programa sin efectuar ningun calculo"<<endl; return(0);}
@@ -139,6 +140,57 @@ double VertexD0(estado* st,potencial* pot, double radio, int pts, double* rms) {
 	norma=abs(sum)*(dim->b-dim->a)/2.;
 	*rms=sqrt(radio_medio*(dim->b-dim->a)/2.);
 	delete[] dim;
+	return norma;
+}
+void SpinAlignment(parametros* parm){
+	double align;
+	int m,l;
+	potencial_optico* pot=new potencial_optico[1];
+	l=3;
+	for(m=0;m<=l;m++)
+	{
+		align=Alignment(l,m,pot,30.,3.);
+		cout<<"m: "<<m<<" overlap: "<<align<<endl;
+	}
+}
+
+
+double Alignment(int l,int m,potencial_optico* pot, double radio,double b) {
+	int regla_r, nr, regla_theta, ntheta;
+	double ar, br, norma, r,potint,theta,R0,armonico,costheta,rc,sintheta;
+	parametros_integral *dim1=new parametros_integral;
+	parametros_integral *dim2=new parametros_integral;
+	R0=4.;
+	regla_r=60;
+	regla_theta=20;
+	double sum=0.;
+	dim1->a=0;
+	dim1->b=radio;
+	dim1->num_puntos=regla_r;
+	GaussLegendre(dim1->puntos,dim1->pesos,dim1->num_puntos);
+	dim2->a=0;
+	dim2->b=PI;
+	dim2->num_puntos=regla_theta;
+	GaussLegendre(dim2->puntos,dim2->pesos,dim2->num_puntos);
+	for (nr=0;nr<dim1->num_puntos;nr++) {
+		r=dim1->a+(dim1->b-dim1->a)*(dim1->puntos[nr]+1.)/2.;
+		for (ntheta=0;ntheta<dim2->num_puntos;ntheta++) {
+			theta=dim2->a+(dim2->b-dim2->a)*(dim2->puntos[ntheta]+1.)/2.;
+			costheta=cos(theta);
+			sintheta=sin(theta);
+			rc=sqrt(b*b+r*r*costheta*costheta);
+			armonico=gsl_sf_legendre_sphPlm(l,abs(m),costheta);
+			if(m==3) misc1<<theta<<"  "<<abs(armonico)*abs(armonico)<<endl;
+			if (rc<=R0) {
+//				cout<<rc<<"  "<<r<<"  "<<costheta<<endl;
+				sum+=sintheta*abs(armonico)*abs(armonico)*r*r*dim1->pesos[nr]*dim2->pesos[ntheta];
+//				if (nr==0 && m==0) misc2<<theta<<"  "<<sintheta*abs(armonico)*abs(armonico)*r*r<<endl;
+			}
+		}
+	}
+	norma=abs(sum)*(dim1->b-dim1->a)*(dim2->b-dim2->a)/4.;
+	delete[] dim1;
+	delete[] dim2;
 	return norma;
 }
 double NormalizaD(distorted_wave* st1,distorted_wave* st2, double radio, int pts, char s) {
