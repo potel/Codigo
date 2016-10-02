@@ -28,6 +28,35 @@ void Capture(struct parametros* parm)
 	cout<<"Generando potenciales de campo medio"<<endl;
 	HanShiShen(25.5,52,41);
 //	exit(0);
+//	int mi,li,lf,mf,K;
+//	double suma=0.;
+//	double C1,C2,jt,mt,J,MJ;
+//	K=2;
+//	li=1;
+//	lf=3;
+//	jt=0.5;
+//	J=1.5;
+//	for(mf=-lf;mf<=lf;mf++)
+//	{
+//		suma=0.;
+//		for(mt=-jt;mt<=jt;mt++)
+//		{
+//			for(mi=-li;mi<=li;mi++)
+//			{
+//				C1=ClebsGordan(li,-mi,lf,mf,K,mf-mi);
+//				C2=ClebsGordan(jt,mt,li,mi,J,mt+mi);
+//				if(abs(mi)==li) suma+=C1*C1*C2*C2;
+//			}
+//		}
+//		misc1<<mf<<"  "<<suma<<endl;
+//	}
+////	for(mf=-lf;mf<=lf;mf++)
+////	{
+////		mi=li;
+////		suma=ClebsGordan(li,-mi,lf,mf,K,mf-mi)*ClebsGordan(li,-mi,lf,mf,K,mf-mi);
+////		misc1<<mf<<"  "<<suma<<endl;
+////	}
+//	exit(0);
 	for(n=0;n<parm->num_cm;n++)
 	{
 		GeneraPotencialCM(parm,&(parm->pot[n]));
@@ -292,11 +321,11 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusión: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=3.;energia_out<9.;energia_out+=0.5)
+	for(energia_out=7.5;energia_out<9.;energia_out+=200)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
-		Ecm=parm->energia_cm-Ecm_out-2.225;
+		Ecm=parm->energia_cm-Ecm_out-2.2245;
 		energia_trans=(parm->n1_masa+parm->T_masa)*Ecm/(parm->T_masa);
 //		energia_out=parm->energia_cm-energia_trans+parm->Qvalue;
 		cout<<endl<<endl<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
@@ -336,8 +365,8 @@ void AmplitudeCapture(struct parametros* parm)
 			GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_salida],parm->T_carga*parm->P_carga,
 					parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
 		}
-		for(l=0;l<parm->ltransfer;l++)
-//		for(l=3;l<4;l++)
+//		for(l=0;l<parm->ltransfer;l++)
+		for(l=1;l<2;l++)
 		{
 			cout<<"L: "<<l<<endl;
 			funcion_regular_up[0].energia=Ecm;
@@ -444,12 +473,13 @@ void AmplitudeCapture(struct parametros* parm)
 						}
 //						misc2<<rn<<"  "<<real(redfac*rhofac*rhom[0])<<"  "<<-imag(redfac*rhofac*rhom[0])
 //		                          <<"  "<<abs(redfac*rhofac*rhom[0])<<endl;
-//						misc2<<rn<<"  "<<real(rho[n][1][0][0])<<"  "<<-imag(rho[n][1][0][0])
-//		                          <<"  "<<abs(rho[n][l][0][0])<<endl;
+//						if(lp==2) misc2<<rn<<"  "<<real(rho[n][1][0][2])<<"  "<<-imag(rho[n][1][0][2])
+//		                          <<"  "<<abs(rhom[0])<<endl;
 //						misc2<<rn<<"  "<<real(rho[n][1][0][0])<<"  "<<-imag(rho[n][1][0][0])<<"  "<<abs(rho[n][1][0][0])
 //		                <<"  "<<-redfac*real(rn*non[n][1][0][0])<<"  "<<-redfac*imag(rn*non[n][1][0][0])<<"  "<<redfac*abs(rn*non[n][1][0][0])<<endl;
-
+//						cout<<ClebsGordan(2,0,ld,0,l,0)<<"  "<<rho[2][1][0][2]<<endl;
 					}
+
 //					exit(0);
 				}
 				dim1->a=parm->r_Ccmin;
@@ -477,10 +507,11 @@ void AmplitudeCapture(struct parametros* parm)
 //					for(m=0;m<=lp;m++){
 //						phi_resonant[n][l][m][lp]=phim[m];
 //					}
-//					misc2<<rn<<"  "<<real(phi_up[n][1][0][0])<<"  "<<imag(phi_up[n][1][0][0])<<"  "<<abs(phi_up[n][1][0][0])<<endl;
+					 misc2<<rn<<"  "<<real(phi_up[n][1][0][0])<<"  "<<imag(phi_up[n][1][0][0])<<"  "<<abs(phi_up[n][1][0][0])<<endl;
 				}
-//					exit(0);
+					exit(0);
 			}
+//			exit(0);
 			inc_break[l]=0.;
 			elastic_break[l]=0.;
 			total_break[l]=rhoE*escala*sigma_const*TotalBreakup(phi_down,rho,parm,dim1,l);
@@ -765,6 +796,11 @@ void SourcePrior2(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* 
 			ud=interpola_cmpx(u->wf,u->r,rpn,u->puntos);
 			coupling=FuncionAngular2(lp,ld,l,coseno,coseno_d);
 			if (parm->remnant==1) remnant=inpot-corepot;
+//			fl=1.;
+//			gl=1.;
+//			vpn=1.;
+//			remnant=0.;
+//			ud=1.;
 			suma+=rBp*seno*fl*gl*ud*(vpn-remnant)*coupling*
 					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
 			sumanon+=rBp*seno*fl*gl*ud*coupling*

@@ -14,8 +14,8 @@ int main()
 	if (!parm) Error("No se pudo reservar memoria para parametros");
 	const char* input="parametros.txt";
 	LeeParametros(input,parm);
-	SpinAlignment(parm);
-	exit(0);
+//	SpinAlignment(parm);
+//	exit(0);
 	int polarization=0;
 	if(polarization) {Polarization(parm);return(0);}
 	if ((parm->dumb+parm->gen_dens_bound+parm->two_trans+parm->knockout+parm->capture+parm->one_trans
@@ -1210,6 +1210,7 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 		/((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
 //		misc1<<delta_r*(i+1.)<<"   "<<v->pot[i]<<"   "<<E_CUADRADO*q1q2/v->r[i]<<"   "<<2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
 //		/((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)))<<endl;
+		misc1<<v->r[i]<<"   "<<real(potencial[i])<<"   "<<imag(potencial[i])<<endl;
 	}
 	// ********************************************* Solucion regular j=l+1/2 **********************************************************
 	funcion_regular[0].wf[0]=1.e-10;
