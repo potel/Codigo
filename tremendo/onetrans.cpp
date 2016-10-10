@@ -30,7 +30,7 @@ void OneTrans(struct parametros* parm)
 	HanShiShen(parm->energia_lab,parm->T_N,parm->T_carga);
 	CH89(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
 //	KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
-	KoningDelaroche(17.4,7.,4.,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+	KoningDelaroche(parm->energia_lab+parm->Qvalue,7.,4.,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
 	cout<<"Generando potenciales de campo medio"<<endl;
 	for(n=0;n<parm->num_cm;n++)
 	{
@@ -817,7 +817,16 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 			}
 		}
 	}
-
+//	for(K=Kmin;K<=Kmax;K++)
+//	{
+//		for(la=0;la<parm->lmax;la++)
+//		{
+//			for(lb=0;lb<parm->lmax;lb++)
+//			{
+//				misc1<<la<<"  "<<lb<<"  "<<K<<"  "<<abs(T[la][lb][K])<<endl;
+//			}
+//		}
+//	}
 	CrossSectionOneTransSpinless(T,S,parm,intk->inicial_st,intk->final_st,exp_delta_coulomb_i,exp_delta_coulomb_f);
 	delete[] Ij;
 	delete[] intk;
@@ -925,6 +934,7 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
 //														(integrando->dim1)->pesos[n1]*(integrando->dim3)->pesos[n3];
 //				if (n3==1 ) misc1<<r_An<<"   "<<integrando->coords->r_bA[n1][n2][n3]<<
 //						"  "<<abs(kernel)<<"  "<<real(estado_final)<<endl;
+//				if(integrando->la==4 && integrando->lb==2) misc2<<r_bB<<"  "<<abs(kernel)<<endl;
 				*Ij+=kernel;
 			}
 		}

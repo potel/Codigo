@@ -1932,7 +1932,7 @@ void TwoTrans(struct parametros* parm)
 	EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
 	if(parm->form_factor) GeneraFormFactor(parm);
 	if(parm->successive && ((!strcmp(parm->a_tipo_fun,"li"))||(!strcmp(parm->B_tipo_fun,"li")))) SuccessiveTipoLi(parm,succClalb);
-//	if(parm->successive) {cout<<"Successive..."<<endl; Successive(parm,succClalb);}
+	if(parm->successive) {cout<<"Successive..."<<endl; Successive(parm,succClalb);}
 	if(parm->simultaneous) {cout<<"Simultaneous..."<<endl; Simultaneous(parm,simClalb);}
 	CrossSection(succClalb,simClalb,nonClalb,parm);
 	delete[] succClalb;

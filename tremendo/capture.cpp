@@ -321,7 +321,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusión: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=7.5;energia_out<9.;energia_out+=200)
+	for(energia_out=2.;energia_out<15.;energia_out+=0.2)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
@@ -351,7 +351,6 @@ void AmplitudeCapture(struct parametros* parm)
 					parm->pot_opt[indx_neutron_target].r[n]=rn;
 					if(carga_trans<0.1) parm->pot_opt[indx_neutron_target].pot[n]=pot_n;
 					if(carga_trans>0.1) parm->pot_opt[indx_neutron_target].pot[n]=pot_p;
-
 					KoningDelaroche(energia_out,parm->T_N,parm->T_carga,rn,&pot_p,
 					&pot_n,0,0.,&(parm->pot_opt[indx_salida]),pot_dumb);
 					parm->pot_opt[indx_salida].r[n]=rn;
@@ -365,8 +364,8 @@ void AmplitudeCapture(struct parametros* parm)
 			GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_salida],parm->T_carga*parm->P_carga,
 					parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
 		}
-//		for(l=0;l<parm->ltransfer;l++)
-		for(l=1;l<2;l++)
+		for(l=0;l<parm->ltransfer;l++)
+//		for(l=1;l<2;l++)
 		{
 			cout<<"L: "<<l<<endl;
 			funcion_regular_up[0].energia=Ecm;
@@ -507,9 +506,9 @@ void AmplitudeCapture(struct parametros* parm)
 //					for(m=0;m<=lp;m++){
 //						phi_resonant[n][l][m][lp]=phim[m];
 //					}
-					 misc2<<rn<<"  "<<real(phi_up[n][1][0][0])<<"  "<<imag(phi_up[n][1][0][0])<<"  "<<abs(phi_up[n][1][0][0])<<endl;
+//					 misc2<<rn<<"  "<<real(phi_up[n][1][0][0])<<"  "<<imag(phi_up[n][1][0][0])<<"  "<<abs(phi_up[n][1][0][0])<<endl;
 				}
-					exit(0);
+//					exit(0);
 			}
 //			exit(0);
 			inc_break[l]=0.;
