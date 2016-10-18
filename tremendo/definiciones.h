@@ -213,3 +213,5 @@ void HanShiShen(double E,double N,double Z);
 double TotalBreakup(complejo**** wf,complejo**** rho,parametros* parm, parametros_integral* dim,int l);
 double Alignment(int l,int m,potencial_optico* pot, double radio, double b);
 void SpinAlignment(parametros* parm);
+void MultipolePotential(complejo*** DeltaK,int numr,int numR,double* r, double* R,
+		potencial_optico* pot_t,potencial_optico* pot_alpha, potencial_optico* pot_Li,int numK,double mt, double ma);
