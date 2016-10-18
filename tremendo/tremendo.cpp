@@ -7,10 +7,12 @@ ofstream misc2("misc2.txt");
 ofstream misc3("misc3.txt");
 ofstream misc4("misc4.txt");
 ofstream informe("informe.txt");
+
 int main()
 {
 	parametros *parm=new struct parametros;
 	cout<<"Project managed with Git!!"<<endl;
+	cout<<"Linux :"<<LINUX<<"  Windows :"<<WINDOWS<<endl;
 	if (!parm) Error("No se pudo reservar memoria para parametros");
 	const char* input="parametros.txt";
 	LeeParametros(input,parm);
@@ -38,24 +40,24 @@ void GaussLegendre(double* absi,double* w,int regla)
   double inf=0.;
   char c[100],d[200];
   int n;
-  if(regla<=60)
-  {
-	  FILE *gl;
-	  sprintf(c,"%d",regla);
-	  strcpy(d,"C:\\Gregory\\workspace\\coops\\input\\GaussLegendre\\GL");
-	  strcat(d,c);
-	  strcat(d,".txt");
-	  gl=fopen(d,"r");
-	  for(n=0;n<regla;n++)
-	  {
-		  fscanf(gl,"%le",&inf);
-		  absi[n]=inf;
-		  fscanf(gl,"%le\n",&inf);
-		  w[n]=inf;
-	  }
-	  fclose(gl);
-  }
-  else
+//  if(regla<=60)
+//  {
+//	  FILE *gl;
+//	  sprintf(c,"%d",regla);
+//	  strcpy(d,"C:\\Gregory\\workspace\\coops\\input\\GaussLegendre\\GL");
+//	  strcat(d,c);
+//	  strcat(d,".txt");
+//	  gl=fopen(d,"r");
+//	  for(n=0;n<regla;n++)
+//	  {
+//		  fscanf(gl,"%le",&inf);
+//		  absi[n]=inf;
+//		  fscanf(gl,"%le\n",&inf);
+//		  w[n]=inf;
+//	  }
+//	  fclose(gl);
+//  }
+//  else
   {
 	  LegendreRoots(regla,absi,w);
   }
@@ -70,7 +72,8 @@ void LegendreRoots(int regla, double* absi, double* w)
 		do {
 			x1=x;
 			x-=gsl_sf_legendre_Pl(regla,x)/ lege_diff(regla, x);
-		} while (x != x1);
+//			cout<<x<<"  "<<x1<<endl;
+		} while (abs(x-x1)>1.e-10);
 		absi[i-1]=-x;
 		x1=lege_diff(regla,x);
 		w[i-1]=2/((1-x*x)*x1*x1);
@@ -94,6 +97,7 @@ double Normaliza(estado* st1,estado* st2, double radio, int pts, char s) {
 	complejo sum = 0.;
 	ar = 0.;
 	br = radio;
+//	cout<<"Normaliza1"<<endl;
 	GaussLegendre(absr, wr, regla_r);
 	for (nr = 0; nr < regla_r; nr++) {
 		r = ar + (br - ar) * (absr[nr] + 1.) / 2.;
@@ -234,7 +238,7 @@ void EscribeEstados(int puntos,estado* st,int numero_estados,struct parametros *
 	int n,i;
 	fpen<<"     ++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<"\n";
 	fpen<<"     +                                                      +"<<"\n";
-	fpen<<"     +         Estados de partícula independiente           +"<<"\n";
+	fpen<<"     +         Estados de partï¿½cula independiente           +"<<"\n";
 	fpen<<"     +                                                      +"<<"\n";
 	fpen<<"     ++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<"\n"<<"\n"<<"\n";
 	fpen<<"Indice   "<<"Nodos"<<"          L"<<"             J"<<"             Energia"<<"\n";
@@ -455,7 +459,9 @@ void LeeParametros(const char *fname,struct parametros *x)
 		ReadParF(aux,"a_Sn",&(x->a_Sn));
 		ReadParF(aux,"B_Sn",&(x->B_Sn));
 	}
-	if((x->a_numst+x->B_numst)>(x->num_st)) Error("El numero de estados total debe ser la suma de los estados de ambos núcleos");
+//	cout<<"x->a_estados: "<<x->a_estados[0]<<endl;
+//	exit(0);
+	if((x->a_numst+x->B_numst)>(x->num_st)) Error("El numero de estados total debe ser la suma de los estados de ambos nï¿½cleos");
 	if(potopt!=x->num_opt) Error("El numero de potenciales opticos leidos no coincide con el especificado");
 	if(potcm!=x->num_cm) Error("El numero de potenciales de campo medio leidos no coincide con el especificado");
 	if(numst!=x->num_st && x->two_trans && !(!strcmp(x->a_tipo_fun,"li")) && !(!strcmp(x->B_tipo_fun,"li")))
@@ -481,7 +487,7 @@ void Error(const char *text)
   exit(1);
 }
 /*****************************************************************************
-Lee un número decimal
+Lee un nï¿½mero decimal
  *****************************************************************************/
 void ReadParD(char *s,const char key[20], int *par)
 {
@@ -547,11 +553,13 @@ Lee varios decimal
  *****************************************************************************/
 void ReadParMultD(char *s,const char key[20],int num, int *par)
 {
+
 	int l,r,i;
 	char* pch;
 	l = strlen(key);
 	if (!strncmp(s,key,l))
 	{
+//		cout<<"ReadParMultD1 "<<s<<"   "<<key<<"   "<<num<<endl;
 		pch = strtok (s," ");
 		if (pch==NULL) { fprintf(stderr,"ERROR: No puede leerse %s en el fichero de parametros\n",key); exit(1); }
 		i=0;
@@ -559,7 +567,11 @@ void ReadParMultD(char *s,const char key[20],int num, int *par)
 		{
 			pch = strtok (NULL, " ");
 			par[i]=atoi(pch);
+//			cout<<"pch: "<<pch<<endl;
+//			cout<<"par[i]: "<<par[i]<<endl;
 			i++;
+//			cout<<"i: "<<i<<endl;
+			if(i>num) break;
 		}
 	}
 	fflush(stderr);
@@ -627,7 +639,7 @@ int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,FILE
 }
 
 /*****************************************************************************
-Lee los potenciales de campo medio del fichero de parámetros
+Lee los potenciales de campo medio del fichero de parï¿½metros
  *****************************************************************************/
 int LeePotencialesCampoMedio(char *s,const char key[100],potencial* pot,FILE* fp)
 {
@@ -663,7 +675,7 @@ int LeePotencialesCampoMedio(char *s,const char key[100],potencial* pot,FILE* fp
 	return 0;
 }
 /*****************************************************************************
-Lee los potenciales de campo medio del fichero de parámetros
+Lee los potenciales de campo medio del fichero de parï¿½metros
  *****************************************************************************/
 int LeeEstados(char *s,const char key[100],estado* st,FILE* fp)
 {
@@ -695,7 +707,7 @@ int LeeEstados(char *s,const char key[100],estado* st,FILE* fp)
 	return 0;
 }
 /*****************************************************************************
-Resuelve la ecuación de Schrodinger en un potencial
+Resuelve la ecuaciï¿½n de Schrodinger en un potencial
  *****************************************************************************/
 void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,double q1q2,double masa, double* D0
 		,double* rms) {
@@ -711,7 +723,7 @@ void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,d
 	centr=(st->l*(st->l+1.))*hbarx;
 	ls=(st->j*(st->j+1.)-st->l*(st->l+1.)-0.75);
 	st->puntos=puntos;
-	// añade los términos Coulomb y spin-órbita *********************************************************************
+	// aï¿½ade los tï¿½rminos Coulomb y spin-ï¿½rbita *********************************************************************
 	if(!strcmp(potencial->tipo,"ws"))
 	{
 		for (i=0;i<puntos;i++) {
@@ -728,7 +740,7 @@ void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,d
 	}
 	if(!strcmp(potencial->tipo,"tang"))
 	{
-		if(delta_r>potencial->rhc/2.) Error("Paso de intagración demasiado grande para el potencial Tang-Herndon");
+		if(delta_r>potencial->rhc/2.) Error("Paso de intagraciï¿½n demasiado grande para el potencial Tang-Herndon");
 		for (i=0;i<puntos;i++) {
 			st->r[i]=delta_r*(i+1);
 			if(st->r[i]>potencial->rhc) v[i]=-potencial->V*exp(-potencial->k*(st->r[i]-potencial->rhc));
@@ -770,7 +782,7 @@ void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,d
 	delete[] vs;
 }
 /*****************************************************************************
-Genera un estado de dos partículas a partir de una matriz anm
+Genera un estado de dos partï¿½culas a partir de una matriz anm
  *****************************************************************************/
 void GeneraEstado12(estado12 *st12,potencial *potencial, double radio_max,int puntos,double** anm,int base) {
 	cout<<"Generando estado de dos particulas....";
@@ -868,7 +880,7 @@ complejo integral3d(complejo*** integrando,parametros_integral dim1,parametros_i
 	return suma;
 }
 /*****************************************************************************
-Coordenadas del integrando para el cálculo de las contribuciones sucesivas y de
+Coordenadas del integrando para el cï¿½lculo de las contribuciones sucesivas y de
 no ortogonalidad en funcion de las variables de integracion
  *****************************************************************************/
 void GeneraCoordenadasSuccessive(parametros *parm_rec, coordenadas_successive* coords,
@@ -960,7 +972,7 @@ double AcoplamientoAngular(int l1,int l2,int l3,int l4,int K,double coseno1,doub
 	return suma;
 }
 /*****************************************************************************
-Solución de energía positiva con potencial óptico con condiciones al contorno
+Soluciï¿½n de energï¿½a positiva con potencial ï¿½ptico con condiciones al contorno
 coulombianas
  *****************************************************************************/
 complejo GeneraDW(distorted_wave* funcion,potencial_optico *v, double q1q2, double masa,double radio_max,
@@ -986,10 +998,10 @@ complejo GeneraDW(distorted_wave* funcion,potencial_optico *v, double q1q2, doub
 	funcion[1].radio=radio_max;
 	funcion[1].j=funcion[0].l-0.5;
 	if(funcion[1].l==0) spinorbit=funcion[1].j=0.5;
-	*fp<<"l= "<<funcion[0].l<<"  energía= "<<funcion[0].energia<<"  masa= "<<masa<<"  ******************  j=l+1/2 **************************************"<<endl;
+	*fp<<"l= "<<funcion[0].l<<"  energï¿½a= "<<funcion[0].energia<<"  masa= "<<masa<<"  ******************  j=l+1/2 **************************************"<<endl;
 	 //********************************************* Solucion regular, j=l+1/2 **********************************************************
-	spinorbit = double((funcion[0].l)); //Término de spi-órbita para j=l+0.5
-	/* actualizacion del potencial con los términos de Coulomb, centrífugo y de spin-órbita*/
+	spinorbit = double((funcion[0].l)); //Tï¿½rmino de spi-ï¿½rbita para j=l+0.5
+	/* actualizacion del potencial con los tï¿½rminos de Coulomb, centrï¿½fugo y de spin-ï¿½rbita*/
 	for (i=0;i<puntos-1;i++) {
 		if(v->r[i]>v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
 				(funcion[0].l*(funcion[0].l+1.))*hbarx /(v->r[i]*v->r[i])
@@ -1038,9 +1050,9 @@ complejo GeneraDW(distorted_wave* funcion,potencial_optico *v, double q1q2, doub
 		gsl_sf_coulomb_wave_FG_e(etac,q*funcion[0].r[i],funcion[0].l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
 		*fp<<funcion[0].r[i]<<"  "<<real(funcion[0].wf[i])<<endl;
 	}
-	*fp<<"l= "<<funcion[1].l<<"  energía= "<<funcion[1].energia<<"  masa= "<<masa<<"  ******************  j=l-1/2 **************************************"<<endl;
+	*fp<<"l= "<<funcion[1].l<<"  energï¿½a= "<<funcion[1].energia<<"  masa= "<<masa<<"  ******************  j=l-1/2 **************************************"<<endl;
 		//********************************************* Solucion regular, j=l-1/2 **********************************************************
-		spinorbit = -double((funcion[0].l)) - 1.; //Término de spi-órbita para j=l-0.5
+		spinorbit = -double((funcion[0].l)) - 1.; //Tï¿½rmino de spi-ï¿½rbita para j=l-0.5
 		if(funcion[0].l==0) spinorbit=0.;
 		for (i=0;i<puntos-1;i++) {
 			if(v->r[i]>v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
@@ -1090,7 +1102,7 @@ complejo GeneraDW(distorted_wave* funcion,potencial_optico *v, double q1q2, doub
 	return delta;
 }
 /*****************************************************************************
-Solución de energía positiva con potencial óptico con condiciones al contorno
+Soluciï¿½n de energï¿½a positiva con potencial ï¿½ptico con condiciones al contorno
 coulombianas, para un spin arbitrario contenido en funcion->spin
  *****************************************************************************/
 complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, double masa,double radio_max,
@@ -1111,8 +1123,8 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 	etac=q1q2*masa*E2HC*AMU/(HC*q);
 	funcion->puntos=puntos;
 	funcion->radio=radio_max;
-	spinorbit =(funcion->j)*((funcion->j)+1.)-funcion->l*(funcion->l+1.)-(funcion->spin)*((funcion->spin)+1.); //Término de spin-órbita
-	/* actualizacion del potencial con los términos de Coulomb, centrífugo y de spin-órbita*/
+	spinorbit =(funcion->j)*((funcion->j)+1.)-funcion->l*(funcion->l+1.)-(funcion->spin)*((funcion->spin)+1.); //Tï¿½rmino de spin-ï¿½rbita
+	/* actualizacion del potencial con los tï¿½rminos de Coulomb, centrï¿½fugo y de spin-ï¿½rbita*/
 	for (i=0;i<puntos-1;i++) {
 		if(v->r[i]>=v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
 				(funcion[0].l*(funcion[0].l+1.))*hbarx /(v->r[i]*v->r[i])
@@ -1163,7 +1175,7 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 }
 
 /*****************************************************************************
-Función de Green
+Funciï¿½n de Green
  *****************************************************************************/
 complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* funcion_irregular,potencial_optico *v, double q1q2,
 		double masa, double radio_max,int puntos,double radio_match,double spin)
@@ -1174,7 +1186,7 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 	gsl_complex deltagsl;
 	gsl_sf_result F1,G1,F2,G2,Fp,Gp;
 	complejo *potencial=new complejo[puntos];
-	if (funcion_regular[0].energia < 0.) Error( "Niveles intermedios energéticamente prohibidos!");
+	if (funcion_regular[0].energia < 0.) Error( "Niveles intermedios energï¿½ticamente prohibidos!");
 	delta_r=radio_max/double(puntos);
 	if(radio_match>radio_max-4.*delta_r) Error("Radio de matching demasiado grande en GeneraGreenFunction");
 	hbarx=HC*HC/(2.*AMU*masa);
@@ -1196,8 +1208,8 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 	funcion_irregular[1].radio=radio_max;
 	funcion_irregular[1].j=funcion_irregular[0].l-spin;
 	if(funcion_irregular[1].l==0) funcion_irregular[1].j=spin;
-	// ********************************************** Cálculo para j=l+1/2 ***********************************************************
-	/* actualizacion del potencial con los términos de Coulomb, centrífugo y de spin-órbita*/
+	// ********************************************** Cï¿½lculo para j=l+1/2 ***********************************************************
+	/* actualizacion del potencial con los tï¿½rminos de Coulomb, centrï¿½fugo y de spin-ï¿½rbita*/
 	spinorbit =(funcion_regular[0].j*(funcion_regular[0].j+1.)-funcion_regular[0].l*(funcion_regular[0].l+1.)-spin*(spin+1.));
 	for (i=0;i<puntos-1;i++) {
 		if(v->r[i]>v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
@@ -1267,8 +1279,8 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 
 
 
-	// ********************************************** Cálculo para j=l-1/2 ***********************************************************
-	/* actualizacion del potencial con los términos de Coulomb, centrífugo y de spin-órbita*/
+	// ********************************************** Cï¿½lculo para j=l-1/2 ***********************************************************
+	/* actualizacion del potencial con los tï¿½rminos de Coulomb, centrï¿½fugo y de spin-ï¿½rbita*/
 	spinorbit =(funcion_regular[1].j*(funcion_regular[1].j+1.)-funcion_regular[1].l*(funcion_regular[1].l+1.)-spin*(spin+1.));
 	if (funcion_regular[1].l==0) spinorbit=0.;
 	for (i=0;i<puntos-1;i++) {
@@ -1336,7 +1348,7 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 	return delta;
 }
 /*****************************************************************************
-Integral interna para el cálculo sucesivo y de no ortogonalidad
+Integral interna para el cï¿½lculo sucesivo y de no ortogonalidad
  *****************************************************************************/
 void SChica(integrando_schica *integrando,int P,int la,int lc,complejo* schica_mas,complejo* schica_menos)
 {
@@ -1506,7 +1518,7 @@ double interpola2D_dbl(double** funcion,double* r1,double* r2,
 			+f12*(r1[indice1+1]-posicion1)*(posicion2-r2[indice2])+f22*(posicion1-r1[indice1])*(posicion2-r2[indice2]));
 }
 /*****************************************************************************
-Integral externa para el cálculo sucesivo y de no ortogonalidad
+Integral externa para el cï¿½lculo sucesivo y de no ortogonalidad
  *****************************************************************************/
 void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* sgrande_mas,complejo* sgrande_menos)
 {
@@ -1552,7 +1564,7 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
 }
 
 /*****************************************************************************
-Lee coeficientes del desarrollo de la funcion de onda de dos partículas
+Lee coeficientes del desarrollo de la funcion de onda de dos partï¿½culas
  *****************************************************************************/
 int LeeMatrizCoeficientes(const char *fname,double** anm,int dimension)
 {
@@ -1589,7 +1601,7 @@ int LeeMatrizCoeficientes(const char *fname,double** anm,int dimension)
 	return 1;
 }
 /*****************************************************************************
-Lee estados del desarrollo de la función de onda de dos neutrones
+Lee estados del desarrollo de la funciï¿½n de onda de dos neutrones
  *****************************************************************************/
 int LeeDiagrama(const char *fname,double** anm,estado* st,int numero_estados)
 {
@@ -1629,8 +1641,8 @@ int LeeDiagrama(const char *fname,double** anm,estado* st,int numero_estados)
 		misc1<<id1<<"  "<<id2<<"  "<<anm[id1][id2]<<endl;
 	}
 	num_estados++;
-	cout<<"Número de coeficientes: "<<cont<<endl;
-	cout<<"Número de estados: "<<num_estados<<endl;
+	cout<<"Nï¿½mero de coeficientes: "<<cont<<endl;
+	cout<<"Nï¿½mero de estados: "<<num_estados<<endl;
 	for(id1=0;id1<num_estados;id1++){
 		for(id2=0;id2<num_estados;id2++){
 			mat<<"i: "<<id1<<", j: "<<id2<<":    "<<anm[id1][id2]<<endl;
@@ -1686,7 +1698,7 @@ void GeneraDensidad(struct parametros* parm)
 				energia_mas=st[i].energia;
 				if(energia_mas<parm->emax) i++;
 				if((energia_mas>parm->emax) && (nodo==0)) salida=1;
-				if(i>=parm->num_st) Error("Numero de estados demasiado pequeño");
+				if(i>=parm->num_st) Error("Numero de estados demasiado pequeï¿½o");
 			}
 			if(l>0) {
 				if(i<parm->num_st){
@@ -1697,7 +1709,7 @@ void GeneraDensidad(struct parametros* parm)
 					GeneraEstado(&st[i],&(parm->pot[indx]),parm->radio,parm->puntos,0.,0.989,D0,rms);
 					energia_menos=st[i].energia;
 					if(energia_menos<parm->emax) i++;
-					if(i>=parm->num_st) Error("Numero de estados demasiado pequeño");
+					if(i>=parm->num_st) Error("Numero de estados demasiado pequeï¿½o");
 				}
 			}
 			nodo++;
@@ -1729,7 +1741,7 @@ void GeneraDensidad(struct parametros* parm)
 
 	}
 	num_pares_0=0;
-	//Establece el número de pares (dimensión de la base de la matriz de pairing) para L=0
+	//Establece el nï¿½mero de pares (dimensiï¿½n de la base de la matriz de pairing) para L=0
 	for (n=0;n<nst;n++)
 	{
 		for(m=n;m<nst;m++)
@@ -1742,14 +1754,14 @@ void GeneraDensidad(struct parametros* parm)
 			}
 		}
 	}
-	if (num_pares_0>=MAX_PARES) {cout<<"Número de pares demasiado grande: "<<num_pares<<">"<<MAX_PARES<<endl; exit(0);}
-	cout<<"Número de pares de momento angular 0: "<<num_pares_0<<endl;
+	if (num_pares_0>=MAX_PARES) {cout<<"Nï¿½mero de pares demasiado grande: "<<num_pares<<">"<<MAX_PARES<<endl; exit(0);}
+	cout<<"Nï¿½mero de pares de momento angular 0: "<<num_pares_0<<endl;
 	PotencialEfectivo(parm,dnsty,poteff);
 	GeneraMatrizPairing(nst,parm,st,pares_0,num_pares_0,anm_0,poteff,0);
 	DiagonalizaMatrizPairing(num_pares_0,anm_0,autovectores_0,autovalores_0);
 
 	num_pares=0;
-	//Establece el número de pares (dimensión de la base de la matriz de pairing) para L=0
+	//Establece el nï¿½mero de pares (dimensiï¿½n de la base de la matriz de pairing) para L=0
 	if(parm->lambda==0)
 	{
 		for (n=0;n<nst;n++)
@@ -1765,7 +1777,7 @@ void GeneraDensidad(struct parametros* parm)
 			}
 		}
 	}
-	//Establece el número de pares para L!=0
+	//Establece el nï¿½mero de pares para L!=0
 	if(parm->lambda!=0)
 	{
 		for (n=0;n<nst;n++)
@@ -1781,20 +1793,20 @@ void GeneraDensidad(struct parametros* parm)
 			}
 		}
 	}
-	if (num_pares>=MAX_PARES) {cout<<"Número de pares demasiado grande: "<<num_pares<<">"<<MAX_PARES<<endl; exit(0);}
-	cout<<"Número de pares de momento angular "<<parm->lambda<<": "<<num_pares<<endl;
+	if (num_pares>=MAX_PARES) {cout<<"Nï¿½mero de pares demasiado grande: "<<num_pares<<">"<<MAX_PARES<<endl; exit(0);}
+	cout<<"Nï¿½mero de pares de momento angular "<<parm->lambda<<": "<<num_pares<<endl;
 	EscribeEstados(parm->puntos,st,nst,parm);
 	PotencialEfectivo(parm,dnsty,poteff);
 	GeneraMatrizPairing(nst,parm,st,pares,num_pares,anm,poteff,parm->lambda);
 	DiagonalizaMatrizPairing(num_pares,anm,autovectores,autovalores);
 	fp2<<"     ++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<"\n";
 	fp2<<"     +                                                      +"<<"\n";
-	fp2<<"     +                Estados de 2 partículas con L=0       +"<<"\n";
+	fp2<<"     +                Estados de 2 partï¿½culas con L=0       +"<<"\n";
 	fp2<<"     +                                                      +"<<"\n";
 	fp2<<"     ++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<"\n"<<"\n";
     for(n=0;n<num_pares_0;n++)
     {
-    	fp2<<"índice: "<<n<<"      estado 1: "<<pares_0[n][0]<<"      estado 2: "<<pares_0[n][1]<<"     L1: "
+    	fp2<<"ï¿½ndice: "<<n<<"      estado 1: "<<pares_0[n][0]<<"      estado 2: "<<pares_0[n][1]<<"     L1: "
     			<<st[pares_0[n][0]].l<<"     L2: "<<st[pares_0[n][1]].l<<"     J1: "<<st[pares_0[n][0]].j<<"     J2: "<<st[pares_0[n][1]].j<<endl;
     }
 
@@ -1802,7 +1814,7 @@ void GeneraDensidad(struct parametros* parm)
     fp2<<"++++++++++++++++++++++++++++++++++++++++++++++++"<<"\n";
     fp2<<"+       Estado fundamental (0+), E: "<<autovalores_0[0]<<"  +"<<"\n";
     fp2<<"++++++++++++++++++++++++++++++++++++++++++++++++"<<"\n"<<"\n";
-    fp2<<"Descomposición en la base de estados de 2 partículas:  "<<endl;
+    fp2<<"Descomposiciï¿½n en la base de estados de 2 partï¿½culas:  "<<endl;
     for(m=0;m<num_pares_0;m++)
     {
     	fp2<<"indice: "<<m<<"......coeficiente: "<<autovectores_0[m][0]<<endl;
@@ -1812,12 +1824,12 @@ void GeneraDensidad(struct parametros* parm)
 
 	fp3<<"     ++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<"\n";
 	fp3<<"     +                                                      +"<<"\n";
-	fp3<<"     +                Estados de 2 partículas con L="<<parm->lambda<<"       +"<<"\n";
+	fp3<<"     +                Estados de 2 partï¿½culas con L="<<parm->lambda<<"       +"<<"\n";
 	fp3<<"     +                                                      +"<<"\n";
 	fp3<<"     ++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<"\n"<<"\n";
     for(n=0;n<num_pares;n++)
     {
-    	fp3<<"índice: "<<n<<"      estado 1: "<<pares[n][0]<<"      estado 2: "<<pares[n][1]<<"     L1: "
+    	fp3<<"ï¿½ndice: "<<n<<"      estado 1: "<<pares[n][0]<<"      estado 2: "<<pares[n][1]<<"     L1: "
     			<<st[pares[n][0]].l<<"     L2: "<<st[pares[n][1]].l<<"     J1: "<<st[pares[n][0]].j<<"     J2: "<<st[pares[n][1]].j<<endl;
     }
     fp3<<"\n"<<"\n"<<"\n"<<"\n";
@@ -1832,7 +1844,7 @@ void GeneraDensidad(struct parametros* parm)
     	fp3<<"++++++++++++++++++++++++++++++++++++++++++++++++"<<"\n";
     	fp3<<"+       N: "<<n<<"         L: "<<parm->lambda<<"         E: "<<autovalores[n]<<"  +"<<"\n";
     	fp3<<"++++++++++++++++++++++++++++++++++++++++++++++++"<<"\n"<<"\n";
-    	fp3<<"Descomposición en la base de estados de 2 partículas:  "<<endl;
+    	fp3<<"Descomposiciï¿½n en la base de estados de 2 partï¿½culas:  "<<endl;
     	for(m=0;m<num_pares;m++)
     	{
     		fp3<<"indice: "<<m<<"......coeficiente: "<<autovectores[m][n]<<endl;
@@ -1894,7 +1906,7 @@ void TwoTrans(struct parametros* parm)
 		if(parm->B_potcm==parm->pot[n].id) indx_pot_B=n;
 	}
 	cout<<"Generando niveles nucleo a"<<endl;
-	/* Genera niveles del núcleo 'a' */
+	/* Genera niveles del nï¿½cleo 'a' */
 	for (n=0;n<parm->a_numst;n++)
 	{
 		for(m=0;m<parm->num_st;m++)
@@ -1906,7 +1918,7 @@ void TwoTrans(struct parametros* parm)
 		cout<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_a].V<<endl;
 	}
 	cout<<"Generando niveles nucleo B"<<endl;
-	/* Genera niveles del núcleo 'B' */
+	/* Genera niveles del nï¿½cleo 'B' */
 	for (n=0;n<parm->B_numst;n++)
 	{
 		for(m=0;m<parm->num_st;m++)
@@ -1918,7 +1930,7 @@ void TwoTrans(struct parametros* parm)
 		cout<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_B].V<<endl;
 	}
 
-	/*Genera los potenciales opticos (sin términos coulombiano y spin-órbita) */
+	/*Genera los potenciales opticos (sin tï¿½rminos coulombiano y spin-ï¿½rbita) */
 	for (n=0;n<parm->num_opt;n++)
 	{
 		if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
@@ -1951,8 +1963,8 @@ void InicializaTwoTrans(struct parametros* parm)
 	if (!strcmp(parm->proyectil,"A")) {masa_proyectil=parm->m_A; masa_blanco=parm->m_a;}
 	if ((strcmp(parm->proyectil,"A")!=0) && ((strcmp(parm->proyectil,"a")!=0))) Error("Proyectil debe ser 'a' o 'A' ");
 	parm->energia_cm=(masa_blanco/(parm->m_a+parm->m_A))*parm->energia_lab;
-	if(-parm->Qvalue>parm->energia_cm) Error("Energía de reacción insuficiente");
-	if(-parm->int_Qvalue>parm->energia_cm) Error("Energía de reacción insuficiente para poblar los estados intermedios");
+	if(-parm->Qvalue>parm->energia_cm) Error("Energï¿½a de reacciï¿½n insuficiente");
+	if(-parm->int_Qvalue>parm->energia_cm) Error("Energï¿½a de reacciï¿½n insuficiente para poblar los estados intermedios");
 	parm->mu_Aa=(parm->m_a*parm->m_A)/(parm->m_a+parm->m_A);
 	parm->mu_Bb=(parm->m_b*parm->m_B)/(parm->m_b+parm->m_B);
 	parm->mu_Cc=((parm->m_b+1.)*(parm->m_B-1.))/(parm->m_b+parm->m_B);
@@ -1990,7 +2002,7 @@ void Successive(struct parametros *parm,complejo*** Clalb)
 	ofstream fp5("dw_out1trans.txt");
 	ofstream fp4("dw_in1trans.txt");
 	factor=2048*PI*PI*PI*PI*PI*parm->mu_Cc*AMU/(HC*HC*parm->k_Aa*parm->k_Cc*parm->k_Bb);
-	/*Parámetros numéricos para s */
+	/*Parï¿½metros numï¿½ricos para s */
 	ints->dim1=dim1;
 	ints->dim2=dim2;
 	ints->dim3=dim3;
@@ -2008,7 +2020,7 @@ void Successive(struct parametros *parm,complejo*** Clalb)
 	GaussLegendre(ints->dim2->puntos,ints->dim2->pesos,ints->dim2->num_puntos);
 	GaussLegendre(ints->dim3->puntos,ints->dim3->pesos,ints->dim3->num_puntos);
 
-	/*Parámetros numéricos para S iguales que los de s*/
+	/*Parï¿½metros numï¿½ricos para S iguales que los de s*/
 	intS->dim1=ints->dim1;
 	intS->dim2=ints->dim2;
 	intS->dim3=ints->dim3;
@@ -2098,7 +2110,7 @@ void Successive(struct parametros *parm,complejo*** Clalb)
 									c4=Wigner9j(la,lb,parm->lambda,lc,lc,0.,P,K,parm->lambda)*pow(2.*lc+1.,1.5);
 									if(c4!=0.)
 									{
-										/* función de Green con spin up y spin down Energía corregida (factor adiabático)*/
+										/* funciï¿½n de Green con spin up y spin down Energï¿½a corregida (factor adiabï¿½tico)*/
 										if(parm->adiabatico)
 										{
 											ints->funcion_regular[0].energia=parm->energia_cm+parm->int_Qvalue-
@@ -2113,7 +2125,7 @@ void Successive(struct parametros *parm,complejo*** Clalb)
 											ints->funcion_irregular[1].energia=parm->energia_cm+parm->int_Qvalue-
 													fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
 										}
-										/* función de Green con spin up y spin down sin correccion de energía */
+										/* funciï¿½n de Green con spin up y spin down sin correccion de energï¿½a */
 										if(!(parm->adiabatico))
 										{
 											ints->funcion_regular[0].energia=parm->energia_cm+parm->int_Qvalue;
@@ -2126,7 +2138,7 @@ void Successive(struct parametros *parm,complejo*** Clalb)
 										ints->funcion_regular[1].l=lc;
 										ints->funcion_irregular[0].l=lc;
 										ints->funcion_irregular[1].l=lc;
-										if(lc==abs(la-P)) cout<<"Energía dw intermedia: "<<ints->funcion_regular[0].energia<<endl;
+										if(lc==abs(la-P)) cout<<"Energï¿½a dw intermedia: "<<ints->funcion_regular[0].energia<<endl;
 										GeneraGreenFunction(ints->funcion_regular,ints->funcion_irregular,&(parm->pot_opt[indx_intermedio]),
 												parm->Z_A*parm->Z_a,parm->mu_Cc,parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
 										SChica(ints,P,la,lc,schica_mas,schica_menos);
@@ -2169,7 +2181,7 @@ void Simultaneous(struct parametros *parm,complejo*** Clalb)
 
 	cout<<"//////////////////////////////////////////////////////////////////////////////////////////"<<endl;
 	cout<<"//                                                                                      //"<<endl;
-	cout<<"//                 Término simultáneo                                                   //"<<endl;
+	cout<<"//                 Tï¿½rmino simultï¿½neo                                                   //"<<endl;
 	cout<<"//                                                                                      //"<<endl;
 	cout<<"//////////////////////////////////////////////////////////////////////////////////////////"<<endl;
 	complejo*** vcluster=tensor_cmpx(parm->rA2_puntos,parm->rCc_puntos,parm->theta_puntos);
@@ -2337,8 +2349,8 @@ void SuccessiveTipoLi(struct parametros *parm,complejo*** Clalb)
 	ofstream fp2(parm->fl_dw);
 	ofstream fp3(parm->fl_gf);
 	factor=sqrt(2.)*2048*PI*PI*PI*PI*PI*parm->mu_Cc*AMU/(HC*HC*parm->k_Aa*parm->k_Cc*parm->k_Bb);
-	cout<<"Cálculo de transferencia de 2 nucleones con funciones de onda tipo Li +++++++++++++++++++++++++++++++"<<endl;
-	/*Parámetros numéricos para s */
+	cout<<"Cï¿½lculo de transferencia de 2 nucleones con funciones de onda tipo Li +++++++++++++++++++++++++++++++"<<endl;
+	/*Parï¿½metros numï¿½ricos para s */
 	ints->dim1=dim1;
 	ints->dim2=dim2;
 	ints->dim3=dim3;
@@ -2356,7 +2368,7 @@ void SuccessiveTipoLi(struct parametros *parm,complejo*** Clalb)
 	GaussLegendre(ints->dim2->puntos,ints->dim2->pesos,ints->dim2->num_puntos);
 	GaussLegendre(ints->dim3->puntos,ints->dim3->pesos,ints->dim3->num_puntos);
 
-	/*Parámetros numéricos para S iguales que los de s*/
+	/*Parï¿½metros numï¿½ricos para S iguales que los de s*/
 	intS->dim1=ints->dim1;
 	intS->dim2=ints->dim2;
 	intS->dim3=ints->dim3;
@@ -2391,7 +2403,7 @@ void SuccessiveTipoLi(struct parametros *parm,complejo*** Clalb)
 		if(parm->B_potcm==parm->pot[n].id && !strcmp(parm->B_tipo_fun,"li")) indx_pot=n;
 	}
 	cout<<"indice del potencial CM: "<<indx_pot<<endl;
-	cout<<"Generando niveles de partícula independiente"<<endl;
+	cout<<"Generando niveles de partï¿½cula independiente"<<endl;
 	/* Genera niveles primera columna */
 	for (n=0;n<parm->num_st;n++)
 	{
@@ -2488,7 +2500,7 @@ void SuccessiveTipoLi(struct parametros *parm,complejo*** Clalb)
 									c4=Wigner9j(la,lb,parm->lambda,lc,lc,0.,P,K,parm->lambda)*pow(2.*lc+1.,1.5);
 									if(c4!=0.)
 									{
-										/* función de Green con spin up y spin down Energía corregida (factor adiabático)*/
+										/* funciï¿½n de Green con spin up y spin down Energï¿½a corregida (factor adiabï¿½tico)*/
 										if(parm->adiabatico)
 										{
 											ints->funcion_regular[0].energia=parm->energia_cm+parm->int_Qvalue-
@@ -2503,7 +2515,7 @@ void SuccessiveTipoLi(struct parametros *parm,complejo*** Clalb)
 											ints->funcion_irregular[1].energia=parm->energia_cm+parm->int_Qvalue-
 													fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
 										}
-										/* función de Green con spin up y spin down sin correccion de energía */
+										/* funciï¿½n de Green con spin up y spin down sin correccion de energï¿½a */
 										if(!(parm->adiabatico))
 										{
 											ints->funcion_regular[0].energia=parm->energia_cm+parm->int_Qvalue;
@@ -2516,7 +2528,7 @@ void SuccessiveTipoLi(struct parametros *parm,complejo*** Clalb)
 										ints->funcion_regular[1].l=lc;
 										ints->funcion_irregular[0].l=lc;
 										ints->funcion_irregular[1].l=lc;
-										if(lc==abs(la-P)) cout<<"Energía dw intermedia: "<<ints->funcion_regular[0].energia<<endl;
+										if(lc==abs(la-P)) cout<<"Energï¿½a dw intermedia: "<<ints->funcion_regular[0].energia<<endl;
 										GeneraGreenFunction(ints->funcion_regular,ints->funcion_irregular,&(parm->pot_opt[indx_intermedio]),
 												parm->Z_A*parm->Z_a,parm->mu_Cc,parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
 										SChica(ints,P,la,lc,schica_mas,schica_menos);
@@ -2777,10 +2789,10 @@ void CrossSection(complejo ***Csucc,complejo ***Csim,complejo ***Cnon,struct par
 		cout<<"Seccion eficaz medida en microbarn"<<endl;
 		break;
 	default:
-		Error("Unidades desconocidas para la sección eficaz");
+		Error("Unidades desconocidas para la secciï¿½n eficaz");
 		break;
 	}
-	//Cross section para término successive
+	//Cross section para tï¿½rmino successive
 	for(n=0;n<parm->cross_puntos;n++)
 	{
 		theta=PI*double(n)/double(parm->cross_puntos);
@@ -2820,7 +2832,7 @@ void CrossSection(complejo ***Csucc,complejo ***Csim,complejo ***Cnon,struct par
 		}
 		fp<<theta*180./PI<<"  "<<cross<<endl;
 	}
-	//Cross section para término simultaneous
+	//Cross section para tï¿½rmino simultaneous
 	for(n=0;n<parm->cross_puntos;n++)
 	{
 		theta=PI*double(n)/double(parm->cross_puntos);
@@ -3152,7 +3164,7 @@ void File2State(estado *st,parametros *parm)
 		fp>>r[puntos];
 		fp>>wf[puntos];
 		wf_r[puntos]=wf[puntos]/r[puntos];
-		if(puntos>=MAX_PTS) {cout<<"Número de puntos en "<<st->file<<" mayor que MAX_PTS"<<endl; exit(0);}
+		if(puntos>=MAX_PTS) {cout<<"Nï¿½mero de puntos en "<<st->file<<" mayor que MAX_PTS"<<endl; exit(0);}
 //		misc3<<r[puntos]<<"  "<<wf[puntos]<<"  "<<wf_r[puntos]<<endl;
 	}
 
@@ -3190,7 +3202,7 @@ void File2Pot(potencial *pot,parametros *parm)
 		fp>>r[puntos];
 		fp>>v[puntos];
 		puntos++;
-		if(puntos>=MAX_PTS) {cout<<"Número de puntos en "<<pot->file<<" mayor que MAX_PTS"<<endl; exit(0);}
+		if(puntos>=MAX_PTS) {cout<<"Nï¿½mero de puntos en "<<pot->file<<" mayor que MAX_PTS"<<endl; exit(0);}
 	}
 
 	for(n=0;n<parm->puntos;n++)
@@ -3235,7 +3247,7 @@ void DiagonalizaMatrizPairing(int num_pares,double** anm,double** autovectores,d
 }
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
-//   Cálculo de transiciones multipolares                             //
+//   Cï¿½lculo de transiciones multipolares                             //
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
 double Multipole(estado* inicial,estado* final,int l)
@@ -3245,7 +3257,7 @@ double Multipole(estado* inicial,estado* final,int l)
 	double* abs=new double[intpunt];
 	double* w=new double[intpunt];
 	int n;
-	/* Reglas de selección (paridad y momento angular) */
+	/* Reglas de selecciï¿½n (paridad y momento angular) */
 	if((fabs(inicial->j-l)>final->j)||(inicial->j+l<final->j)) return 0.;
 	if((pow(-1.,inicial->l)*pow(-1.,final->l)*pow(-1.,l))<0.) return 0.;
 	GaussLegendre(abs,w,intpunt);
@@ -3270,7 +3282,7 @@ double Multipole(estado* inicial,estado* final,int l)
 }
 /////////////////////////////////////////////////////////////////////////
 //                                                                     //
-//     Genera los estados de partícula independiente de un nucleo dado //
+//     Genera los estados de partï¿½cula independiente de un nucleo dado //
 //        y el     correspondiente potencial de campo medio            //
 //                                                                     //
 /////////////////////////////////////////////////////////////////////////
@@ -3295,6 +3307,7 @@ void GeneraEstadosPI(potencial* pot,estado* st,double radio,int puntos,double ca
 				pot->V=-(vmax+vmin)/2.;
 //				cout<<pot->V<<endl;
 				GeneraPotencialCM(parm,pot);
+//				cout<<"quillo1"<<endl;
 				GeneraEstado(st,pot,radio,puntos,cargas,masa,D0,rms);
 				etrial=st->energia;
 //				cout<<etrial<<"  "<<pot->V<<endl;
@@ -3318,7 +3331,7 @@ void GeneraEstadosPI(potencial* pot,estado* st,double radio,int puntos,double ca
 }
 /////////////////////////////////////////////////////////////////////////
 //                                                                     //
-//     Genera los estados de partícula independiente de un nucleo dado //
+//     Genera los estados de partï¿½cula independiente de un nucleo dado //
 //        y el     correspondiente potencial de campo medio            //
 //                                                                     //
 /////////////////////////////////////////////////////////////////////////
@@ -3448,7 +3461,7 @@ void Polarization(parametros* parm)
 	vp=&(parm->pot[indx_pot_vp]);
 	vd=&(parm->pot[indx_pot_vd]);
 	cout<<"Generando niveles nucleo a"<<endl;
-	/* Genera niveles del núcleo 'a' */
+	/* Genera niveles del nï¿½cleo 'a' */
 	for (n=0;n<parm->a_numst;n++)
 	{
 		for(m=0;m<parm->num_st;m++)
@@ -3461,7 +3474,7 @@ void Polarization(parametros* parm)
 	}
 	phi_n=&(parm->st[indx_stn]);
 	cout<<"Generando niveles nucleo B"<<endl;
-	/* Genera niveles del núcleo 'B' */
+	/* Genera niveles del nï¿½cleo 'B' */
 	for (n=0;n<parm->B_numst;n++)
 	{
 		for(m=0;m<parm->num_st;m++)
@@ -3795,7 +3808,7 @@ void JacobiTransform(estado* st1,estado* st2,estado* st3,estado* st4,double** ga
 			Wigner9j(LTa,S,J,II,lambdaa,J,l,l,0)*Wigner9j(st1->l,0.5,st1->j,st2->l,0.5,st2->j,LTa,S,J);
 	constante_B=22.2733119873268*(sqrt((2.*II+1.)*(2.*lambdaB+1.)/((2.*LTB+1.)*(2.*J+1.)*(2.*l+1.))))*
 			Wigner9j(LTB,S,J,II,lambdaB,J,l,l,0)*Wigner9j(st3->l,0.5,st3->j,st4->l,0.5,st4->j,LTB,S,J);
-	// Versión prior +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Versiï¿½n prior +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	if(parm->prior==1)
 	{
 		for(nr=0;nr<dim2->num_puntos;nr++)
@@ -3908,7 +3921,7 @@ void JacobiTransform(estado* st1,estado* st2,estado* st3,estado* st4,double** ga
 		cout<<"Norma D: "<<normaDint<<endl;
 	}
 
-	// Versión post +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Versiï¿½n post +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	if(parm->prior==0)
 	{
 		for(nr=0;nr<dim2->num_puntos;nr++)
@@ -4040,7 +4053,7 @@ void ClusterPotential(double** ga,double** gB,double** vtx,complejo*** vcluster,
 	constante=Wigner9j(II,lambdaB,J,II,lambdaa,J,K,0,K)*sqrt((2.*II+1.)/(2.*l+1.));
 	cout<<"9j: "<<Wigner9j(II,lambdaB,J,II,lambdaa,J,K,0,K)<<"  const: "<<sqrt((2.*II+1.)/(2.*l+1.))<<endl;
 	cout<<"   I: "<<II<<"   lambdaB: "<<lambdaB<<"   J: "<<J<<"   lambdaa: "<<lambdaa<<"   K: "<<K<<endl;
-	// Versión PRIOR ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Versiï¿½n PRIOR ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	if(parm->prior==1)
 	{
 		for(nrhoa=0;nrhoa<dim2->num_puntos;nrhoa++)
@@ -4077,7 +4090,7 @@ void ClusterPotential(double** ga,double** gB,double** vtx,complejo*** vcluster,
 			}
 		}
 	}
-	// Versión POST ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Versiï¿½n POST ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	if(parm->prior==0)
 		{
 			for(nrhoa=0;nrhoa<dim2->num_puntos;nrhoa++)

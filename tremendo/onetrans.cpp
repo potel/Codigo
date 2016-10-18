@@ -52,7 +52,7 @@ void OneTrans(struct parametros* parm)
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_A,parm->m_b);
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_scatt]),parm->m_A,parm->m_b);
 	cout<<"Generando el estado del nucleo a"<<endl;
-	/* Genera niveles del núcleo 'a' */
+	/* Genera niveles del nï¿½cleo 'a' */
 	for (n=0;n<parm->a_numst;n++)
 	{
 		for(m=0;m<parm->num_st;m++)
@@ -70,7 +70,7 @@ void OneTrans(struct parametros* parm)
 		cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
 	}
 	cout<<"Generando niveles nucleo B"<<endl;
-	/* Genera niveles del núcleo 'B' */
+	/* Genera niveles del nï¿½cleo 'B' */
 	for (n=0;n<parm->B_numst;n++)
 	{
 		for(m=0;m<parm->num_st;m++)
@@ -90,7 +90,7 @@ void OneTrans(struct parametros* parm)
 	}
 
 	cout<<"Absorcion: "<<absorcion<<" MeV"<<endl;
-	/*Genera los potenciales opticos (sin términos coulombiano y spin-órbita) */
+	/*Genera los potenciales opticos (sin tï¿½rminos coulombiano y spin-ï¿½rbita) */
 	EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
 	EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
 	EscribePotencialOptico(parm->puntos,parm->pot_opt,parm->num_opt,parm);
@@ -109,7 +109,7 @@ void InicializaOneTrans(struct parametros* parm)
 	if (!strcmp(parm->proyectil,"A")) {masa_proyectil=parm->m_A; masa_blanco=parm->m_a;}
 	if ((strcmp(parm->proyectil,"A")!=0) && ((strcmp(parm->proyectil,"a")!=0))) Error("Proyectil debe ser 'a' o 'A' ");
 	parm->energia_cm=(masa_blanco/(parm->m_a+parm->m_A))*parm->energia_lab;
-	if(-parm->Qvalue>parm->energia_cm) Error("Energía de reacción insuficiente");
+	if(-parm->Qvalue>parm->energia_cm) Error("Energï¿½a de reacciï¿½n insuficiente");
 	parm->mu_Aa=(parm->m_a*parm->m_A)/(parm->m_a+parm->m_A);
 	parm->mu_Bb=(parm->m_b*parm->m_B)/(parm->m_b+parm->m_B);
 	parm->k_Aa=sqrt(2.*parm->mu_Aa*AMU*parm->energia_cm)/HC;
@@ -194,7 +194,7 @@ void CrossSectionOneTrans(complejo *****Tlalb,complejo* Sel,struct parametros *p
 		cout<<"Seccion eficaz medida en microbarn"<<endl;
 		break;
 	default:
-		Error("Unidades desconocidas para la sección eficaz");
+		Error("Unidades desconocidas para la secciï¿½n eficaz");
 		break;
 	}
 	cout<<"ji: "<<ji<<"   "<<"jf: "<<jf<<endl;
@@ -392,7 +392,7 @@ void CrossSectionOneTransSpinless(complejo ***Tlalb,complejo* Sel,struct paramet
 		cout<<"Seccion eficaz medida en microbarn"<<endl;
 		break;
 	default:
-		Error("Unidades desconocidas para la sección eficaz");
+		Error("Unidades desconocidas para la secciï¿½n eficaz");
 		break;
 	}
 	cout<<"ji: "<<ji<<"   "<<"jf: "<<jf<<endl;
@@ -511,9 +511,9 @@ void CrossSectionOneTransSpinless(complejo ***Tlalb,complejo* Sel,struct paramet
 	delete[] thetavec;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/* Cálculo de la sección eficaz de transferencia de una particula. La amplitud T[ma][map][mbp] depende de las polarizaciones
+/* Cï¿½lculo de la secciï¿½n eficaz de transferencia de una particula. La amplitud T[ma][map][mbp] depende de las polarizaciones
  * iniciales y finales de las
- * partículas a, b. Los índices son tales que ma=0->ma=-1/2, ma=1->ma=1/2, etc.
+ * partï¿½culas a, b. Los ï¿½ndices son tales que ma=0->ma=-1/2, ma=1->ma=1/2, etc.
 */
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void AmplitudOneTrans(parametros *parm,complejo *****T)
@@ -542,7 +542,7 @@ void AmplitudOneTrans(parametros *parm,complejo *****T)
 	float ja,jb;
 	complejo integral;
 	factor=32.*sqrt(2.*parm->n_spin+1.)*pow(PI,3)/((parm->k_Aa)*(parm->k_Bb));
-	/*Parámetros numéricos para la integral */
+	/*Parï¿½metros numï¿½ricos para la integral */
 	intk->dim1=dim1;
 	intk->dim2=dim2;
 	intk->dim3=dim3;
@@ -662,8 +662,8 @@ void AmplitudOneTrans(parametros *parm,complejo *****T)
 	delete[] coords;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/* Cálculo de la sección eficaz de knockout. La amplitud T[ma][map][mbp] depende de las polarizaciones iniciales y finales de las
- * partículas a, b. Los índices son tales que ma=0->ma=-1/2, ma=1->ma=1/2, etc.
+/* Cï¿½lculo de la secciï¿½n eficaz de knockout. La amplitud T[ma][map][mbp] depende de las polarizaciones iniciales y finales de las
+ * partï¿½culas a, b. Los ï¿½ndices son tales que ma=0->ma=-1/2, ma=1->ma=1/2, etc.
 */
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
@@ -699,7 +699,7 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 	factor=32.*sqrt(2.*parm->n_spin+1.)*pow(PI,3)/((parm->k_Aa)*(parm->k_Bb));
 	cout<<"Masa reducida entrante: "<<parm->mu_Aa<<", masa reducida saliente: "<<parm->mu_Bb<<endl;
 	cout<<"  Momentos-> KaA: "<<parm->k_Aa<<",   KbB: "<<parm->k_Bb<<endl;
-	/*Parámetros numéricos para la integral */
+	/*Parï¿½metros numï¿½ricos para la integral */
 	intk->dim1=dim1;
 	intk->dim2=dim2;
 	intk->dim3=dim3;
@@ -745,15 +745,17 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 	/*Calculo de las amplitudes de transferencia**************************************************************************/
 	for(n=0;n<parm->num_st;n++)
 	{
-		if (parm->a_estados[st_a] == parm->st[n].id) intk->inicial_st = &(parm->st[n]);
-		if (parm->B_estados[st_B] == parm->st[n].id) intk->final_st = &(parm->st[n]);
+//		cout<<n<<"  "<<"parm->num_st: "<<parm->num_st<<"  st_a: "<<st_a<<endl;
+		if (parm->a_estados[0] == parm->st[n].id) intk->inicial_st = &(parm->st[n]);
+		if (parm->B_estados[0] == parm->st[n].id) intk->final_st = &(parm->st[n]);
 	}
-
+    cout<<"quillo1"<<endl;
 	for(la=0;la<parm->lmax;la++)
 	{
 		exp_delta_coulomb_i[la]=exp(I*(deltac(la,eta_i)));
 		exp_delta_coulomb_f[la]=exp(I*(deltac(la,eta_f)));
 	}
+    cout<<"quillo2"<<endl;
 	if(parm->remnant==0) {
 		intk->core=&parm->pot_opt[indx_core];
 		intk->opt=&parm->pot_opt[indx_salida];
@@ -836,7 +838,7 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 	delete[] coords;
 }
 /*****************************************************************************
-Coordenadas del integrando para el cálculo del 1pt
+Coordenadas del integrando para el cï¿½lculo del 1pt
  *****************************************************************************/
 void GeneraCoordenadasOneTrans(parametros *parm_rec, coordenadas_onept* coords,
 		parametros_integral *dim_R,parametros_integral *dim_r,parametros_integral *dim_theta)
@@ -1184,7 +1186,7 @@ void File2Smatrix(complejo *S,const char* file)
 		fp>>simag;
 		S[l]=sreal+I*simag;
 		puntos++;
-		if(puntos>=MAX_PTS) {cout<<"Número de puntos en "<<file<<" mayor que MAX_L"<<endl; exit(0);}
+		if(puntos>=MAX_PTS) {cout<<"Nï¿½mero de puntos en "<<file<<" mayor que MAX_L"<<endl; exit(0);}
 		fp2<<l<<"  "<<sreal<<"  "<<simag<<"  "<<sqrt(sreal*sreal+simag*simag)<<endl;
 	}
 	cout<<"numero de ondas parciales en la matriz S: "<<puntos<<endl;
@@ -1222,7 +1224,7 @@ void MatrixElement(parametros *parm,estado *st1,estado *st2,potencial* v)
 	GaussLegendre(absang1, wang1, regla_ang1);
 	GaussLegendre(absang2, wang2, regla_ang2);
 
-	cout<<"Cálculo del elemento de matriz.... ";
+	cout<<"Cï¿½lculo del elemento de matriz.... ";
 	fflush(0);
 	sum1=0.;
 	dim1->a=parm->r_Ccmin;
@@ -1237,7 +1239,7 @@ void MatrixElement(parametros *parm,estado *st1,estado *st2,potencial* v)
 		sum1+=r1*r1*estado_final*potencial*wr[n1];
 	}
 	sum1*=2.*sqrt(PI)*radio/(2.);
-	cout<<"Parámetro D0 (sum1): "<<sum1<<endl;
+	cout<<"Parï¿½metro D0 (sum1): "<<sum1<<endl;
 	qmin=abs(parm->k_Bb-parm->k_Aa);
 	for(n=0;n<200;n++)
 	{
