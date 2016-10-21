@@ -322,7 +322,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusi�n: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=4.;energia_out<10.;energia_out+=0.5)
+	for(energia_out=14.;energia_out<20.;energia_out+=200)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
@@ -551,26 +551,26 @@ void AmplitudeCapture(struct parametros* parm)
 			inc_break_lmas[l]=0.;
 		}
 		cout<<"calculando seccion eficaz diferencial"<<endl;
-//		for(n=0;n<parm->cross_puntos;n++)
-//		{
-//			theta=PI*double(n)/double(parm->cross_puntos);
-//			direct[0]=0.;
-//			non_orth[0]=0.;
-//			cross_term[0]=0.;
-//			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
-//			{
-//				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
-//						direct,non_orth,cross_term,cross_up);
+		for(n=0;n<parm->cross_puntos;n++)
+		{
+			theta=PI*double(n)/double(parm->cross_puntos);
+			direct[0]=0.;
+			non_orth[0]=0.;
+			cross_term[0]=0.;
+			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
+			{
+				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
+						direct,non_orth,cross_term,cross_up);
 //				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
 //						direct,non_orth,cross_term,cross_down);
-//				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
-//				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-//				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-//				misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
-//						"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
-//						sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
-//			}
-//		}
+				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
+				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+				misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
+						"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
+						sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
+			}
+		}
 //////		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A);
 		cout<<"Secci�n eficaz NEB:  "<<cross_total<<"   Secci�n eficaz EB:  "<<cross_total_elasticb<<endl;
 	}
@@ -1304,7 +1304,7 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 				UT+=wf[n][l][0][lp]*armonico;
 				HM+=non[n][l][0][lp]*armonico;
 			}
-			suma+=-imag(pot_int)*abs(UT+HM)*abs(UT+HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+			suma+=-imag(pot_int)*abs(UT-HM)*abs(UT-HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 //			suma+=-imag(pot_int)*abs(UT)*abs(UT)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 			for(m=1;m<parm->lmax;m++)
 			{
@@ -1316,7 +1316,7 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 					UT+=wf[n][l][m][lp]*armonico;
 					HM+=non[n][l][m][lp]*armonico;
 				}
-				suma+=-2.*imag(pot_int)*abs(UT+HM)*abs(UT+HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+				suma+=-2.*imag(pot_int)*abs(UT-HM)*abs(UT-HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 //				suma+=-2.*imag(pot_int)*abs(UT)*abs(UT)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 			}
 		}
@@ -1609,3 +1609,427 @@ void TalysInput(double* lmenos,double* lmas,double energia_trans,parametros* par
 		*fp3<<left<<setw(5)<<Jp<<setw(12)<<left<<parity1[int(Jp)]/norma<<left<<setw(12)<<parity2[int(Jp)]/norma<<endl;
 	}
 }
+void ClusterInelastic(struct parametros* parm)
+{
+	cout<<"********************************************************************************"<<endl;
+	cout<<"*                                                                              *"<<endl;
+	cout<<"*                       CLUSTER INELASTIC X                                    *"<<endl;
+	cout<<"*                                                                              *"<<endl;
+	cout<<"********************************************************************************"<<endl;
+	int n,m,indx_pot_a,indx_pot_B,indx_st,indx_ingreso,indx_intermedio,indx_salida,indx_core,indx_transfer,indx_scatt;
+	double energia,etrial,vmax,vmin,energia_ws,absorcion,carga_out,carga_trans,A_P,A_T;
+	cout<<" Energia laboratorio **********************"<<parm->energia_lab<<endl;
+	InicializaClusterInelastic(parm);
+	double* D0=new double[1];
+	double* rms=new double[1];
+	cout<<"Generando potenciales de campo medio"<<endl;
+	HanShiShen(25.5,52,41);
+	for(n=0;n<parm->num_cm;n++)
+	{
+		GeneraPotencialCM(parm,&(parm->pot[n]));
+		if(parm->a_potcm==parm->pot[n].id) indx_pot_a=n;
+		if(parm->B_potcm==parm->pot[n].id) indx_pot_B=n;
+	}
+	for (n=0;n<parm->num_opt;n++)
+	{
+		if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
+		if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
+		if(parm->optico_intermedio==parm->pot_opt[n].id) indx_intermedio=n;
+		if(parm->core_pot==parm->pot_opt[n].id) indx_core=n;
+	}
+	A_P=parm->P_N+parm->P_carga;
+	A_T=parm->T_N+parm->T_carga;
+	cout<<"Generando potenciales opticos"<<endl;
+	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_ingreso]),parm->m_A,parm->m_a);
+	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_salida]),parm->m_A,parm->m_a);
+	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_A,parm->m_b);
+	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_core]),parm->m_B,parm->m_A);
+
+
+	cout<<"Generando el estado del nucleo a"<<endl;
+	/* Genera niveles del n�cleo 'a' */
+	for (n=0;n<parm->a_numst;n++)
+	{
+		for(m=0;m<parm->num_st;m++)
+		{
+			if(parm->a_estados[n]==parm->st[m].id) indx_st=m;
+		}
+		if(parm->st[indx_st].energia<0.)
+			GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,parm->Z_B*(parm->Z_b),parm,1,
+					parm->m_B*parm->m_b/(parm->m_B+parm->m_b),D0,rms);
+		else
+		{
+			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,carga_trans*(carga_out)
+					,parm,parm->n1_masa*parm->m_b/(parm->n1_masa+parm->m_b));
+		}
+	}
+	cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
+	EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
+	EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
+	EscribePotencialOptico(parm->puntos,parm->pot_opt,parm->num_opt,parm);
+	AmplitudeClusterInelastic(parm);
+}
+void AmplitudeClusterInelastic(struct parametros* parm)
+{
+	parametros_integral *dim1=new parametros_integral;
+	parametros_integral *dim2=new parametros_integral;
+	complejo* exp_delta_coulomb_i=new complejo[parm->lmax];
+	complejo* exp_delta_coulomb_f=new complejo[parm->lmax];
+	double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
+	double eta_i=parm->eta;
+	double escala,c1,theta,cross_const,costheta,cross;
+	distorted_wave* fl=new distorted_wave;
+	distorted_wave* gl=new distorted_wave;
+	ofstream fp1("dw_out1trans.txt");
+	ofstream fp2("dw_in1trans.txt");
+	complejo*** DeltaK=tensor_cmpx(parm->ltransfer,parm->rA2_puntos,parm->rCc_puntos);
+	complejo*** IKll=tensor_cmpx(parm->ltransfer,parm->lmax,parm->lmax);
+	complejo*** Slmm=tensor_cmpx(parm->lmax,500,500);
+	complejo** T=matriz_cmpx(500,500);
+	complejo** rhoK=matriz_cmpx(parm->ltransfer,parm->rCc_puntos);
+	estado* st1=new estado;
+	estado* st2=new estado;
+	double* r=new double[parm->rA2_puntos];
+	double* R=new double[parm->rCc_puntos];
+	int la,lb,K,indx_ingreso,indx_salida,indx_t,indx_alpha,len,flag,n,m,M,mm,MM,KK,dm,dM;
+	complejo factor;
+	dim1->a=parm->r_Ccmin;
+	dim1->b=parm->r_Ccmax;
+	dim1->num_puntos=parm->rCc_puntos;
+	dim2->a=parm->r_A2min;
+	dim2->b=parm->r_A2max;
+	dim2->num_puntos=parm->rA2_puntos;
+	GaussLegendre(dim1->puntos,dim1->pesos,dim1->num_puntos);
+	GaussLegendre(dim2->puntos,dim2->pesos,dim2->num_puntos);
+	ofstream fp(parm->fl_cross_tot);
+	cout<<"eta: "<<eta_i<<", "<<eta_f<<endl;
+	for(n=0;n<dim2->num_puntos;n++)
+	{
+		r[n]=dim2->a+(dim2->b-dim2->a)*(dim2->puntos[n]+1.)/2.;
+	}
+	for(n=0;n<dim1->num_puntos;n++)
+	{
+		R[n]=dim1->a+(dim1->b-dim1->a)*(dim1->puntos[n]+1.)/2.;
+	}
+
+	/*Selecciona los potenciales opticos en los distintos canales*/
+	for (n=0;n<parm->num_opt;n++)
+	{
+		if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
+		if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
+		if(parm->optico_intermedio==parm->pot_opt[n].id) indx_t=n;
+		if(parm->core_pot==parm->pot_opt[n].id) indx_alpha=n;
+	}
+	for(n=0;n<parm->num_st;n++)
+	{
+//		cout<<n<<"  "<<"parm->num_st: "<<parm->num_st<<"  st_a: "<<st_a<<endl;
+		if (parm->a_estados[0] == parm->st[n].id) st1=&(parm->st[n]);
+		if (parm->a_estados[1] == parm->st[n].id) st2=&(parm->st[n]);
+	}
+	len=strlen(parm->unidades);
+	if(!strncmp(parm->unidades,"milib",len)) flag=1;
+	if(!strncmp(parm->unidades,"fm2",len)) flag=2;
+	if(!strncmp(parm->unidades,"b",len)) flag=3;
+	if(!strncmp(parm->unidades,"microb",len)) flag=4;
+	switch(flag)
+	{
+	case 1:
+		escala=10.;
+		cout<<"Seccion eficaz medida en milibarn"<<endl;
+		break;
+	case 2:
+		escala=1.;
+		cout<<"Seccion eficaz medida en fm^2"<<endl;
+		break;
+	case 3:
+		escala=0.01;
+		cout<<"Seccion eficaz medida en barn"<<endl;
+		break;
+	case 4:
+		escala=10000.;
+		cout<<"Seccion eficaz medida en microbarn"<<endl;
+		break;
+	default:
+		Error("Unidades desconocidas para la seccion eficaz");
+		break;
+	}
+	KK=st1->l+st2->l;
+	dM=KK;
+	dm=st2->l;
+	cross_const=escala*parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU/(parm->k_Aa*4.*PI*PI*pow(HC,4.));
+//	cout<<"constante: "<<cross_const<<endl;
+	MultipolePotential(DeltaK,dim2->num_puntos,dim1->num_puntos,r,R,&(parm->pot_opt[indx_t]),&(parm->pot_opt[indx_alpha]),
+			&(parm->pot_opt[indx_ingreso]),dM,parm->m_b,parm->m_B);
+	IntegralRhoK(rhoK,DeltaK,st1,st2,dM,dim2,dim1->num_puntos);
+	misc1<<"& Multipolar transition density"<<endl<<endl;
+	for(n=0;n<dim1->num_puntos;n++)
+	{
+		misc1<<R[n];
+		for(K=0;K<=dM;K++)
+		{
+			misc1<<"  "<<real(rhoK[K][n])<<"  "<<imag(rhoK[K][n]);
+		}
+		misc1<<endl;
+	}
+//	exit(0);
+	c1=32.*pow(PI,2.5)/(parm->k_Aa*parm->k_Bb);
+//	for(la=0;la<parm->lmax;la++)
+//	{
+//		cout<<"la: "<<la<<endl;
+//		misc4<<"la: "<<la<<endl;
+//		exp_delta_coulomb_f[la]=exp(I*(deltac(la,eta_i)));
+//		fl->energia=parm->energia_cm;
+//		fl->l=la;
+//		fl->spin=0.;
+//		fl->j=la;
+//		GeneraDWspin(fl,&(parm->pot_opt[indx_ingreso]),parm->Z_a*parm->Z_A,parm->mu_Aa,
+//				parm->radio,parm->puntos,parm->matching_radio,&fp1);
+////		for(lb=abs(la-KK);(lb<la+KK)  && (lb<parm->lmax);lb++)
+//		for(lb=0;(lb<=la+KK)  && (lb<parm->lmax);lb++)
+//		{
+//			misc3<<"lb: "<<lb<<endl;
+//			misc4
+//			<<"lb: "<<lb<<endl;
+//			exp_delta_coulomb_f[lb]=exp(I*(deltac(lb,eta_f)));
+//			gl->energia=parm->energia_cm+parm->Qvalue;
+//			gl->l=lb;
+//			gl->spin=0.;
+//			gl->j=lb;
+//			GeneraDWspin(gl,&(parm->pot_opt[indx_salida]),parm->Z_a*parm->Z_A,parm->mu_Bb,
+//					parm->radio,parm->puntos,parm->matching_radio,&fp2);
+//			IntegralIKll(IKll,rhoK,fl,gl,dM,dim1,la,lb);
+//			factor=pow(I,la+lb)*exp_delta_coulomb_f[la]*exp_delta_coulomb_f[lb]*sqrt((2.*st1->l+1.)*(2.*st2->l+1.)*(2.*lb+1.));
+//			for(K=0;K<=dM;K++)
+//			{
+////				misc4<<K<<"  "<<la<<"  "<<lb<<"  "<<abs(IKll[K][la][lb])<<endl;
+//				IKll[K][la][lb]*=factor*ClebsGordan(st1->l,0,st2->l,0,K,0)*ClebsGordan(la,0,lb,0,K,0)/(2*K+1.);
+//				misc4<<K<<"  "<<la<<"  "<<lb<<"  "<<abs(IKll[K][la][lb])<<endl;
+//				for(m=-dm;m<=dm;m++)
+//				{
+//					mm=m+dm;
+//					for(M=-dM;M<=dM;M++)
+//					{
+//						MM=M+dM;
+//						Slmm[lb][mm][MM]+=pow(-1.,m)*c1*ClebsGordan(st1->l,M+m,st2->l,-m,K,M)*IKll[K][la][lb];
+//						if(mm==dm && MM==dM) misc3<<"      la: "<<la<<"      K: "<<K<<"  "<<abs(pow(-1.,m)*c1*ClebsGordan(st1->l,M+m,st2->l,-m,K,M)*IKll[K][la][lb])
+//								<<"  "<<abs(Slmm[lb][dm][dM])<<endl;
+//					}
+//				}
+//			}
+//		}
+//	}
+	for(la=0;la<parm->lmax;la++)
+	{
+		cout<<"la: "<<la<<endl;
+		misc4<<"la: "<<la<<endl;
+		exp_delta_coulomb_f[la]=exp(I*(deltac(la,eta_i)));
+		fl->energia=parm->energia_cm;
+		fl->l=la;
+		fl->spin=0.;
+		fl->j=la;
+		GeneraDWspin(fl,&(parm->pot_opt[indx_ingreso]),parm->Z_a*parm->Z_A,parm->mu_Aa,
+				parm->radio,parm->puntos,parm->matching_radio,&fp1);
+		lb=la;
+		exp_delta_coulomb_f[lb]=exp(I*(deltac(lb,eta_f)));
+		gl->energia=parm->energia_cm+parm->Qvalue;
+		gl->l=lb;
+		gl->spin=0.;
+		gl->j=lb;
+		GeneraDWspin(gl,&(parm->pot_opt[indx_salida]),parm->Z_a*parm->Z_A,parm->mu_Bb,
+				parm->radio,parm->puntos,parm->matching_radio,&fp2);
+		IntegralIKll(IKll,rhoK,fl,gl,dM,dim1,la,lb);
+		factor=pow(I,la+lb)*exp_delta_coulomb_f[la]*exp_delta_coulomb_f[lb]*sqrt((2.*st1->l+1.)*(2.*st2->l+1.)*(2.*lb+1.));
+		K=0;
+		IKll[K][la][lb]*=factor*ClebsGordan(st1->l,0,st2->l,0,K,0)*ClebsGordan(la,0,lb,0,K,0)/(2*K+1.);
+		misc4<<K<<"  "<<la<<"  "<<lb<<"  "<<abs(IKll[K][la][lb])<<endl;
+		Slmm[lb][dm][dM]=pow(-1.,0)*c1*ClebsGordan(st1->l,0,st2->l,0,K,0)*IKll[K][la][lb];
+		if(mm==dm && MM==dM) misc3<<"      la: "<<la<<"      K: "<<K<<"  "<<abs(pow(-1.,m)*c1*ClebsGordan(st1->l,M+m,st2->l,-m,K,M)*IKll[K][la][lb])
+										<<"  "<<abs(Slmm[lb][dm][dM])<<endl;
+
+	}
+	for(lb=0;lb<parm->lmax;lb++)
+	{
+		misc2<<lb<<"  "<<abs(Slmm[lb][dm][dM])<<endl;
+	}
+//	misc2<<endl<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+	for(n=0;n<parm->cross_puntos;n++)
+	{
+		theta=PI*double(n)/double(parm->cross_puntos);
+		costheta=cos(theta);
+		cross=0.;
+		for(m=-dm;m<=dm;m++)
+		{
+			mm=m+dm;
+			for(M=-dM;M<=dM;M++)
+			{
+				MM=M+dM;
+				T[mm][MM]=0.;
+			}
+		}
+		if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
+		{
+			for(lb=0;lb<parm->lmax;lb++)
+			{
+				//						misc3<<"Quillo "<<lb<<"  "<<mm<<"  "<<MM<<endl;
+				if(M>=0) T[0][0]+=Slmm[lb][dm][dM]*gsl_sf_legendre_sphPlm(lb,0,costheta);
+				//						misc3<<"Quillo2 "<<lb<<"  "<<mm<<"  "<<MM<<endl;
+				//						misc2<<T[mm][MM]<<endl;
+			}
+
+			cross=cross_const*abs(T[mm][MM])*abs(T[mm][MM]);
+		}
+		fp<<theta*180./PI<<"  "<<cross<<endl;
+	}
+//	for(n=0;n<parm->cross_puntos;n++)
+//	{
+//		theta=PI*double(n)/double(parm->cross_puntos);
+//		costheta=cos(theta);
+//		cross=0.;
+//		for(m=-dm;m<=dm;m++)
+//		{
+//			mm=m+dm;
+//			for(M=-dM;M<=dM;M++)
+//			{
+//				MM=M+dM;
+//				T[mm][MM]=0.;
+//			}
+//		}
+//		if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
+//		{
+//			for(lb=0;lb<parm->lmax;lb++)
+//			{
+//				for(m=-dm;m<=dm;m++)
+//				{
+//					mm=m+dm;
+//					for(M=-dM;(M<=dM) && (abs(M)<=lb);M++)
+//					{
+//						MM=M+dM;
+////						misc3<<"Quillo "<<lb<<"  "<<mm<<"  "<<MM<<endl;
+//						if(M>=0) T[mm][MM]+=Slmm[lb][mm][MM]*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
+//						if(M<0) T[mm][MM]+=pow(-1.,M)*Slmm[lb][mm][MM]*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
+////						misc3<<"Quillo2 "<<lb<<"  "<<mm<<"  "<<MM<<endl;
+////						misc2<<T[mm][MM]<<endl;
+//					}
+//				}
+//			}
+//			for(m=-dm;m<=dm;m++)
+//			{
+//				mm=m+dm;
+//				for(M=-dM;M<=dM;M++)
+//				{
+//					MM=M+dM;
+////					if(abs(m)==st2->l-1) cross+=cross_const*abs(T[mm][MM])*abs(T[mm][MM]);
+//					cross+=cross_const*abs(T[mm][MM])*abs(T[mm][MM]);
+//				}
+//			}
+//		}
+//		fp<<theta*180./PI<<"  "<<cross<<endl;
+//	}
+	delete[] exp_delta_coulomb_i;
+	delete[] exp_delta_coulomb_f;
+	delete[] DeltaK;
+	delete[] Slmm;
+	delete[] IKll;
+	delete[] T;
+
+}
+void MultipolePotential(complejo*** DeltaK,int numr,int numR,double* r, double* R,
+		potencial_optico* pot_t,potencial_optico* pot_alpha, potencial_optico* pot_Li,int numK,double mt, double ma)
+{
+	int nr,nR,ntheta,K,rpoint;
+	complejo V1,V2,V3;
+	double theta,r_alpha,r_t,k1,k2,costheta,sintheta;
+	parametros_integral* dim=new parametros_integral [1];
+	dim->a=0;
+	dim->b=PI;
+	dim->num_puntos=20;
+	GaussLegendre(dim->puntos,dim->pesos,dim->num_puntos);
+	k1=mt/(ma+mt);
+	k2=ma/(ma+mt);
+	rpoint=int(ceil(numr/2));
+	for(K=0;K<=numK;K++)
+	{
+		for(nr=0;nr<numr;nr++)
+		{
+			for(nR=0;nR<numR;nR++)
+			{
+
+			   DeltaK[K][nr][nR]=0.;
+			}
+		}
+	}
+	for(nr=0;nr<numr;nr++)
+	{
+		for(nR=0;nR<numR;nR++)
+		{
+			for(ntheta=0;ntheta<dim->num_puntos;ntheta++)
+			{
+				theta = dim->a+(dim->b-dim->a)*(dim->puntos[ntheta]+1.)/2.;
+				costheta=cos(theta);
+				sintheta=sin(theta);
+				r_alpha=sqrt(R[nR]*R[nR]+k1*k1*r[nr]*r[nr]-2.*k1*r[nr]*R[nR]*costheta);
+				r_t=sqrt(R[nR]*R[nR]+k2*k2*r[nr]*r[nr]+2.*k2*r[nr]*R[nR]*costheta);
+				V1=interpola_cmpx(pot_t->pot,pot_t->r,r_t,pot_t->puntos);
+				V2=interpola_cmpx(pot_alpha->pot,pot_alpha->r,r_alpha,pot_alpha->puntos);
+				V3=interpola_cmpx(pot_Li->pot,pot_Li->r,R[nR],pot_Li->puntos);
+				for(K=0;K<=numK;K++)
+				{
+					DeltaK[K][nr][nR]+=(2.*K+1.)*(V3-V1-V2)*gsl_sf_legendre_Pl(K,costheta)*sintheta*dim->pesos[ntheta]*
+							(dim->b-dim->a)/4.;
+					//					if(K==0 && ntheta==2) misc2<<R[nR]<<"  "<<r_t<<"  "<<r_alpha<<"  "<<real(V3)<<"  "<<real(V1)<<"  "<<real(V2)<<endl;
+				}
+			}
+		}
+	}
+}
+void IntegralRhoK(complejo** rhoK,complejo*** DeltaK,estado* st1,estado* st2,
+		int numK,parametros_integral* dim,int numR)
+{
+	int nr,nR,K;
+	double r;
+	complejo int_f,int_g,int_st1,int_st2;
+	for(nR=0;nR<numR;nR++)
+	{
+		for(K=0;K<numK;K++)
+		{
+			rhoK[K][nR]=0.;
+		}
+	}
+	for(nr=0;nr<dim->num_puntos;nr++)
+	{
+		r=dim->a+(dim->b-dim->a)*(dim->puntos[nr]+1.)/2.;
+		int_st1=interpola_cmpx(st1->wf,st1->r,r,st1->puntos);
+		int_st2=interpola_cmpx(st2->wf,st2->r,r,st2->puntos);
+		for(nR=0;nR<numR;nR++)
+		{
+			for(K=0;K<=numK;K++)
+			{
+				rhoK[K][nR]+=r*r*int_st1*int_st2*DeltaK[K][nr][nR]*dim->pesos[nr]*
+						(dim->b-dim->a)/2.;
+			}
+		}
+	}
+}
+void IntegralIKll(complejo*** IKll,complejo** rhoK,distorted_wave* f,distorted_wave* g,
+		int numK,parametros_integral* dim,int la,int lb)
+{
+	int nR,K;
+	double R;
+	complejo int_f,int_g,int_st1,int_st2;
+	for(K=0;K<=numK;K++)
+	{
+		IKll[K][la][lb]=0.;
+	}
+	for(nR=0;nR<dim->num_puntos;nR++)
+	{
+		R=dim->a+(dim->b-dim->a)*(dim->puntos[nR]+1.)/2.;
+		int_f=interpola_cmpx(f->wf,f->r,R,f->puntos);
+		int_g=interpola_cmpx(g->wf,g->r,R,g->puntos);
+		for(K=0;K<=numK;K++)
+		{
+			IKll[K][la][lb]+=int_f*int_g*rhoK[K][nR]*dim->pesos[nR]*
+					(dim->b-dim->a)/2.;
+		}
+	}
+}
+

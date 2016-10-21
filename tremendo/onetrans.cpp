@@ -129,6 +129,33 @@ void InicializaOneTrans(struct parametros* parm)
 	cout<<" momento  canal inicial: "<<parm->k_Aa<<" fm^-1"<<endl;
 	cout<<" momento  canal final: "<<parm->k_Bb<<" fm^-1"<<endl;
 }
+void InicializaClusterInelastic(struct parametros* parm)
+{
+	double masa_proyectil,masa_blanco;
+	if (!strcmp(parm->proyectil,"a")) {masa_proyectil=parm->m_a; masa_blanco=parm->m_A;}
+	if (!strcmp(parm->proyectil,"A")) {masa_proyectil=parm->m_A; masa_blanco=parm->m_a;}
+	if ((strcmp(parm->proyectil,"A")!=0) && ((strcmp(parm->proyectil,"a")!=0))) Error("Proyectil debe ser 'a' o 'A' ");
+	parm->energia_cm=(masa_blanco/(parm->m_a+parm->m_A))*parm->energia_lab;
+	if(-parm->Qvalue>parm->energia_cm) Error("Energ�a de reacci�n insuficiente");
+	parm->mu_Aa=(parm->m_a*parm->m_A)/(parm->m_a+parm->m_A);
+	parm->mu_Bb=parm->mu_Aa;
+	parm->k_Aa=sqrt(2.*parm->mu_Aa*AMU*parm->energia_cm)/HC;
+	parm->k_Bb=sqrt(2.*parm->mu_Bb*AMU*(parm->energia_cm+parm->Qvalue))/HC;
+	parm->eta=parm->Z_a*parm->Z_A*E2HC*parm->mu_Aa*AMU/(HC*parm->k_Aa);
+	cout<<" ma: "<<parm->m_a<<endl;
+	cout<<" mB: "<<parm->m_B<<endl;
+	cout<<" mb: "<<parm->m_b<<endl;
+	cout<<" masa proyectil: "<<masa_proyectil<<endl;
+	cout<<" mA: "<<parm->m_A<<endl;
+	cout<<" masa blanco: "<<masa_blanco<<endl;
+	cout<<" energia laboratorio: "<<parm->energia_lab<<" MeV"<<endl;
+	cout<<" energia CM: "<<parm->energia_cm<<" MeV"<<endl;
+	cout<<" Q-value: "<<parm->Qvalue<<" MeV"<<endl;
+	cout<<" masa reducida canal inicial: "<<parm->mu_Aa<<endl;
+	cout<<" masa reducida canal final: "<<parm->mu_Bb<<endl;
+	cout<<" momento  canal inicial: "<<parm->k_Aa<<" fm^-1"<<endl;
+	cout<<" momento  canal final: "<<parm->k_Bb<<" fm^-1"<<endl;
+}
 void CrossSectionOneTrans(complejo *****Tlalb,complejo* Sel,struct parametros *parm,
 		struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f)
 {
@@ -749,13 +776,11 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 		if (parm->a_estados[0] == parm->st[n].id) intk->inicial_st = &(parm->st[n]);
 		if (parm->B_estados[0] == parm->st[n].id) intk->final_st = &(parm->st[n]);
 	}
-    cout<<"quillo1"<<endl;
 	for(la=0;la<parm->lmax;la++)
 	{
 		exp_delta_coulomb_i[la]=exp(I*(deltac(la,eta_i)));
 		exp_delta_coulomb_f[la]=exp(I*(deltac(la,eta_f)));
 	}
-    cout<<"quillo2"<<endl;
 	if(parm->remnant==0) {
 		intk->core=&parm->pot_opt[indx_core];
 		intk->opt=&parm->pot_opt[indx_salida];

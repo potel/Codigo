@@ -6,6 +6,12 @@ ofstream misc1("misc1.txt");
 ofstream misc2("misc2.txt");
 ofstream misc3("misc3.txt");
 ofstream misc4("misc4.txt");
+ofstream misc5("misc5.txt");
+ofstream misc6("misc6.txt");
+ofstream misc7("misc7.txt");
+ofstream misc8("misc8.txt");
+ofstream misc9("misc9.txt");
+ofstream misc10("misc10.txt");
 ofstream informe("informe.txt");
 
 int main()
@@ -28,6 +34,7 @@ int main()
     if(parm->one_trans) {OneTrans(parm);}
     if(parm->knockout) {KnockOut(parm);}
     if(parm->capture) {Capture(parm);}
+    if(parm->cluster_inelastic) {ClusterInelastic(parm);}
     delete[] parm;
 	return(0);
 }
@@ -327,7 +334,7 @@ void LeeParametros(const char *fname,struct parametros *x)
 	{
 		if (!potopt) potopt=LeePotencialesOpticos(aux,"InicioPotencialesOpticos",x->pot_opt,fp);
 		if (!potcm) potcm=LeePotencialesCampoMedio(aux,"InicioCampoMedio",x->pot,fp);
-		if (!numst && (x->two_trans || x->knockout || x->one_trans || x->capture)) numst=LeeEstados(aux,"InicioEstados",x->st,fp);
+		if (!numst && (x->two_trans || x->knockout || x->one_trans || x->capture || x->cluster_inelastic)) numst=LeeEstados(aux,"InicioEstados",x->st,fp);
 		ReadParS(aux,"flcoef",x->flcoef);
 		ReadParS(aux,"fl_log",x->fl_log);
 		ReadParS(aux,"file_dens",x->file_dens);
@@ -353,6 +360,7 @@ void LeeParametros(const char *fname,struct parametros *x)
 		ReadParD(aux,"num_st",&(x->num_st));
 		ReadParD(aux,"two_trans",&(x->two_trans));
 		ReadParD(aux,"one_trans",&(x->one_trans));
+		ReadParD(aux,"cluster_inelastic",&(x->cluster_inelastic));
 		ReadParD(aux,"capture",&(x->capture));
 		ReadParD(aux,"knockout",&(x->knockout));
 		ReadParD(aux,"zerorange",&(x->zerorange));
@@ -4197,55 +4205,7 @@ void SimIntegral(complejo* integral, complejo*** vcluster,distorted_wave* dwi,di
 	*integral=sum*(dim1->b-dim1->a)*(dim2->b-dim2->a)*(dim3->b-dim3->a)/8.;
 //	misc4<<La<<"  "<<abs(sum)<<endl;
 }
-void MultipolePotential(complejo*** DeltaK,int numr,int numR,double* r, double* R,
-		potencial_optico* pot_t,potencial_optico* pot_alpha, potencial_optico* pot_Li,int numK,double mt, double ma)
-{
-	int nr,nR,ntheta,K;
-	complejo V1,V2,V3;
-	double theta,r_alpha,r_t,k1,k2,costheta,sintheta;
-	parametros_integral* dim=new parametros_integral [1];
-	dim->a=0;
-	dim->b=PI;
-	dim->num_puntos=20;
-	GaussLegendre(dim->puntos,dim->pesos,dim->num_puntos);
-	k1=mt/(ma+mt);
-	k2=ma/(ma+mt);
-	for(K=0;K<numK;K++)
-	{
-		for(nr=0;nr<numr;nr++)
-		{
-			for(nR=0;nR<numR;nR++)
-			{
-				for(ntheta=0;ntheta<dim->num_puntos;ntheta++)
-				{
-					DeltaK[K][nr][nR]=0.;
-				}
-			}
-		}
-	}
-	for(K=0;K<numK;K++)
-	{
-		for(nr=0;nr<numr;nr++)
-		{
-			for(nR=0;nR<numR;nR++)
-			{
-				for(ntheta=0;ntheta<dim->num_puntos;ntheta++)
-				{
-					theta = dim->a+(dim->b-dim->a)*(dim->puntos[ntheta]+1.)/2.;
-					costheta=cos(theta);
-					costheta=sin(theta);
-					r_alpha=sqrt(R[nR]*R[nR]+k1*k1*r[nr]*r[nr]-2.*k1*r[nr]*R[nR]*costheta);
-					r_t=sqrt(R[nR]*R[nR]+k2*k2*r[nr]*r[nr]+2.*k2*r[nr]*R[nR]*costheta);
-					V1=interpola_cmpx(pot_t->pot,pot_t->r,r_t,pot_t->puntos);
-					V2=interpola_cmpx(pot_alpha->pot,pot_alpha->r,r_alpha,pot_alpha->puntos);
-					V3=interpola_cmpx(pot_Li->pot,pot_Li->r,R[nR],pot_Li->puntos);
-					DeltaK[K][nr][nR]+=(2.*K+1.)*(V3-V1-V2)*gsl_sf_legendre_Pl(K,costheta)*sintheta*dim->pesos[ntheta]*
-							(dim->b-dim->a)/4.;
-				}
-			}
-		}
-	}
-}
+
 
 
 

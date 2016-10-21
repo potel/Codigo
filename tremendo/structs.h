@@ -212,6 +212,7 @@ int num_opt;
 int id_pot_dens;
 int two_trans;
 int capture;
+int cluster_inelastic;
 int one_trans;
 int knockout;
 int dumb;

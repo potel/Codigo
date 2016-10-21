@@ -215,3 +215,10 @@ double Alignment(int l,int m,potencial_optico* pot, double radio, double b);
 void SpinAlignment(parametros* parm);
 void MultipolePotential(complejo*** DeltaK,int numr,int numR,double* r, double* R,
 		potencial_optico* pot_t,potencial_optico* pot_alpha, potencial_optico* pot_Li,int numK,double mt, double ma);
+void ClusterInelastic(struct parametros* parm);
+void InicializaClusterInelastic(struct parametros* parm);
+void AmplitudeClusterInelastic(struct parametros* parm);
+void IntegralIKll(complejo*** IKll,complejo** rhoK,distorted_wave* f,distorted_wave* g,
+		int numK,parametros_integral* dim,int la,int lb);
+void IntegralRhoK(complejo** rhoK,complejo*** DeltaK,estado* st1,estado* st2,
+		int numK,parametros_integral* dim,int numR);
