@@ -1230,8 +1230,9 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 		/((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
 //		misc1<<delta_r*(i+1.)<<"   "<<v->pot[i]<<"   "<<E_CUADRADO*q1q2/v->r[i]<<"   "<<2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
 //		/((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)))<<endl;
-		misc1<<v->r[i]<<"   "<<real(potencial[i])<<"   "<<imag(potencial[i])<<endl;
+//		misc1<<v->r[i]<<"   "<<real(potencial[i])<<"   "<<imag(potencial[i])<<endl;
 	}
+//	exit(0);
 	// ********************************************* Solucion regular j=l+1/2 **********************************************************
 	funcion_regular[0].wf[0]=1.e-10;
 	funcion_regular[0].wf[1]=(2.*(1.-0.416666667*dd*(-potencial[0]+funcion_regular[0].energia))*funcion_regular[0].wf[0])
@@ -3315,7 +3316,6 @@ void GeneraEstadosPI(potencial* pot,estado* st,double radio,int puntos,double ca
 				pot->V=-(vmax+vmin)/2.;
 //				cout<<pot->V<<endl;
 				GeneraPotencialCM(parm,pot);
-//				cout<<"quillo1"<<endl;
 				GeneraEstado(st,pot,radio,puntos,cargas,masa,D0,rms);
 				etrial=st->energia;
 //				cout<<etrial<<"  "<<pot->V<<endl;

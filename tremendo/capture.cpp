@@ -27,36 +27,6 @@ void Capture(struct parametros* parm)
 	double* rms=new double[1];
 	cout<<"Generando potenciales de campo medio"<<endl;
 	HanShiShen(25.5,52,41);
-//	exit(0);
-//	int mi,li,lf,mf,K;
-//	double suma=0.;
-//	double C1,C2,jt,mt,J,MJ;
-//	K=2;
-//	li=1;
-//	lf=3;
-//	jt=0.5;
-//	J=1.5;
-//	for(mf=-lf;mf<=lf;mf++)
-//	{
-//		suma=0.;
-//		for(mt=-jt;mt<=jt;mt++)
-//		{
-//			for(mi=-li;mi<=li;mi++)
-//			{
-//				C1=ClebsGordan(li,-mi,lf,mf,K,mf-mi);
-//				C2=ClebsGordan(jt,mt,li,mi,J,mt+mi);
-//				if(abs(mi)==li) suma+=C1*C1*C2*C2;
-//			}
-//		}
-//		misc1<<mf<<"  "<<suma<<endl;
-//	}
-////	for(mf=-lf;mf<=lf;mf++)
-////	{
-////		mi=li;
-////		suma=ClebsGordan(li,-mi,lf,mf,K,mf-mi)*ClebsGordan(li,-mi,lf,mf,K,mf-mi);
-////		misc1<<mf<<"  "<<suma<<endl;
-////	}
-//	exit(0);
 	for(n=0;n<parm->num_cm;n++)
 	{
 		GeneraPotencialCM(parm,&(parm->pot[n]));
@@ -112,9 +82,11 @@ void Capture(struct parametros* parm)
 	{
 		for(m=0;m<parm->num_st;m++)
 		{
+
 			if(parm->B_estados[n]==parm->st[m].id) indx_st=m;
+			cout<<n<<"  "<<m<<"  "<<parm->B_estados[n]<<"  "<<parm->st[m].id<<"  "<<indx_st<<endl;
 		}
-		cout<<"Masa reducida: "<<parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa)<<endl;
+		cout<<"Masa reducida: "<<parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa)<<" indx_st:"<<indx_st<<endl;
 		if(parm->st[indx_st].energia<0.)
 			GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,
 					carga_trans*parm->T_carga,parm,0,parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa),D0,rms);
@@ -178,6 +150,7 @@ void AmplitudeCapture(struct parametros* parm)
 	complejo* rho_test=new complejo [parm->puntos];
 	complejo* rhom=new complejo[parm->lmax+1];
 	complejo**** non=tensor4_cmpx(parm->rCc_puntos,parm->lmax,parm->lmax+1,parm->lmax);
+	complejo**** dumb=tensor4_cmpx(parm->rCc_puntos,parm->lmax,parm->lmax+1,parm->lmax);
 	complejo* non_test=new complejo [parm->puntos];
 	complejo* nonm=new complejo[parm->lmax+1];
 	complejo**** phi_up=tensor4_cmpx(parm->rCc_puntos,parm->lmax,parm->lmax+1,parm->lmax);
@@ -322,7 +295,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusi�n: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=14.;energia_out<20.;energia_out+=200)
+	for(energia_out=3.;energia_out<13.;energia_out+=0.02)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
@@ -365,8 +338,9 @@ void AmplitudeCapture(struct parametros* parm)
 			GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_salida],parm->T_carga*parm->P_carga,
 					parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
 		}
+		misc1<<"& Proton energy: "<<energia_out<<" MeV. Neutron energy: "<<energia_trans<<" MeV"<<endl;
 		for(l=0;l<parm->ltransfer;l++)
-//		for(l=1;l<2;l++)
+//		for(l=2;l<3;l++)
 		{
 			cout<<"L: "<<l<<endl;
 //			cout<<"Escribo"<<endl;
@@ -487,7 +461,7 @@ void AmplitudeCapture(struct parametros* parm)
 				}
 				dim1->a=parm->r_Ccmin;
 				dim1->b=parm->r_Ccmax;
-				if(energia_trans>0.) ElasticBreakup(Teb,rho,Ecm,&(parm->pot_opt[indx_neutron_target]),dim1,parm,l,lp,k_n);
+				if(energia_trans>0.) ElasticBreakup(Teb,rho,Ecm,&(parm->pot_opt[indx_neutron_target]),dim1,parm,l,lp,k_n,parm->n_spin);
 				for(n=0;n<dim1->num_puntos;n++){
 					rn= (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
 					for(m=0;m<=lp;m++){
@@ -495,14 +469,14 @@ void AmplitudeCapture(struct parametros* parm)
 					}
 					NeutronWave(phim,rho,&(funcion_regular_up[0]),&(funcion_irregular_up[0]),dim1,parm,rn,l,lp,ld,wronskiano_up);
 					for(m=0;m<=lp;m++){
-//						phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
-						phi_up[n][l][m][lp]=phim[m];
+						phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
+//						phi_up[n][l][m][lp]=phim[m];
 					}
-//					NeutronWave(phim,rho,&(funcion_regular_down[1]),&(funcion_irregular_down[1]),dim1,parm,rn,l,lp,ld,wronskiano_down);
-//					for(m=0;m<=lp;m++){
-//						phi_down[n][l][m][lp]=(l/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
+					NeutronWave(phim,rho,&(funcion_regular_down[1]),&(funcion_irregular_down[1]),dim1,parm,rn,l,lp,ld,wronskiano_down);
+					for(m=0;m<=lp;m++){
+						phi_down[n][l][m][lp]=(l/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
 //						phi_down[n][l][m][lp]=phim[m];
-//					}
+					}
 
 
 //					NeutronWaveResonant(phim,rho,st_fin,e_res,energia_trans,absorcion,
@@ -510,7 +484,7 @@ void AmplitudeCapture(struct parametros* parm)
 //					for(m=0;m<=lp;m++){
 //						phi_resonant[n][l][m][lp]=phim[m];
 //					}
-//					 misc2<<rn<<"  "<<real(phi_up[n][1][0][0])<<"  "<<imag(phi_up[n][1][0][0])<<"  "<<abs(phi_up[n][1][0][0])<<endl;
+					 misc2<<rn<<"  "<<real(phi_up[n][2][0][0])<<"  "<<imag(phi_up[n][2][0][0])<<"  "<<abs(phi_up[n][2][0][0])<<endl;
 				}
 //					exit(0);
 			}
@@ -523,8 +497,8 @@ void AmplitudeCapture(struct parametros* parm)
 			inc_break_lmas[l]=rhoE*escala*sigma_const*AbsorcionPrior(direct,non_orth,cross_term,&(parm->pot_opt[indx_neutron_target]),
 					phi_up,non,dim1,l,parm->lmax,r_F);
 			inc_break[l]=inc_break_lmas[l];
-//			inc_break_lmenos[l]=rhoE*escala*sigma_const*AbsorcionPrior(direct,non_orth,cross_term,&(parm->pot_opt[indx_neutron_target]),
-//					phi_down,non,dim1,l,parm->lmax,r_F);
+			inc_break_lmenos[l]=rhoE*escala*sigma_const*AbsorcionPrior(direct,non_orth,cross_term,&(parm->pot_opt[indx_neutron_target]),
+					phi_down,dumb,dim1,l,parm->lmax,r_F);
 
 			inc_break[l]+=inc_break_lmenos[l];
 			if(energia_trans>0.) elastic_break[l]=rhoE*rhoE_n*escala*sigma_const*PI*ElasticBreakupCross(Teb,l,parm->lmax);
@@ -551,28 +525,28 @@ void AmplitudeCapture(struct parametros* parm)
 			inc_break_lmas[l]=0.;
 		}
 		cout<<"calculando seccion eficaz diferencial"<<endl;
-		for(n=0;n<parm->cross_puntos;n++)
-		{
-			theta=PI*double(n)/double(parm->cross_puntos);
-			direct[0]=0.;
-			non_orth[0]=0.;
-			cross_term[0]=0.;
-			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
-			{
-				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
-						direct,non_orth,cross_term,cross_up);
-//				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
-//						direct,non_orth,cross_term,cross_down);
-				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
-				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-				misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
-						"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
-						sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
-			}
-		}
+//		for(n=0;n<parm->cross_puntos;n++)
+//		{
+//			theta=PI*double(n)/double(parm->cross_puntos);
+//			direct[0]=0.;
+//			non_orth[0]=0.;
+//			cross_term[0]=0.;
+//			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
+//			{
+//				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
+//						direct,non_orth,cross_term,cross_up);
+////				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
+////						direct,non_orth,cross_term,cross_down);
+//				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
+//				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+//				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+//				misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
+//						"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
+//						sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
+//			}
+//		}
 //////		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A);
-		cout<<"Secci�n eficaz NEB:  "<<cross_total<<"   Secci�n eficaz EB:  "<<cross_total_elasticb<<endl;
+//		cout<<"Secci�n eficaz NEB:  "<<cross_total<<"   Secci�n eficaz EB:  "<<cross_total_elasticb<<endl;
 	}
 /// First order approximation
 //	cross_total=cross_total*absorcion;
@@ -1092,24 +1066,33 @@ complejo NeutronWaveResonant(complejo* phi,complejo**** rho, estado* st,double E
 	delete[] suma;
 }
 void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* optico,
-		parametros_integral* dim,parametros* parm,int l,int lp,double kn)
+		parametros_integral* dim,parametros* parm,int l,int lp,double kn,double spin)
 {
 	int n,m;
-	double rBnp,redfac,masaT,masa_res,carga_trans,masa_trans;
+	double rBnp,redfac,masaT,masa_res,carga_trans,masa_trans,up,down;
 	redfac=2.*AMU/(HC*HC);
 	complejo* suma=new complejo[l+1];
-	complejo stint;
-	distorted_wave* chi_l=new distorted_wave;
+	complejo stintup,stintdown;
+	distorted_wave* chi_lup=new distorted_wave;
+	distorted_wave* chi_ldown=new distorted_wave;
 	ofstream fp("neutron_distorted_wave.txt");
-	chi_l->energia=En;
-	chi_l->l=l;
-	chi_l->spin=0.;
-	chi_l->j=l;
+	chi_lup->energia=En;
+	chi_lup->l=l;
+	chi_lup->spin=spin;
+	chi_lup->j=l+spin;
+	chi_ldown->energia=En;
+	chi_ldown->l=l;
+	chi_ldown->spin=spin;
+	chi_ldown->j=l-spin;
 	masaT=parm->T_carga+parm->T_N;
 	masa_res=parm->res_carga+parm->res_N;
 	carga_trans=parm->res_carga-parm->T_carga;
 	masa_trans=masa_res-masaT;
-	GeneraDWspin(chi_l,optico,carga_trans*parm->T_carga,masa_trans*masaT/(masa_trans+masaT),
+	up=((l+1.)/sqrt((l+1.)*(l+1.)+l*l));
+	down=(l/sqrt((l+1.)*(l+1.)+l*l));
+	GeneraDWspin(chi_lup,optico,carga_trans*parm->T_carga,masa_trans*masaT/(masa_trans+masaT),
+			parm->radio,parm->puntos,parm->matching_radio,&fp);
+	GeneraDWspin(chi_ldown,optico,carga_trans*parm->T_carga,masa_trans*masaT/(masa_trans+masaT),
 			parm->radio,parm->puntos,parm->matching_radio,&fp);
 	for(m=0;m<=l;m++)
 	{
@@ -1117,10 +1100,11 @@ void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* o
 	}
 	for (n =0;n<dim->num_puntos; n++) {
 		rBnp=(dim->a)+((dim->b)-(dim->a))*((dim->puntos[n])+1.)/2.;
-		stint=interpola_cmpx(chi_l->wf,chi_l->r,rBnp,chi_l->puntos);
+		stintup=up*interpola_cmpx(chi_lup->wf,chi_lup->r,rBnp,chi_lup->puntos);
+		stintdown=down*interpola_cmpx(chi_ldown->wf,chi_ldown->r,rBnp,chi_ldown->puntos);
 		for(m=0;m<=l;m++)
 		{
-			suma[m]+=rho[n][l][m][lp]*stint*rBnp*dim->pesos[n];
+			suma[m]+=rho[n][l][m][lp]*(stintup+stintdown)*rBnp*dim->pesos[n];
 		}
 //		if (lp==0) misc2<<rBnp<<"  "<<abs(suma[0])*((dim->b)-(dim->a))<<endl;
 	}
@@ -1129,7 +1113,8 @@ void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* o
 		T[l][m][lp]=4.*PI*(suma[m]*((dim->b)-(dim->a))*0.5)/(kn*redfac);
 	}
 	delete[] suma;
-	delete[] chi_l;
+	delete[] chi_lup;
+	delete[] chi_ldown;
 }
 complejo NeutronWaveResonantTest(complejo* phi,complejo* rho, estado* st,double En, double E, double absorcion,
 		parametros_integral* dim,parametros* parm,double rBn)

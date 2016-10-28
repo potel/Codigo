@@ -29,8 +29,8 @@ void OneTrans(struct parametros* parm)
 	InicializaOneTrans(parm);
 	HanShiShen(parm->energia_lab,parm->T_N,parm->T_carga);
 	CH89(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
-//	KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
-	KoningDelaroche(parm->energia_lab+parm->Qvalue,7.,4.,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+	KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+//	KoningDelaroche(parm->energia_lab+parm->Qvalue,7.,4.,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
 	cout<<"Generando potenciales de campo medio"<<endl;
 	for(n=0;n<parm->num_cm;n++)
 	{
@@ -60,14 +60,15 @@ void OneTrans(struct parametros* parm)
 			if(parm->a_estados[n]==parm->st[m].id) indx_st=m;
 		}
 		cout<<"masa reducida: "<<parm->m_b/parm->m_a<<endl;
-		if(parm->st[indx_st].energia<0.)
+//		if(parm->st[indx_st].energia<0.)
 			GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,parm->m_b/parm->m_a,D0,rms);
-		else
-		{
-			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->m_b/parm->m_a);
-		}
+//		else
+//		{
+//			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->m_b/parm->m_a);
+//		}
 		cout<<"D0: "<<*D0<<"  rms: "<<*rms<<endl;
-		cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
+		cout<<"Profundidad pozo: "<<parm->pot[indx_pot_a].V<<endl;
+		GeneraPotencialCM(parm,&(parm->pot[indx_pot_a]));
 	}
 	cout<<"Generando niveles nucleo B"<<endl;
 	/* Genera niveles del n�cleo 'B' */
@@ -78,15 +79,16 @@ void OneTrans(struct parametros* parm)
 			if(parm->B_estados[n]==parm->st[m].id) indx_st=m;
 		}
 		cout<<"masa reducida: "<<parm->m_A/parm->m_B<<endl;
-		if(parm->st[indx_st].energia<0.)
+//		if(parm->st[indx_st].energia<0.)
 			GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,parm->m_A/parm->m_B,D0,rms);
-		else
-		{
-			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->m_A/parm->m_B);
-		}
+//		else
+//		{
+//			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->m_A/parm->m_B);
+//		}
 		absorcion=Absorcion2(&(parm->pot_opt[indx_intermedio]),&(parm->st[indx_st]));
 		cout<<"D0: "<<*D0<<"  rms: "<<*rms<<endl;
 		cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
+		GeneraPotencialCM(parm,&(parm->pot[indx_pot_B]));
 	}
 
 	cout<<"Absorcion: "<<absorcion<<" MeV"<<endl;
@@ -792,7 +794,14 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 	Kmin=abs(intk->final_st->l-intk->inicial_st->l);
 //	c2=Wigner9j(intk->final_st->l,0.,intk->final_st->l,0.5,0.5,1.,intk->final_st->j,0.5,1);
 	c2=1.;
-	cout<<"Kmax: "<<Kmax<<"   Kmin: "<<Kmin<<"   c2: "<<c2<<endl;
+	if(parm->remnant==1 && parm->prior==1) {
+		GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_core],parm->Z_A*parm->Z_a,parm->Z_A*parm->Z_a
+				,0.,0.,parm->mu_Aa,1.);
+	}
+	if(parm->remnant==1 && parm->prior==0) {
+		GeneraRemnant(optico,core,&parm->pot_opt[indx_salida],&parm->pot_opt[indx_core],parm->Z_A*parm->Z_a,parm->Z_A*parm->Z_a
+				,0.,0.,parm->mu_Bb,1.);
+	}
 	for(la=0;la<parm->lmax;la++)
 //	for(la=1;la<2;la++)
 	{
@@ -806,10 +815,7 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 		S[la]=GeneraDWspin(&(intk->faA[0]),&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,
 				parm->radio,parm->puntos,parm->matching_radio,&fp3);
 		S[la]=exp(2.*I*S[la]);
-		if(parm->remnant==1 && parm->prior==1) {
-			GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_core],parm->Z_A*parm->Z_a,parm->Z_A*parm->Z_a
-					,0.,0.,parm->mu_Aa,1.);
-		}
+
 		for(K=Kmin;K<=Kmax;K++)
 		{
 			c1=Wigner9j(intk->final_st->l,parm->n_spin,intk->final_st->j,intk->inicial_st->l,parm->n_spin,intk->inicial_st->j,K,0,K)/
@@ -826,10 +832,6 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 				if(lb==0) intk->fbB[0].j=intk->fbB[0].spin;
 				GeneraDWspin(&(intk->fbB[0]),&(parm->pot_opt[indx_salida]),parm->Z_A*parm->Z_a,parm->mu_Bb,
 						parm->radio,parm->puntos,parm->matching_radio,&fp4);
-				if(parm->remnant==1 && parm->prior==0) {
-					GeneraRemnant(optico,core,&parm->pot_opt[indx_salida],&parm->pot_opt[indx_core],parm->Z_A*parm->Z_a,parm->Z_A*parm->Z_a
-							,0.,0.,parm->mu_Bb,1.);
-				}
 				if(la==0 && lb==0 && K==Kmin) EscribeIntegrandoOneTrans(intk);
 				if((intk->final_st->spec)!=0. && (intk->inicial_st->spec)!=0.)
 				{
@@ -903,9 +905,8 @@ void GeneraCoordenadasOneTrans(parametros *parm_rec, coordenadas_onept* coords,
 }
 void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
 {
-	int n1,n2,n3,M;
-	double r_bB,r_An,theta,potencial,angsum,coseno,seno,
-		ri,rf,rd,rsn,rdx,rdz,rix,riz,rsnx,rsnz,coseno_sn,coseno_ri,coseno_rd;
+	int n1,n2,n3;
+	double r_bB,r_An,theta,potencial,angsum,coseno,seno;
 	complejo fr_aA;
 	complejo fr_bB,estado_inicial,estado_final,remnant,optico,core;
 	complejo kernel;
@@ -916,14 +917,12 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
 	*Ij=0.;
 	for (n1 = 0; n1 < integrando->dim1->num_puntos; n1++) {
 		r_bB = (integrando->dim1->a)+((integrando->dim1->b)-(integrando->dim1->a))*((integrando->dim1->puntos[n1])+1.)/2.;
-		rf=r_bB;
 		fr_bB=interpola_cmpx(integrando->fbB[0].wf,integrando->fbB[0].r,r_bB,
 				integrando->fbB[0].puntos);
 		if(integrando->prior==0) optico=interpola_cmpx(integrando->opt->pot,integrando->opt->r,r_bB,
 				integrando->opt->puntos);
 		for (n2 = 0; n2 < integrando->dim2->num_puntos; n2++) {
 			r_An = (integrando->dim2->a)+((integrando->dim2->b)-(integrando->dim2->a))*((integrando->dim2->puntos[n2])+1.)/2.;
-			rd=r_An;
 			estado_final=interpola_cmpx(integrando->final_st->wf,integrando->final_st->r,
 					r_An,integrando->final_st->puntos);
 			if(integrando->prior==1)
@@ -952,26 +951,13 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
 				fr_aA=interpola_cmpx(integrando->faA[0].wf,integrando->faA[0].r,integrando->coords->r_aA[n1][n2][n3],
 						integrando->faA[0].puntos);
 
-				kernel=((r_bB*r_An*r_An*seno*(potencial-remnant)*estado_inicial*estado_final*angsum*fr_aA*fr_bB)/
+				 kernel=((r_bB*r_An*r_An*seno*(potencial-remnant)*estado_inicial*estado_final*angsum*fr_aA*fr_bB)/
 						integrando->coords->r_aA[n1][n2][n3])*
 								(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
-//				parcial[n2]+=(sqrt((2.*integrando->lb+1.)*(2.*integrando->la+1.))/(2.*K+1.))*((r_bB*seno*(potencial-remnant)*
-//						angsum*estado_inicial*fr_aA*fr_bB)/
-//												integrando->coords->r_aA[n1][n2][n3])*
-//														(integrando->dim1)->pesos[n1]*(integrando->dim3)->pesos[n3];
-//				if (n3==1 ) misc1<<r_An<<"   "<<integrando->coords->r_bA[n1][n2][n3]<<
-//						"  "<<abs(kernel)<<"  "<<real(estado_final)<<endl;
-//				if(integrando->la==4 && integrando->lb==2) misc2<<r_bB<<"  "<<abs(kernel)<<endl;
 				*Ij+=kernel;
 			}
 		}
 	}
-//	for (n2 = 0; n2 < integrando->dim2->num_puntos; n2++) {
-//		r_An = (integrando->dim2->a)+((integrando->dim2->b)-(integrando->dim2->a))*((integrando->dim2->puntos[n2])+1.)/2.;
-//		parcial[n2]*=((integrando->dim1)->b-(integrando->dim1)->a)*
-//				((integrando->dim3)->b-(integrando->dim3)->a)/4.;
-//		if(integrando->lb==1 && integrando->la==1 && K==2) misc1<<r_An<<"  "<<abs(parcial[n2])<<endl;
-//	}
 	*Ij*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
 			((integrando->dim3)->b-(integrando->dim3)->a)/8.;
 	delete[] parcial;

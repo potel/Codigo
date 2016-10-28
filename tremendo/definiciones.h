@@ -177,7 +177,7 @@ complejo NeutronWaveResonant(complejo* phi,complejo**** rho, estado* st,double E
 		parametros_integral* dim,parametros* parm,double rBn,int l,int lp);
 void HulthenWf(estado *st,double radio_max,int puntos);
 void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* optico,
-		parametros_integral* dim,parametros* parm,int l,int lp,double kn);
+		parametros_integral* dim,parametros* parm,int l,int lp,double kn,double spin);
 double ElasticBreakupCross(complejo*** Teb,int l,int lmax);
 void Polarization(parametros* parm);
 double ElasticBreakupAngular(complejo*** Teb,int lmax,double theta);
