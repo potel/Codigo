@@ -6,7 +6,7 @@ ltransfer 4 #momento angular transferido maximo. Usado para la captura neutronic
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
 puntos 1000    # número de puntos en los que se definen las funciones.
-radio 40.      #radio máximo.
+radio 50.      #radio máximo.
 num_cm 2       # número de potenciales de campo medio.
 num_opt 3      # número de potenciales ópticos.
 a_numst 1	   # número de estados monoparticulares del núcleo a (la reacción se define como A+a(=b+2)->B(=A+2)+b).
@@ -17,7 +17,7 @@ flcoef  matrizcoeficientes.dat   # fichero o ficheros con los coeficientes de la
                                    # de partícula independiente (usado si tipo_fun=li)
 a_potcm 0   # potencial de campo medio usado para definir los estados del núcleo a.
 B_potcm 1    # potencial de campo medio usado para definir los estados del núcleo B.
-pot_transfer 0  # potencial de campo medio utilizado para calcular la transferencia (Si es igual a a_potcm, la representación es post,
+pot_transfer 1  # potencial de campo medio utilizado para calcular la transferencia (Si es igual a a_potcm, la representación es post,
                  # si es igual a B_potcm, prior).
 				 
 optico_ingreso 0    # potencial optico en el canal de ingreso
@@ -25,7 +25,7 @@ optico_salida 1      # potencial optico en el canal de salida
 optico_intermedio 2
 core_pot 1
 scatt_pot 2
-prior 0
+prior 1
 remnant 1
 ++++++++++++++ Descripción de la reacción +++++++++++++++++++++++++++++++++++++
 
@@ -64,7 +64,7 @@ energia_lab  21.4
 #Qvalue  -2.0048	# Q-value de la reacción (1/2-)
 
 #Qvalue  -3.28	# Q-value de la reacción (5/2+;1.06) box 40fm
-Qvalue  -3.55	# Q-value de la reacción (5/2+;1.33) box 40fm
+#Qvalue  -3.55	# Q-value de la reacción (5/2+;1.33) box 40fm
 
 #Qvalue  -3.04	# Q-value de la reacción (5/2+;0.82) box 30fm
 #Qvalue  -3.5	# Q-value de la reacción (5/2+;1.27) box 30fm
@@ -75,7 +75,7 @@ Qvalue  -3.55	# Q-value de la reacción (5/2+;1.33) box 40fm
 #Qvalue  -3.28	# Q-value de la reacción (5/2+;1.06) box 50fm
 #Qvalue  -3.67	# Q-value de la reacción (5/2+;1.45) box 50fm
 #Qvalue  -4.47	# Q-value de la reacción (5/2+;2.25) box 50fm
-#Qvalue  -5.48	# Q-value de la reacción (5/2+;3.26) box 50fm
+Qvalue  -5.48	# Q-value de la reacción (5/2+;3.26) box 50fm
 
 
 
@@ -96,9 +96,9 @@ B_Sn   -4.24091 # energía de extracción de un neutrón para el núcleo B-1 (de
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
 
 r_Ccmin 0.     # valor mínimo de r_Cc
-r_Ccmax  40.    # valor máximo de r_Cc
+r_Ccmax  50.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
-r_A2max   40.    # valor máximo de r_A2
+r_A2max   50.    # valor máximo de r_A2
 rCc_puntos  40   # número de puntos de integración gaussiana para r_Cc
 rA2_puntos   40  # número de puntos de integración gaussiana para r_A2
 theta_puntos  10   # número de puntos de integrción gaussiana para theta
@@ -255,6 +255,9 @@ InicioEstados
 #file C:\Gregory\Be\11Be\p1_2.txt
 #*********************
 
+
+
+## Box 40fm: -----------------------------------------------------------------------
 #id 1                                                        
 #l 2
 #j 2.5
@@ -273,6 +276,9 @@ InicioEstados
 #file C:\Gregory\Be\11Be\box40\d_5_2_3_40.txt
 #*********************
 
+
+
+## Box 24fm: -----------------------------------------------------------------------
 #id 1                                                        
 #l 2
 #j 2.5
@@ -291,13 +297,26 @@ InicioEstados
 #file C:\Gregory\Be\11Be\box24fm\d5_2_2_24.txt
 #*********************
 
+
+
+
+## Box 30fm: -----------------------------------------------------------------------
 #id 1                                                        
 #l 2
 #j 2.5
 #nodos 0
-#spec 0.82
-#energia 1.06
+#spec 0.98
+#energia 0.82
 #file C:\Gregory\Be\11Be\box30fm\d_5_2_1_30.txt
+#*********************
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 0
+#spec 0.98
+#energia 0.82
+#file 
 #*********************
 
 #id 1                                                        
@@ -308,6 +327,17 @@ InicioEstados
 #energia 1.27
 #file C:\Gregory\Be\11Be\box30fm\d_5_2_2_30.txt
 #*********************
+
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 1
+#spec 0.65
+#energia 1.27
+#file 
+#*********************
+
 
 ## Box 50fm: -----------------------------------------------------------------------
 
@@ -324,10 +354,30 @@ InicioEstados
 #l 2
 #j 2.5
 #nodos 0
+#spec 0.999
+#energia 0.3
+#file 
+#*********************
+
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 0
 #spec 0.985
 #energia 0.74
 #file C:\Gregory\Be\11Be\box50fm\d5_2_2_50.txt
 #*********************
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 1
+#spec 0.985
+#energia 0.74
+#file 
+#*********************
+
 
 #id 1                                                        
 #l 2
@@ -338,6 +388,17 @@ InicioEstados
 #file C:\Gregory\Be\11Be\box50fm\d5_2_3_50.txt
 #*********************
 
+
+id 1                                                        
+l 2
+j 2.5
+nodos 2
+spec 0.671
+energia 1.06
+file 
+*********************
+
+
 #id 1                                                        
 #l 2
 #j 2.5
@@ -345,6 +406,17 @@ InicioEstados
 #spec 0.911
 #energia 1.45
 #file C:\Gregory\Be\11Be\box50fm\d5_2_4_50.txt
+#*********************
+
+
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 3
+#spec 0.911
+#energia 1.45
+#file 
 #*********************
 
 
@@ -358,6 +430,18 @@ InicioEstados
 #*********************
 
 
+
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 4
+#spec 0.922
+#energia 2.25
+#file 
+#*********************
+
+
 #id 1                                                        
 #l 2
 #j 2.5
@@ -366,6 +450,17 @@ InicioEstados
 #energia 3.26
 #file C:\Gregory\Be\11Be\box50fm\d5_2_6_50.txt
 #*********************
+
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 5
+#spec 0.923
+#energia 3.26
+#file 
+#*********************
+
 
 
 #id 1                                                        
@@ -387,14 +482,14 @@ InicioEstados
 #*********************
 
 
-id 1                                                        
-l 2
-j 2.5
-nodos 1
-spec 0.823
-energia 1.06
-file 
-*********************
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 1
+#spec 0.823
+#energia 1.06
+#file 
+#*********************
 
 
 #id 1                                                        

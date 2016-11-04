@@ -484,7 +484,7 @@ void AmplitudeCapture(struct parametros* parm)
 //					for(m=0;m<=lp;m++){
 //						phi_resonant[n][l][m][lp]=phim[m];
 //					}
-					 misc2<<rn<<"  "<<real(phi_up[n][2][0][0])<<"  "<<imag(phi_up[n][2][0][0])<<"  "<<abs(phi_up[n][2][0][0])<<endl;
+//					 misc2<<rn<<"  "<<real(phi_up[n][2][0][0])<<"  "<<imag(phi_up[n][2][0][0])<<"  "<<abs(phi_up[n][2][0][0])<<endl;
 				}
 //					exit(0);
 			}

@@ -559,17 +559,18 @@ void AmplitudOneTrans(parametros *parm,complejo *****T)
 	parametros_integral *dim2=new parametros_integral;
 	parametros_integral *dim3=new parametros_integral;
 	coordenadas_onept *coords=new coordenadas_onept;
-	distorted_wave *dumbdw;
+	distorted_wave *dumbdw=new distorted_wave[1];
+	ofstream fp1("some_dw.txt");
 	if (!intk) Error("No se pudo reservar memoria para intk");
 	if (!coords) Error("No se pudo reservar memoria para coords");
 	ofstream fp(parm->fl_amplitudes);
 	ofstream fp2(parm->fl_dw);
 	Ij=matriz_cmpx(3,3);
-	int la,lb,ln,lnp,jap,m,n,indx_st,indx_ingreso,indx_salida,jja,jjb,Kmax,Kmin;
+	int la,lb,ln,lnp,jap,m,n,indx_st,indx_ingreso,indx_salida,indx_transfer,jja,jjb,Kmax,Kmin;
 	int ma,map,mb,mbp,st_a,st_B,K;
 	double energia_aA,energia_bB,cos_b,factor;
 	float ja,jb;
-	complejo integral;
+	complejo integral,phase_shift;
 	factor=32.*sqrt(2.*parm->n_spin+1.)*pow(PI,3)/((parm->k_Aa)*(parm->k_Bb));
 	/*Par�metros num�ricos para la integral */
 	intk->dim1=dim1;
@@ -601,7 +602,7 @@ void AmplitudOneTrans(parametros *parm,complejo *****T)
 	/*Selecciona el potencial de transfer*/
 	for(n=0;n<parm->num_cm;n++)
 	{
-		if(parm->pot_transfer==parm->pot[n].id) intk->pot=&(parm->pot[n]);
+		if(parm->pot_transfer==parm->pot[n].id) {intk->pot=&(parm->pot[n]);indx_transfer=n;}
 	}
 	cout<<"Energia de centro de masa: "<<parm->energia_cm<<endl;
 	/*Calculo de las amplitudes de transferencia**************************************************************************/
@@ -610,6 +611,8 @@ void AmplitudOneTrans(parametros *parm,complejo *****T)
 		exp_delta_coulomb_i[la]=exp(I*(deltac(la,eta_i)));
 		exp_delta_coulomb_f[la]=exp(I*(deltac(la,eta_f)));
 	}
+	st_a=0;
+	st_B=0;
 	for(n=0;n<parm->num_st;n++)
 	{
 		if (parm->a_estados[st_a] == parm->st[n].id) {
@@ -702,6 +705,7 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 	double eta_i=parm->eta;
 	complejo c1,fase,c2;
 	integrando_onept *intk=new integrando_onept;
+	distorted_wave *dumbdw=new distorted_wave[1];
 	parametros_integral *dim1=new parametros_integral;
 	parametros_integral *dim2=new parametros_integral;
 	parametros_integral *dim3=new parametros_integral;
@@ -713,14 +717,14 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 	complejo* exp_delta_coulomb_f=new complejo[parm->lmax];
 	complejo* trial=new complejo[parm->puntos];
 	double* r=new double[parm->puntos];
-	distorted_wave *dumbdw;
 	if (!intk) Error("No se pudo reservar memoria para intk");
 	if (!coords) Error("No se pudo reservar memoria para coords");
 	ofstream fp(parm->fl_amplitudes);
+	ofstream fp1("some_dw.txt");
 	ofstream fp2(parm->fl_dw);
 	ofstream fp4("dw_out1trans.txt");
 	ofstream fp3("dw_in1trans.txt");
-	int la,lb,ln,lnp,m,n,indx_st,indx_ingreso,indx_salida,indx_core;
+	int la,lb,ln,lnp,m,n,indx_st,indx_ingreso,indx_salida,indx_core,indx_transfer;
 	int mb,mbp,st_a,st_B,Kmax,Kmin,K;
 	double energia_aA,energia_bB,cos_b,factor,q,absorcion;
 	complejo integral,suma;
@@ -758,16 +762,10 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 	/*Selecciona el potencial de transfer*/
 	for(n=0;n<parm->num_cm;n++)
 	{
-		if(parm->pot_transfer==parm->pot[n].id) intk->pot=&(parm->pot[n]);
+		if(parm->pot_transfer==parm->pot[n].id) {intk->pot=&(parm->pot[n]);indx_transfer=n;}
 	}
-//	for(n=0;n<parm->puntos;n++){
-//		misc1<<intk->pot->r[n]<<"  "<<abs(intk->pot->pot[n])<<endl;
-//	}
-//	exit(0);
 	intk->core=core;
 	intk->opt=optico;
-	//	if(parm->remnant==1 && parm->prior==1) GeneraRemnant(&(parm->pot_opt[indx_ingreso]),&(parm->pot_opt[indx_core]),remnant);
-//	if(parm->remnant==1 && parm->prior==0) GeneraRemnant(&(parm->pot_opt[indx_salida]),&(parm->pot_opt[indx_core]),remnant);
 	cout<<"Energia de centro de masa: "<<parm->energia_cm<<endl;
 	intk->prior=parm->prior;
 	intk->remnant=parm->remnant;
@@ -787,7 +785,16 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 		intk->core=&parm->pot_opt[indx_core];
 		intk->opt=&parm->pot_opt[indx_salida];
 	}
-//	MatrixElement(parm,intk->inicial_st,intk->final_st,intk->pot);
+//	for(energia_aA=0.01;energia_aA<50.;energia_aA+=0.05)
+//	{
+//		dumbdw->energia=energia_aA;
+//		dumbdw->l=2;
+//		dumbdw->spin=parm->n_spin;
+//		dumbdw->j=2.5;
+//		S[0]=GeneraDWspin(dumbdw,&(parm->pot_opt[indx_transfer]),0.,0.9,
+//				parm->radio,parm->puntos,parm->matching_radio,&fp1);
+//		misc4<<energia_aA<<"  "<<real(S[0])/PI<<"  "<<imag(S[0])/PI<<"  "<<abs(S[0])/PI<<endl;
+//	}
 //	exit(0);
 
 	Kmax=(intk->final_st->l+intk->inicial_st->l);
