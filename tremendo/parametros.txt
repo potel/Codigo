@@ -6,7 +6,7 @@ ltransfer 4 #momento angular transferido maximo. Usado para la captura neutronic
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
 puntos 1000    # número de puntos en los que se definen las funciones.
-radio 50.      #radio máximo.
+radio 40.      #radio máximo.
 num_cm 2       # número de potenciales de campo medio.
 num_opt 3      # número de potenciales ópticos.
 a_numst 1	   # número de estados monoparticulares del núcleo a (la reacción se define como A+a(=b+2)->B(=A+2)+b).
@@ -58,12 +58,12 @@ res_N 7
 
 
 proyectil a		# define cual es el proyectil
-energia_lab  21.4
+energia_lab  18.
 
 #Qvalue  -1.5996	# Q-value de la reacción (1/2+)
 #Qvalue  -2.0048	# Q-value de la reacción (1/2-)
 
-#Qvalue  -3.28	# Q-value de la reacción (5/2+;1.06) box 40fm
+Qvalue  -3.28	# Q-value de la reacción (5/2+;1.06) box 40fm
 #Qvalue  -3.55	# Q-value de la reacción (5/2+;1.33) box 40fm
 
 #Qvalue  -3.04	# Q-value de la reacción (5/2+;0.82) box 30fm
@@ -96,9 +96,9 @@ B_Sn   -4.24091 # energía de extracción de un neutrón para el núcleo B-1 (de
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
 
 r_Ccmin 0.     # valor mínimo de r_Cc
-r_Ccmax  50.    # valor máximo de r_Cc
+r_Ccmax  40.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
-r_A2max   50.    # valor máximo de r_A2
+r_A2max   40.    # valor máximo de r_A2
 rCc_puntos  40   # número de puntos de integración gaussiana para r_Cc
 rA2_puntos   40  # número de puntos de integración gaussiana para r_A2
 theta_puntos  10   # número de puntos de integrción gaussiana para theta
@@ -136,29 +136,29 @@ InicioPotencialesOpticos
 
 
 id 1                                                     
-RealVolumen 51.6348
-ImaginarioVolumen  2.02826
-RealSpinOrbita  5.28593
+RealVolumen 56.4919
+ImaginarioVolumen  1.06799
+RealSpinOrbita  5.48012
 ImaginarioSpinOrbita	0
-ImaginarioSuperficie  8.74153
-RadioRealVolumen  1.11573
-RadioCoulomb  1.62811
-RadioImaginarioVolumen  1.11573
-DifusividadRealVolumen  0.676313
-DifusividadImaginarioVolumen  0.676313
-RadioSpinOrbita    1.90687
+ImaginarioSuperficie  9.90982
+RadioRealVolumen  1.12161
+RadioCoulomb  1.57775
+RadioImaginarioVolumen  1.12161
+DifusividadRealVolumen  0.676164
+DifusividadImaginarioVolumen  0.676164
+RadioSpinOrbita    1.98931
 DifusividadSpinOrbita  0.59
-RadioImaginarioSuperficie  1.30825
-DifusividadImaginarioSuperficie 0.523905
+RadioImaginarioSuperficie  1.30715
+DifusividadImaginarioSuperficie 0.524426
 
 ***************
 
 id 0
-RealVolumen 73.6092
-ImaginarioVolumen  3.29194
+RealVolumen 74.2311
+ImaginarioVolumen  3.09732
 RealSpinOrbita  3.703
 ImaginarioSpinOrbita	-0.206
-ImaginarioSuperficie  10.5892
+ImaginarioSuperficie  10.8592
 RadioRealVolumen  1.174
 RadioCoulomb  1.698
 RadioImaginarioVolumen  1.563
@@ -198,7 +198,7 @@ InicioCampoMedio
 
 id 1
 tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
-VV 43.9
+VV 43.99
 VSO  0.
 aV 0.7
 aSO 0.7
@@ -258,14 +258,14 @@ InicioEstados
 
 
 ## Box 40fm: -----------------------------------------------------------------------
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 0
-#spec 0.82
-#energia 1.06
-#file C:\Gregory\Be\11Be\box40\d_5_2_2_40.txt
-#*********************
+id 1                                                        
+l 2
+j 2.5
+nodos 1
+spec 0.82
+energia 1.06
+file C:\Gregory\Be\11Be\box40\d_5_2_2_40.txt
+*********************
 
 #id 1                                                        
 #l 2
@@ -276,7 +276,24 @@ InicioEstados
 #file C:\Gregory\Be\11Be\box40\d_5_2_3_40.txt
 #*********************
 
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 1
+#spec 0.823
+#energia 1.06
+#file 
+#*********************
 
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 2
+#spec 0.75
+#energia 1.33
+#file 
+#*********************
 
 ## Box 24fm: -----------------------------------------------------------------------
 #id 1                                                        
@@ -389,14 +406,14 @@ InicioEstados
 #*********************
 
 
-id 1                                                        
-l 2
-j 2.5
-nodos 2
-spec 0.671
-energia 1.06
-file 
-*********************
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 2
+#spec 0.671
+#energia 1.06
+#file 
+#*********************
 
 
 #id 1                                                        
@@ -482,24 +499,6 @@ file
 #*********************
 
 
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 1
-#spec 0.823
-#energia 1.06
-#file 
-#*********************
-
-
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 2
-#spec 0.75
-#energia 1.33
-#file 
-#*********************
 
 
 

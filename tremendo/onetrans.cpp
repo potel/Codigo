@@ -29,8 +29,8 @@ void OneTrans(struct parametros* parm)
 	InicializaOneTrans(parm);
 	HanShiShen(parm->energia_lab,parm->T_N,parm->T_carga);
 	CH89(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
-	KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
-//	KoningDelaroche(parm->energia_lab+parm->Qvalue,7.,4.,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+//	KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+	KoningDelaroche(parm->energia_lab+parm->Qvalue,7.,4.,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
 	cout<<"Generando potenciales de campo medio"<<endl;
 	for(n=0;n<parm->num_cm;n++)
 	{
@@ -61,7 +61,7 @@ void OneTrans(struct parametros* parm)
 		}
 		cout<<"masa reducida: "<<parm->m_b/parm->m_a<<endl;
 //		if(parm->st[indx_st].energia<0.)
-			GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,parm->m_b/parm->m_a,D0,rms);
+//			GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,parm->m_b/parm->m_a,D0,rms);
 //		else
 //		{
 //			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->m_b/parm->m_a);

@@ -731,7 +731,7 @@ void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,d
 	centr=(st->l*(st->l+1.))*hbarx;
 	ls=(st->j*(st->j+1.)-st->l*(st->l+1.)-0.75);
 	st->puntos=puntos;
-	// aï¿½ade los tï¿½rminos Coulomb y spin-ï¿½rbita *********************************************************************
+	// añade los terminos Coulomb y spin-orbita *********************************************************************
 	if(!strcmp(potencial->tipo,"ws"))
 	{
 		for (i=0;i<puntos;i++) {
@@ -742,10 +742,12 @@ void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,d
 			vs[i]=-2.*(potencial->VSO)*exp((st->r[i]-potencial->RSO)/potencial->aSO)/
 					(st->r[i]*potencial->aSO*(1.+exp((st->r[i]-potencial->RSO)
 							/potencial->aSO))*(1.+exp((st->r[i]-potencial->RSO)/potencial->aSO)));
-			potencial->pot[i]=v[i];
-//			misc3<<st->r[i]<<"  "<<v[i]<<"  "<<ls*vs[i]<<"  "<<(centr)/(st->r[i]*st->r[i])<<endl;
+//			potencial->pot[i]=v[i];
+			potencial->pot[i]=v[i]+ls*vs[i];
+			misc3<<st->r[i]<<"  "<<v[i]<<"  "<<ls*vs[i]<<"  "<<potencial->pot[i]<<endl;
 		}
 	}
+//	exit(0);
 	if(!strcmp(potencial->tipo,"tang"))
 	{
 		if(delta_r>potencial->rhc/2.) Error("Paso de intagraciï¿½n demasiado grande para el potencial Tang-Herndon");
@@ -3301,29 +3303,26 @@ void GeneraEstadosPI(potencial* pot,estado* st,double radio,int puntos,double ca
 	double energia,etrial,vmax,vmin;
 	if(ajuste==1)
 	{
-		if(*(st->file)=='\0')
+		energia=st->energia;
+		etrial=MAX_ENERGIA;
+		vmax=MAX_ENERGIA;
+		vmin=-MAX_ENERGIA;
+		pot->V=MAX_ENERGIA;
+		cout<<"energia nivel: "<<energia<<"   l: "<<st->l
+				<<"   nodos: "<<st->nodos<<"   j: "<<st->j<<endl;
+		while(fabs(etrial-energia)>EPSILON)
 		{
-			energia=st->energia;
-			etrial=MAX_ENERGIA;
-			vmax=MAX_ENERGIA;
-			vmin=-MAX_ENERGIA;
-			pot->V=MAX_ENERGIA;
-			cout<<"energia nivel: "<<energia<<"   l: "<<st->l
-					<<"   nodos: "<<st->nodos<<"   j: "<<st->j<<endl;
-			while(fabs(etrial-energia)>EPSILON)
-			{
-//				cout<<etrial<<"  "<<energia<<endl;
-				pot->V=-(vmax+vmin)/2.;
-//				cout<<pot->V<<endl;
-				GeneraPotencialCM(parm,pot);
-				GeneraEstado(st,pot,radio,puntos,cargas,masa,D0,rms);
-				etrial=st->energia;
-//				cout<<etrial<<"  "<<pot->V<<endl;
-				if(etrial>energia) vmax=-pot->V;
-				if(etrial<=energia) vmin=-pot->V;
-			}
+			//				cout<<etrial<<"  "<<energia<<endl;
+			pot->V=-(vmax+vmin)/2.;
+			//				cout<<pot->V<<endl;
+			GeneraPotencialCM(parm,pot);
+			GeneraEstado(st,pot,radio,puntos,cargas,masa,D0,rms);
+			etrial=st->energia;
+			//				cout<<etrial<<"  "<<pot->V<<endl;
+			if(etrial>energia) vmax=-pot->V;
+			if(etrial<=energia) vmin=-pot->V;
 		}
-		else File2State(st,parm);
+		if(*(st->file)!='\0') File2State(st,parm);
 	}
 
 	if(ajuste==0)
