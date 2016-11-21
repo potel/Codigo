@@ -744,7 +744,7 @@ void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,d
 							/potencial->aSO))*(1.+exp((st->r[i]-potencial->RSO)/potencial->aSO)));
 //			potencial->pot[i]=v[i];
 			potencial->pot[i]=v[i]+ls*vs[i];
-			misc3<<st->r[i]<<"  "<<v[i]<<"  "<<ls*vs[i]<<"  "<<potencial->pot[i]<<endl;
+//			misc3<<st->r[i]<<"  "<<v[i]<<"  "<<ls*vs[i]<<"  "<<potencial->pot[i]<<endl;
 		}
 	}
 //	exit(0);
@@ -3212,19 +3212,24 @@ void File2Pot(potencial *pot,parametros *parm)
 	{
 		fp>>r[puntos];
 		fp>>v[puntos];
+//		misc1<<"puntos: "<<puntos<<"  r:"<<r[puntos]<<"  v:"<<v[puntos]<<endl;
 		puntos++;
-		if(puntos>=MAX_PTS) {cout<<"N�mero de puntos en "<<pot->file<<" mayor que MAX_PTS"<<endl; exit(0);}
+		if(puntos>=MAX_PTS) {cout<<"Numero de puntos en "<<pot->file<<" mayor que MAX_PTS"<<endl; exit(0);}
+
 	}
 
 	for(n=0;n<parm->puntos;n++)
 	{
 		pos=delta_r*(n+1);
 		pot->r[n]=pos;
-		if(pos<=r[puntos-1]) pot->pot[n]=interpola_dbl(v,r,pos,puntos-1);
+		if(pos<=r[puntos-2]) pot->pot[n]=interpola_dbl(v,r,pos,puntos-2);
 		else pot->pot[n]=0.;
+//		misc1<<pos<<"  "<<r[puntos-1]<<"  "<<interpola_dbl(v,r,pos,puntos-1)<<"  "<<pot->pot[n]<<endl;
 	}
 	pot->puntos=parm->puntos;
 	pot->radio=parm->radio;
+	delete[] r;
+	delete[] v;
 }
 
 void DiagonalizaMatrizPairing(int num_pares,double** anm,double** autovectores,double *autovalores)
@@ -3324,7 +3329,6 @@ void GeneraEstadosPI(potencial* pot,estado* st,double radio,int puntos,double ca
 		}
 		if(*(st->file)!='\0') File2State(st,parm);
 	}
-
 	if(ajuste==0)
 	{
 		if(*(st->file)=='\0')

@@ -295,7 +295,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusi�n: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=3.;energia_out<13.;energia_out+=0.02)
+	for(energia_out=7.;energia_out<13.;energia_out+=0.5)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
@@ -339,8 +339,8 @@ void AmplitudeCapture(struct parametros* parm)
 					parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
 		}
 		misc1<<"& Proton energy: "<<energia_out<<" MeV. Neutron energy: "<<energia_trans<<" MeV"<<endl;
-		for(l=0;l<parm->ltransfer;l++)
-//		for(l=2;l<3;l++)
+//		for(l=0;l<parm->ltransfer;l++)
+		for(l=1;l<2;l++)
 		{
 			cout<<"L: "<<l<<endl;
 //			cout<<"Escribo"<<endl;
@@ -389,6 +389,7 @@ void AmplitudeCapture(struct parametros* parm)
 					(&(funcion_regular_down[1]),&(funcion_irregular_down[1]),
 							&(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
 							parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),parm->n_spin);
+//			misc2<<energia_trans<<"  "<<abs(wronskiano_down)<<endl;
 			if (Ecm>0.)
 			{
 				GeneraGreenFunction(funcion_regular_down,funcion_irregular_down,(v),

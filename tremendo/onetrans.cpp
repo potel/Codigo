@@ -17,7 +17,7 @@ void OneTrans(struct parametros* parm)
 	cout<<"*                                                                              *"<<endl;
 	cout<<"********************************************************************************"<<endl;
 	int n,m,indx_pot_a,indx_pot_B,indx_st,indx_ingreso,indx_intermedio,indx_salida,indx_core,indx_scatt;
-	double energia,etrial,vmax,vmin,energia_ws,absorcion;
+	double energia,etrial,vmax,vmin,energia_ws,absorcion,delta_r,r;
 	double* D0=new double[1];
 	double* rms=new double[1];
 	complejo***** Tlalb;
@@ -61,7 +61,7 @@ void OneTrans(struct parametros* parm)
 		}
 		cout<<"masa reducida: "<<parm->m_b/parm->m_a<<endl;
 //		if(parm->st[indx_st].energia<0.)
-//			GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,parm->m_b/parm->m_a,D0,rms);
+			GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,parm->m_b/parm->m_a,D0,rms);
 //		else
 //		{
 //			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->m_b/parm->m_a);
@@ -71,7 +71,8 @@ void OneTrans(struct parametros* parm)
 		GeneraPotencialCM(parm,&(parm->pot[indx_pot_a]));
 	}
 	cout<<"Generando niveles nucleo B"<<endl;
-	/* Genera niveles del n�cleo 'B' */
+//	File2Pot(&(parm->pot[indx_pot_B]),parm);
+	/* Genera niveles del nucleo 'B' */
 	for (n=0;n<parm->B_numst;n++)
 	{
 		for(m=0;m<parm->num_st;m++)
@@ -88,9 +89,17 @@ void OneTrans(struct parametros* parm)
 		absorcion=Absorcion2(&(parm->pot_opt[indx_intermedio]),&(parm->st[indx_st]));
 		cout<<"D0: "<<*D0<<"  rms: "<<*rms<<endl;
 		cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
-		GeneraPotencialCM(parm,&(parm->pot[indx_pot_B]));
-	}
+//		GeneraPotencialCM(parm,&(parm->pot[indx_pot_B]));
 
+	}
+	File2Pot(&(parm->pot[indx_pot_B]),parm);
+	delta_r=parm->radio/double(parm->puntos);
+	for(n=0;n<parm->puntos;n++){
+		r=delta_r*(n+1);
+		misc1<<r<<"  "<<abs(parm->pot[indx_pot_B].pot[n])<<"  "<<abs(parm->st[0].wf[n])<<
+				"  "<<abs(parm->pot[indx_pot_B].pot[n]*parm->st[0].wf[n])<<endl;
+	}
+//	exit(0);
 	cout<<"Absorcion: "<<absorcion<<" MeV"<<endl;
 	/*Genera los potenciales opticos (sin t�rminos coulombiano y spin-�rbita) */
 	EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
@@ -962,6 +971,7 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
 						integrando->coords->r_aA[n1][n2][n3])*
 								(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
 				*Ij+=kernel;
+//				misc1<<r_An<<" "<<abs(potencial-remnant)<<" "<<abs(estado_final)<<" "<<abs(potencial-remnant)*abs(estado_final)<<endl;
 			}
 		}
 	}

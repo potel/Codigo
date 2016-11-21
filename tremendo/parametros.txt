@@ -6,7 +6,7 @@ ltransfer 4 #momento angular transferido maximo. Usado para la captura neutronic
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
 puntos 1000    # número de puntos en los que se definen las funciones.
-radio 40.      #radio máximo.
+radio 50.      #radio máximo.
 num_cm 2       # número de potenciales de campo medio.
 num_opt 3      # número de potenciales ópticos.
 a_numst 1	   # número de estados monoparticulares del núcleo a (la reacción se define como A+a(=b+2)->B(=A+2)+b).
@@ -58,16 +58,8 @@ res_N 7
 
 
 proyectil a		# define cual es el proyectil
-energia_lab  18.
+energia_lab  21.4
 
-#Qvalue  -1.5996	# Q-value de la reacción (1/2+)
-#Qvalue  -2.0048	# Q-value de la reacción (1/2-)
-
-Qvalue  -3.28	# Q-value de la reacción (5/2+;1.06) box 40fm
-#Qvalue  -3.55	# Q-value de la reacción (5/2+;1.33) box 40fm
-
-#Qvalue  -3.04	# Q-value de la reacción (5/2+;0.82) box 30fm
-#Qvalue  -3.5	# Q-value de la reacción (5/2+;1.27) box 30fm
 
 
 #Qvalue  -2.52	# Q-value de la reacción (5/2+;0.3)  box 50fm
@@ -96,9 +88,9 @@ B_Sn   -4.24091 # energía de extracción de un neutrón para el núcleo B-1 (de
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
 
 r_Ccmin 0.     # valor mínimo de r_Cc
-r_Ccmax  40.    # valor máximo de r_Cc
+r_Ccmax  50.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
-r_A2max   40.    # valor máximo de r_A2
+r_A2max   50.    # valor máximo de r_A2
 rCc_puntos  40   # número de puntos de integración gaussiana para r_Cc
 rA2_puntos   40  # número de puntos de integración gaussiana para r_A2
 theta_puntos  10   # número de puntos de integrción gaussiana para theta
@@ -136,11 +128,11 @@ InicioPotencialesOpticos
 
 
 id 1                                                     
-RealVolumen 56.4919
-ImaginarioVolumen  1.06799
-RealSpinOrbita  5.48012
+RealVolumen 55.0809
+ImaginarioVolumen  1.41005
+RealSpinOrbita  5.4061
 ImaginarioSpinOrbita	0
-ImaginarioSuperficie  9.90982
+ImaginarioSuperficie  9.80301
 RadioRealVolumen  1.12161
 RadioCoulomb  1.57775
 RadioImaginarioVolumen  1.12161
@@ -154,11 +146,11 @@ DifusividadImaginarioSuperficie 0.524426
 ***************
 
 id 0
-RealVolumen 74.2311
-ImaginarioVolumen  3.09732
+RealVolumen 73.6092
+ImaginarioVolumen  3.29194
 RealSpinOrbita  3.703
 ImaginarioSpinOrbita	-0.206
-ImaginarioSuperficie  10.8592
+ImaginarioSuperficie  10.5892
 RadioRealVolumen  1.174
 RadioCoulomb  1.698
 RadioImaginarioVolumen  1.563
@@ -168,6 +160,7 @@ RadioSpinOrbita    1.234
 DifusividadSpinOrbita  0.813
 RadioImaginarioSuperficie  1.328
 DifusividadImaginarioSuperficie 0.56195
+
 
 *******************
 
@@ -199,11 +192,12 @@ InicioCampoMedio
 id 1
 tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
 VV 43.99
-VSO  0.
+VSO  12
 aV 0.7
 aSO 0.7
 RV    2.693
 RSO   2.693
+potfile E:\Gregory\Be\11Be\pot_bare_07.txt
 *******
 
 id 0
@@ -237,123 +231,7 @@ FinCampoMedio
 InicioEstados
    
 
-#id 1                                                        
-#l 0
-#j 0.5
-#nodos 1
-#spec 0.9
-#energia -0.6249
-#file C:\Gregory\Be\11Be\s1_2.txt
-#*********************
 
-#id 1                                                        
-#l 1
-#j 0.5
-#nodos 0
-#spec 0.89805
-#energia -0.2197
-#file C:\Gregory\Be\11Be\p1_2.txt
-#*********************
-
-
-
-## Box 40fm: -----------------------------------------------------------------------
-id 1                                                        
-l 2
-j 2.5
-nodos 1
-spec 0.82
-energia 1.06
-file C:\Gregory\Be\11Be\box40\d_5_2_2_40.txt
-*********************
-
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 0
-#spec 0.75
-#energia 1.33
-#file C:\Gregory\Be\11Be\box40\d_5_2_3_40.txt
-#*********************
-
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 1
-#spec 0.823
-#energia 1.06
-#file 
-#*********************
-
-
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 2
-#spec 0.75
-#energia 1.33
-#file 
-#*********************
-
-## Box 24fm: -----------------------------------------------------------------------
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 0
-#spec 0.74
-#energia 1.06
-#file C:\Gregory\Be\11Be\box24fm\d5_2_1_24.txt
-#*********************
-
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 0
-#spec 0.79
-#energia 1.06
-#file C:\Gregory\Be\11Be\box24fm\d5_2_2_24.txt
-#*********************
-
-
-
-
-## Box 30fm: -----------------------------------------------------------------------
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 0
-#spec 0.98
-#energia 0.82
-#file C:\Gregory\Be\11Be\box30fm\d_5_2_1_30.txt
-#*********************
-
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 0
-#spec 0.98
-#energia 0.82
-#file 
-#*********************
-
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 0
-#spec 0.65
-#energia 1.27
-#file C:\Gregory\Be\11Be\box30fm\d_5_2_2_30.txt
-#*********************
-
-
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 1
-#spec 0.65
-#energia 1.27
-#file 
-#*********************
 
 
 ## Box 50fm: -----------------------------------------------------------------------
@@ -367,24 +245,6 @@ file C:\Gregory\Be\11Be\box40\d_5_2_2_40.txt
 #file C:\Gregory\Be\11Be\box50fm\d5_2_1_50.txt
 #*********************
 
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 0
-#spec 0.999
-#energia 0.3
-#file 
-#*********************
-
-
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 0
-#spec 0.985
-#energia 0.74
-#file C:\Gregory\Be\11Be\box50fm\d5_2_2_50.txt
-#*********************
 
 #id 1                                                        
 #l 2
@@ -392,18 +252,9 @@ file C:\Gregory\Be\11Be\box40\d_5_2_2_40.txt
 #nodos 1
 #spec 0.985
 #energia 0.74
-#file 
+#file C:\Gregory\Be\11Be\box50fm\d5_2_2_50.txt
 #*********************
 
-
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 0
-#spec 0.671
-#energia 1.06
-#file C:\Gregory\Be\11Be\box50fm\d5_2_3_50.txt
-#*********************
 
 
 #id 1                                                        
@@ -412,17 +263,7 @@ file C:\Gregory\Be\11Be\box40\d_5_2_2_40.txt
 #nodos 2
 #spec 0.671
 #energia 1.06
-#file 
-#*********************
-
-
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 0
-#spec 0.911
-#energia 1.45
-#file C:\Gregory\Be\11Be\box50fm\d5_2_4_50.txt
+#file C:\Gregory\Be\11Be\box50fm\d5_2_3_50.txt
 #*********************
 
 
@@ -433,17 +274,7 @@ file C:\Gregory\Be\11Be\box40\d_5_2_2_40.txt
 #nodos 3
 #spec 0.911
 #energia 1.45
-#file 
-#*********************
-
-
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 0
-#spec 0.922
-#energia 2.25
-#file C:\Gregory\Be\11Be\box50fm\d5_2_5_50.txt
+#file C:\Gregory\Be\11Be\box50fm\d5_2_4_50.txt
 #*********************
 
 
@@ -455,48 +286,23 @@ file C:\Gregory\Be\11Be\box40\d_5_2_2_40.txt
 #nodos 4
 #spec 0.922
 #energia 2.25
-#file 
-#*********************
-
-
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 0
-#spec 0.923
-#energia 3.26
-#file C:\Gregory\Be\11Be\box50fm\d5_2_6_50.txt
-#*********************
-
-
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 5
-#spec 0.923
-#energia 3.26
-#file 
+#file C:\Gregory\Be\11Be\box50fm\d5_2_5_50.txt
 #*********************
 
 
 
-#id 1                                                        
-#l 1
-#j 0.5
-#nodos 0
-#spec 0.89805
-#energia -0.2197
-#file 
-#*********************
 
-#id 1                                                        
-#l 0
-#j 0.5
-#nodos 1
-#spec 0.9
-#energia -0.6249
-#file 
-#*********************
+
+id 1                                                        
+l 2
+j 2.5
+nodos 5
+spec 0.923
+energia 3.26
+file C:\Gregory\Be\11Be\box50fm\d5_2_6_50.txt
+*********************
+
+
 
 
 
