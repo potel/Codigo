@@ -45,7 +45,7 @@ res_masa  11.
 Z_a    1  # cargas
 Z_A     4
 Z_b  1
-Z_B   4
+Z_B   4 
 P_carga 1
 res_carga 4
 T_carga 4
@@ -62,12 +62,12 @@ energia_lab  21.4
 
 
 
-#Qvalue  -2.52	# Q-value de la reacción (5/2+;0.3)  box 50fm
+Qvalue  -2.52	# Q-value de la reacción (5/2+;0.3)  box 50fm
 #Qvalue  -2.96	# Q-value de la reacción (5/2+;0.74) box 50fm
 #Qvalue  -3.28	# Q-value de la reacción (5/2+;1.06) box 50fm
 #Qvalue  -3.67	# Q-value de la reacción (5/2+;1.45) box 50fm
 #Qvalue  -4.47	# Q-value de la reacción (5/2+;2.25) box 50fm
-Qvalue  -5.48	# Q-value de la reacción (5/2+;3.26) box 50fm
+#Qvalue  -5.48	# Q-value de la reacción (5/2+;3.26) box 50fm
 
 
 
