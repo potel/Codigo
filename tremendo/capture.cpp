@@ -358,10 +358,10 @@ void AmplitudeCapture(struct parametros* parm)
 			funcion_irregular_up[1].l=l;
 			funcion_regular_up[1].j=l+parm->n_spin;
 			funcion_irregular_up[1].j=l+parm->n_spin;
-			if (energia_trans<=0.) wronskiano_up=GeneraGreenFunctionLigada(&(funcion_regular_up[0]),&(funcion_irregular_up[0]),
+			if (Ecm<=0.) wronskiano_up=GeneraGreenFunctionLigada(&(funcion_regular_up[0]),&(funcion_irregular_up[0]),
 					&(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
 					parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),parm->n_spin);
-			if (energia_trans>0.)
+			if (Ecm>0.)
 			{
 				GeneraGreenFunction(funcion_regular_up,funcion_irregular_up,(v),
 						carga_trans*(parm->T_carga),parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),
