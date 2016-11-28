@@ -4208,6 +4208,116 @@ void SimIntegral(complejo* integral, complejo*** vcluster,distorted_wave* dwi,di
 	*integral=sum*(dim1->b-dim1->a)*(dim2->b-dim2->a)*(dim3->b-dim3->a)/8.;
 //	misc4<<La<<"  "<<abs(sum)<<endl;
 }
+void elastic(potencial_optico* opt_up,potencial_optico* opt_down,double mass,double energy,parametros* parm,double eta){
+	double hbarx =Hc*HC/(2.*AMU*mass);
+	double r;
+	int l,n,m;
+	double puntos,radio,h;
+	puntos=opt_up->puntos;
+	radio=opt_up->r[puntos-1];
+	distorted_wave* f_up= new distorted_wave[1];
+	distorted_wave* f_down= new distorted_wave[1];
+	complejo* delta_up = new complejo[parm->lmax];
+	complejo* delta_down = new complejo[parm->lmax];
+	double costheta, cross_dif_total, cross_dif_nuclear,sum,sum2,escala;
+	int sc,len,flag;
+	complejo dif_mas, dif_menos;
+	complejo* fasecoul = new complejo[parm->thpuntos];
+	double* deltacoul = new double[parm->lmax];
+	double* theta = new double[parm->thpuntos];
+	complejo* scattering_amplitude_total_mas = new complejo[parm->thpuntos];
+	complejo* scattering_amplitude_nuclear_mas = new complejo[parm->thpuntos];
+	complejo* scattering_amplitude_total_menos = new complejo[parm->thpuntos];
+	complejo* scattering_amplitude_nuclear_menos = new complejo[parm->thpuntos];
+	
+	ofstream fp2("dw_elastic_down.txt");
+	ofstream fp1("dw_elastic_up.txt");
+	ofstream fp3("phase_shifts.txt");
+	ofstream elastic_relativo("elastic_relativo.txt");
+	ofstream elastic_nuclear("elastic_nuclear.txt");
+	ofstream cross("cross.txt");
+	cout<< "+++Calculo de la dispersion elastica, version con spin-orbita +++"<< endl << endl;
+	for (l = 0; l < parm->lmax; l++) {
+		cout << "L: " << l << endl;
+		delta_up[l]=GeneraDWspin(f_up,opt_up,0.,mass,radio,puntos,parm->radio_match,&fp1);
+		delta_down[l]=GeneraDWspin(f_down,opt_down,0.,mass,radio,puntos,parm->radio_match,&fp2);
+	}
+	for (l = 0; l < lmax; l++) {
+		fp3<< l << "  " << real(delta_up[l])<< "  " << imag(delta_up[l])
+		<< "  " << abs(exp(2.*ei*delta_up[l]))<< "  " << abs(exp(2.*ei*delta_up[l])*real(delta_up[l]))<< endl;
+	}
+	len=strlen(parm->unidades);
+	if(!strncmp(parm->unidades,"milib",len)) flag=1;
+	if(!strncmp(parm->unidades,"fm2",len)) flag=2;
+	if(!strncmp(parm->unidades,"b",len)) flag=3;
+	if(!strncmp(parm->unidades,"microb",len)) flag=4;
+	switch(flag)
+	{
+	case 1:
+		escala=10.;
+		cout<<"Seccion eficaz medida en milibarn"<<endl;
+		break;
+	case 2:
+		escala=1.;
+		cout<<"Seccion eficaz medida en fm^2"<<endl;
+		break;
+	case 3:
+		escala=0.01;
+		cout<<"Seccion eficaz medida en barn"<<endl;
+		break;
+	case 4:
+		escala=10000.;
+		cout<<"Seccion eficaz medida en microbarn"<<endl;
+		break;
+	default:
+		Error("Unidades desconocidas para la secciï¿½n eficaz");
+		break;
+		fcoul(theta, fasecoul, eta, thpuntos);
+	for (l = 0; l < lmax; l++) {
+		deltacoul[l] = deltac(l, eta);
+	}
+	sum=0.;
+	sum2=0.;
+	for (n = 1; n < thpuntos; n++) {
+		costheta = cos(theta[n]);
+		dif_mas = 0.;
+		dif_menos = 0.;
+		for (l = 0; l < lmax; l++) {
+
+			dif_mas += (exp(2. * I * delta_mas[l]) - 1.) * exp(2. * I
+					* deltac(l, eta)) * (2. * l + 1.) * plgndr(l, 0, costheta)
+					/ (2. * I * k);
+			dif_menos += (exp(2. * ei * delta_menos[l]) - 1.) * exp(2. * I
+					* deltac(l, eta)) * (2. * l + 1.) * plgndr(l, 0, costheta)
+					/ (2. * I * k);
+		}
+		scattering_amplitude_total_mas[n] = fasecoul[n] + dif_mas;
+		scattering_amplitude_nuclear_mas[n] = dif_mas;
+		scattering_amplitude_total_menos[n] = fasecoul[n] + dif_menos;
+		scattering_amplitude_nuclear_menos[n] = dif_menos;
+		cross_dif_total = 0.5 * (abs(scattering_amplitude_total_mas[n]) * abs(
+				scattering_amplitude_total_mas[n]) + abs(
+				scattering_amplitude_total_menos[n]) * abs(
+				scattering_amplitude_total_menos[n]));
+		cross_dif_nuclear = 0.5 * (abs(scattering_amplitude_nuclear_mas[n])
+				* abs(scattering_amplitude_nuclear_mas[n]) + abs(
+				scattering_amplitude_nuclear_menos[n]) * abs(
+				scattering_amplitude_nuclear_menos[n]));
+		elastic_relativo << theta[n] * 180. / M_PI << "   " << cross_dif_total
+				/ (abs(fasecoul[n]) * abs(fasecoul[n])) << endl;
+		cross << theta[n] * 180. / M_PI << "   " << escala*cross_dif_total << endl;
+		elastic_nuclear << theta[n] * 180. / M_PI << "   " << escala*cross_dif_nuclear
+				<< endl;
+//		if(theta[n] * 180. / M_PI>=10) sum+=2.*escala*cross_dif_nuclear*M_PI*M_PI*sin(theta[n])/ double(thpuntos);
+		sum+=2.*escala*cross_dif_nuclear*M_PI*M_PI*sin(theta[n])/ double(thpuntos);
+		sum2+=2.*escala*cross_dif_total*M_PI*M_PI*sin(theta[n])/ double(thpuntos);
+
+	}
+	cout<<"Sección eficaz nuclear: "<<sum<<endl;
+	informe<<"Sección eficaz nuclear: "<<sum<<endl;
+	cout<<"Sección eficaz total: "<<sum2<<endl;
+	informe<<"Sección eficaz total: "<<sum2<<endl;	
+}
 
 
 
