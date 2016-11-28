@@ -222,3 +222,4 @@ void IntegralIKll(complejo*** IKll,complejo** rhoK,distorted_wave* f,distorted_w
 		int numK,parametros_integral* dim,int la,int lb);
 void IntegralRhoK(complejo** rhoK,complejo*** DeltaK,estado* st1,estado* st2,
 		int numK,parametros_integral* dim,int numR);
+void elastic(potencial_optico* opt_up,potencial_optico* opt_down,double mass,double energy,parametros* parm,double eta);
