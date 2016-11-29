@@ -51,6 +51,8 @@ void OneTrans(struct parametros* parm)
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_core]),parm->m_A,parm->m_b);
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_A,parm->m_b);
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_scatt]),parm->m_A,parm->m_b);
+	elastic(&(parm->pot_opt[indx_ingreso]),&(parm->pot_opt[indx_ingreso]),parm->mu_Aa,parm->energia_cm,parm,parm->eta);
+	exit(0);
 	cout<<"Generando el estado del nucleo a"<<endl;
 	/* Genera niveles del n�cleo 'a' */
 	for (n=0;n<parm->a_numst;n++)

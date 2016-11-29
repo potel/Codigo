@@ -4209,26 +4209,26 @@ void SimIntegral(complejo* integral, complejo*** vcluster,distorted_wave* dwi,di
 //	misc4<<La<<"  "<<abs(sum)<<endl;
 }
 void elastic(potencial_optico* opt_up,potencial_optico* opt_down,double mass,double energy,parametros* parm,double eta){
-	double hbarx =Hc*HC/(2.*AMU*mass);
+	double hbarx =HC*HC/(2.*AMU*mass);
 	double r;
-	int l,n,m;
-	double puntos,radio,h;
+	int l,n,m,puntos;
+	double radio,h;
 	puntos=opt_up->puntos;
 	radio=opt_up->r[puntos-1];
 	distorted_wave* f_up= new distorted_wave[1];
 	distorted_wave* f_down= new distorted_wave[1];
 	complejo* delta_up = new complejo[parm->lmax];
 	complejo* delta_down = new complejo[parm->lmax];
-	double costheta, cross_dif_total, cross_dif_nuclear,sum,sum2,escala;
+	double costheta, cross_dif_total, cross_dif_nuclear,sum,sum2,escala,k;
 	int sc,len,flag;
 	complejo dif_mas, dif_menos;
-	complejo* fasecoul = new complejo[parm->thpuntos];
+	complejo* fasecoul = new complejo[parm->cross_puntos];
 	double* deltacoul = new double[parm->lmax];
-	double* theta = new double[parm->thpuntos];
-	complejo* scattering_amplitude_total_mas = new complejo[parm->thpuntos];
-	complejo* scattering_amplitude_nuclear_mas = new complejo[parm->thpuntos];
-	complejo* scattering_amplitude_total_menos = new complejo[parm->thpuntos];
-	complejo* scattering_amplitude_nuclear_menos = new complejo[parm->thpuntos];
+	double* theta = new double[parm->cross_puntos];
+	complejo* scattering_amplitude_total_mas = new complejo[parm->cross_puntos];
+	complejo* scattering_amplitude_nuclear_mas = new complejo[parm->cross_puntos];
+	complejo* scattering_amplitude_total_menos = new complejo[parm->cross_puntos];
+	complejo* scattering_amplitude_nuclear_menos = new complejo[parm->cross_puntos];
 	
 	ofstream fp2("dw_elastic_down.txt");
 	ofstream fp1("dw_elastic_up.txt");
@@ -4237,14 +4237,26 @@ void elastic(potencial_optico* opt_up,potencial_optico* opt_down,double mass,dou
 	ofstream elastic_nuclear("elastic_nuclear.txt");
 	ofstream cross("cross.txt");
 	cout<< "+++Calculo de la dispersion elastica, version con spin-orbita +++"<< endl << endl;
+	k=sqrt(2.*mass*AMU*energy)/HC;
+
 	for (l = 0; l < parm->lmax; l++) {
+		f_up->energia=energy;
+		f_up->l=l;
+		f_up->puntos=puntos;
+		f_up->spin=0;
+		f_up->j=l;
+		f_down->energia=energy;
+		f_down->l=l;
+		f_down->puntos=puntos;
+		f_down->spin=0;
+		f_down->j=l;
 		cout << "L: " << l << endl;
-		delta_up[l]=GeneraDWspin(f_up,opt_up,0.,mass,radio,puntos,parm->radio_match,&fp1);
-		delta_down[l]=GeneraDWspin(f_down,opt_down,0.,mass,radio,puntos,parm->radio_match,&fp2);
+		delta_up[l]=GeneraDWspin(f_up,opt_up,0.,mass,radio,puntos,parm->matching_radio,&fp1);
+		delta_down[l]=GeneraDWspin(f_down,opt_down,0.,mass,radio,puntos,parm->matching_radio,&fp2);
 	}
-	for (l = 0; l < lmax; l++) {
+	for (l = 0; l < parm->lmax; l++) {
 		fp3<< l << "  " << real(delta_up[l])<< "  " << imag(delta_up[l])
-		<< "  " << abs(exp(2.*ei*delta_up[l]))<< "  " << abs(exp(2.*ei*delta_up[l])*real(delta_up[l]))<< endl;
+		<< "  " << abs(exp(2.*I*delta_up[l]))<< "  " << abs(exp(2.*I*delta_up[l])*real(delta_up[l]))<< endl;
 	}
 	len=strlen(parm->unidades);
 	if(!strncmp(parm->unidades,"milib",len)) flag=1;
@@ -4270,27 +4282,31 @@ void elastic(potencial_optico* opt_up,potencial_optico* opt_down,double mass,dou
 		cout<<"Seccion eficaz medida en microbarn"<<endl;
 		break;
 	default:
-		Error("Unidades desconocidas para la secciï¿½n eficaz");
+		Error("Unidades desconocidas para la seccion eficaz");
 		break;
-		fcoul(theta, fasecoul, eta, thpuntos);
-	for (l = 0; l < lmax; l++) {
+	}
+		fcoul(theta, fasecoul, eta, parm->cross_puntos,k);
+		cout<<fasecoul[10]<<"  "<<delta_down[l]<<endl;
+	for (l = 0; l < parm->lmax; l++) {
 		deltacoul[l] = deltac(l, eta);
 	}
 	sum=0.;
 	sum2=0.;
-	for (n = 1; n < thpuntos; n++) {
+	for (n = 1; n < parm->cross_puntos; n++) {
 		costheta = cos(theta[n]);
 		dif_mas = 0.;
 		dif_menos = 0.;
-		for (l = 0; l < lmax; l++) {
+		for (l = 0; l < parm->lmax; l++) {
 
-			dif_mas += (exp(2. * I * delta_mas[l]) - 1.) * exp(2. * I
-					* deltac(l, eta)) * (2. * l + 1.) * plgndr(l, 0, costheta)
+			dif_mas += (exp(2. * I * delta_up[l]) - 1.) * exp(2. * I
+					* deltac(l, eta)) * (2. * l + 1.) *gsl_sf_legendre_Plm(l,0,costheta)
 					/ (2. * I * k);
-			dif_menos += (exp(2. * ei * delta_menos[l]) - 1.) * exp(2. * I
-					* deltac(l, eta)) * (2. * l + 1.) * plgndr(l, 0, costheta)
+			dif_menos += (exp(2. * I * delta_down[l]) - 1.) * exp(2. * I
+					* deltac(l, eta)) * (2. * l + 1.) * gsl_sf_legendre_Plm(l, 0, costheta)
 					/ (2. * I * k);
+//			cout<<delta_up[l]<<"  "<<delta_down[l]<<"  "<<deltac(l, eta)<<endl;
 		}
+//		exit(0);
 		scattering_amplitude_total_mas[n] = fasecoul[n] + dif_mas;
 		scattering_amplitude_nuclear_mas[n] = dif_mas;
 		scattering_amplitude_total_menos[n] = fasecoul[n] + dif_menos;
@@ -4309,14 +4325,12 @@ void elastic(potencial_optico* opt_up,potencial_optico* opt_down,double mass,dou
 		elastic_nuclear << theta[n] * 180. / M_PI << "   " << escala*cross_dif_nuclear
 				<< endl;
 //		if(theta[n] * 180. / M_PI>=10) sum+=2.*escala*cross_dif_nuclear*M_PI*M_PI*sin(theta[n])/ double(thpuntos);
-		sum+=2.*escala*cross_dif_nuclear*M_PI*M_PI*sin(theta[n])/ double(thpuntos);
-		sum2+=2.*escala*cross_dif_total*M_PI*M_PI*sin(theta[n])/ double(thpuntos);
+		sum+=2.*escala*cross_dif_nuclear*M_PI*M_PI*sin(theta[n])/ double(parm->cross_puntos);
+		sum2+=2.*escala*cross_dif_total*M_PI*M_PI*sin(theta[n])/ double(parm->cross_puntos);
 
 	}
 	cout<<"Sección eficaz nuclear: "<<sum<<endl;
-	informe<<"Sección eficaz nuclear: "<<sum<<endl;
 	cout<<"Sección eficaz total: "<<sum2<<endl;
-	informe<<"Sección eficaz total: "<<sum2<<endl;	
 }
 
 
