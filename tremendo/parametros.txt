@@ -45,7 +45,7 @@ res_masa  11.
 Z_a    1  # cargas
 Z_A     4
 Z_b  1
-Z_B   4 
+Z_B   4
 P_carga 1
 res_carga 4
 T_carga 4
@@ -53,18 +53,45 @@ T_carga 4
 
 P_N 1
 T_N 6
-res_N 6
 res_N 7
 
 
 proyectil a		# define cual es el proyectil
 energia_lab  21.4
 
+#Qvalue  -1.5996	# Q-value de la reacción (1/2+)
+#Qvalue  -2.0048	# Q-value de la reacción (1/2-)
 
-    
-Qvalue  -2.52	# Q-value de la reacción (5/2+;0.3)  box 50fm
+
+#Qvalue  -3.04	# Q-value de la reacción (5/2+;0.82) box 30fm
+#Qvalue  -3.5	# Q-value de la reacción (5/2+;1.27) box 30fm
+
+
+#Qvalue  -2.8370	# Q-value de la reacción (5/2+;0.6125) box 35fm
+#Qvalue  -3.4191	# Q-value de la reacción (5/2+;1.1946) box 35fm
+#Qvalue  -3.8782	# Q-value de la reacción (5/2+;1.6537) box 35fm
+#Qvalue  -5.1631	# Q-value de la reacción (5/2+;2.9386) box 35fm
+
+
+
+
+
+#Qvalue  -3.28	# Q-value de la reacción (5/2+;1.06) box 40fm
+#Qvalue  -3.55	# Q-value de la reacción (5/2+;1.33) box 40fm
+
+
+#Qvalue  -2.59	# Q-value de la reacción (5/2+;0.373) box 45fm
+#Qvalue  -3.1194	# Q-value de la reacción (5/2+;0.8949) box 45fm
+#Qvalue  -3.3670	# Q-value de la reacción (5/2+;1.1425) box 45fm
+#Qvalue  -3.9994	# Q-value de la reacción (5/2+;1.7749) box 45fm
+#Qvalue  -5.0117	# Q-value de la reacción (5/2+;2.7872) box 45fm
+#Qvalue  -6.2340	# Q-value de la reacción (5/2+;4.0095) box 45fm
+
+
+
+#Qvalue  -2.52	# Q-value de la reacción (5/2+;0.3)  box 50fm
 #Qvalue  -2.96	# Q-value de la reacción (5/2+;0.74) box 50fm
-#Qvalue  -3.28	# Q-value de la reacción (5/2+;1.06) box 50fm
+Qvalue  -3.28	# Q-value de la reacción (5/2+;1.06) box 50fm
 #Qvalue  -3.67	# Q-value de la reacción (5/2+;1.45) box 50fm
 #Qvalue  -4.47	# Q-value de la reacción (5/2+;2.25) box 50fm
 #Qvalue  -5.48	# Q-value de la reacción (5/2+;3.26) box 50fm
@@ -197,7 +224,7 @@ aV 0.7
 aSO 0.7
 RV    2.693
 RSO   2.693
-potfile E:\Gregory\Be\11Be\pot_bare_07.txt
+potfile SelfEnergy_30.txt
 *******
 
 id 0
@@ -231,6 +258,241 @@ FinCampoMedio
 InicioEstados
    
 
+#id 1                                                        
+#l 0
+#j 0.5
+#nodos 1
+#spec 0.9
+#energia -0.6249
+#file C:\Gregory\Be\11Be\s1_2.txt
+#*********************
+
+#id 1                                                        
+#l 1
+#j 0.5
+#nodos 0
+#spec 0.89805
+#energia -0.2197
+#file C:\Gregory\Be\11Be\p1_2.txt
+#*********************
+
+
+
+## Box 24fm: -----------------------------------------------------------------------
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 0
+#spec 0.74
+#energia 1.06
+#file C:\Gregory\Be\11Be\box24fm\d5_2_1_24.txt
+#*********************
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 0
+#spec 0.79
+#energia 1.06
+#file C:\Gregory\Be\11Be\box24fm\d5_2_2_24.txt
+#*********************
+
+
+
+
+## Box 30fm: -----------------------------------------------------------------------
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 0
+#spec 0.98
+#energia 0.82
+#file C:\Gregory\Be\11Be\box30fm\d_5_2_1_30.txt
+#*********************
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 0
+#spec 0.98
+#energia 0.82
+#file 
+#*********************
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 1
+#spec 0.65
+#energia 1.27
+#file C:\Gregory\Be\11Be\box30fm\d_5_2_2_30.txt
+#*********************
+
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 1
+#spec 0.65
+#energia 1.27
+#file 
+#*********************
+
+
+
+## Box 35fm: -----------------------------------------------------------------------
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 0
+#spec 0.99674
+#energia 0.6125
+#file E:\Gregory\Be\11Be\box35fm\d_5_2_1_35.txt
+#*********************
+
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 1
+#spec 0.69843
+#energia 1.19
+#file E:\Gregory\Be\11Be\box35fm\d_5_2_2_35.txt
+#*********************
+
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 2
+#spec 0.85499
+#energia 1.65
+#file E:\Gregory\Be\11Be\box35fm\d_5_2_3_35.txt
+#*********************
+
+
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 3
+#spec 0.42391
+#energia 2.94
+#file E:\Gregory\Be\11Be\box35fm\d_5_2_4_35.txt
+#*********************
+
+
+
+
+
+## Box 40fm: -----------------------------------------------------------------------
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 1
+#spec 0.82
+#energia 1.06
+#file C:\Gregory\Be\11Be\box40\d_5_2_2_40.txt
+#*********************
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 2
+#spec 0.75
+#energia 1.33
+#file C:\Gregory\Be\11Be\box40\d_5_2_3_40.txt
+#*********************
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 1
+#spec 0.823
+#energia 1.06
+#file 
+#*********************
+
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 2
+#spec 0.75
+#energia 1.33
+#file 
+#*********************
+
+
+
+
+
+
+
+
+
+
+
+## Box 45fm: -----------------------------------------------------------------------
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 0
+#spec 1.
+#energia 0.3731
+#file E:\Gregory\Be\11Be\box45fm\d_5_2_1_45.txt
+#*********************
+
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 1
+#spec 0.93910
+#energia 0.8949
+#file E:\Gregory\Be\11Be\box45fm\d_5_2_2_45.txt
+#*********************
+
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 2
+#spec 0.67409
+#energia 1.14
+#file E:\Gregory\Be\11Be\box45fm\d_5_2_3_45.txt
+#*********************
+
+
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 3
+#spec 0.92639
+#energia 1.77
+#file E:\Gregory\Be\11Be\box45fm\d_5_2_4_45.txt
+#*********************
+
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 4
+#spec 0.32909
+#energia 2.79
+#file E:\Gregory\Be\11Be\box45fm\d_5_2_5_45.txt
+#*********************
+
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 5
+#spec 0.91891
+#energia 4.01
+#file E:\Gregory\Be\11Be\box45fm\d_5_2_6_45.txt
+#*********************
 
 
 
@@ -245,6 +507,15 @@ InicioEstados
 #file C:\Gregory\Be\11Be\box50fm\d5_2_1_50.txt
 #*********************
 
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 0
+#spec 0.999
+#energia 0.3
+#file 
+#*********************
+
 
 #id 1                                                        
 #l 2
@@ -255,6 +526,24 @@ InicioEstados
 #file C:\Gregory\Be\11Be\box50fm\d5_2_2_50.txt
 #*********************
 
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 1
+#spec 0.985
+#energia 0.74
+#file 
+#*********************
+
+
+id 1                                                        
+l 2
+j 2.5
+nodos 2
+spec 0.671
+energia 1.06
+file C:\Gregory\Be\11Be\box50fm\d5_2_3_50.txt
+*********************
 
 
 #id 1                                                        
@@ -263,9 +552,8 @@ InicioEstados
 #nodos 2
 #spec 0.671
 #energia 1.06
-#file C:\Gregory\Be\11Be\box50fm\d5_2_3_50.txt
+#file 
 #*********************
-
 
 
 #id 1                                                        
@@ -278,6 +566,15 @@ InicioEstados
 #*********************
 
 
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 3
+#spec 0.911
+#energia 1.45
+#file 
+#*********************
 
 
 #id 1                                                        
@@ -292,17 +589,54 @@ InicioEstados
 
 
 
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 4
+#spec 0.922
+#energia 2.25
+#file 
+#*********************
 
-id 1                                                        
-l 2
-j 2.5
-nodos 5
-spec 0.923
-energia 3.26
-file C:\Gregory\Be\11Be\box50fm\d5_2_6_50.txt
-*********************
+
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 5
+#spec 0.923
+#energia 3.26
+#file C:\Gregory\Be\11Be\box50fm\d5_2_6_50.txt
+#*********************
 
 
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 5
+#spec 0.923
+#energia 3.26
+#file 
+#*********************
+
+
+
+#id 1                                                        
+#l 1
+#j 0.5
+#nodos 0
+#spec 0.89805
+#energia -0.2197
+#file 
+#*********************
+
+#id 1                                                        
+#l 0
+#j 0.5
+#nodos 1
+#spec 0.9
+#energia -0.6249
+#file 
+#*********************
 
 
 

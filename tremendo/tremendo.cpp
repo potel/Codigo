@@ -1178,7 +1178,7 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 		funcion->wf[i]=factor*funcion->wf[i];
 		if(status1 || status2) funcion->wf[i]=0.;
 		gsl_sf_coulomb_wave_FG_e(etac,q*funcion->r[i],funcion[0].l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
-		*fp<<funcion->r[i]<<"  "<<real(funcion->wf[i])<<"  "<<imag(funcion->wf[i])<<endl;
+//		*fp<<funcion->r[i]<<"  "<<real(funcion->wf[i])<<"  "<<imag(funcion->wf[i])<<endl;
 	}
 	delete[] potencial;
 	return delta;
@@ -2618,6 +2618,66 @@ void GeneraPotencialOptico(struct parametros *parm,struct potencial_optico *pote
 				exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)/((1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd))
 						*(1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)));
 	}
+	potencial->puntos=parm->puntos;
+}
+void GeneraPotencialOpticoSpinCoulomb(struct parametros *parm,struct potencial_optico *potencial,double m1,double m2, double spin,double j,int l, double q1q2)
+{
+	int n;
+	double delta_r,spinorbit;
+	spinorbit =j*(j+1.)-l*(l+1.)-spin*(spin+1.);
+
+	delta_r=parm->radio/double(parm->puntos);
+	if(m1<1. || m2<1.) Error("Masa menor de 1");
+	if(m1>3. && m2>3.)
+	{
+		potencial->radioV=potencial->r0V*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+		potencial->radioW=potencial->r0W*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+		potencial->radioso=potencial->rso*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+		potencial->radioWd=potencial->rWd*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+		potencial->radio_coul=potencial->r0C*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+	}
+	if(m1>3. && m2<=3.)
+	{
+		potencial->radioV=potencial->r0V*pow(m1,0.33333333333333);
+		potencial->radioW=potencial->r0W*pow(m1,0.33333333333333);
+		potencial->radioso=potencial->rso*pow(m1,0.33333333333333);
+		potencial->radioWd=potencial->rWd*pow(m1,0.33333333333333);
+		potencial->radio_coul=potencial->r0C*pow(m1,0.33333333333333);
+	}
+	if(m1<=3. && m2>3.)
+	{
+		potencial->radioV=potencial->r0V*pow(m2,0.33333333333333);
+		potencial->radioW=potencial->r0W*pow(m2,0.33333333333333);
+		potencial->radioso=potencial->rso*pow(m2,0.33333333333333);
+		potencial->radioWd=potencial->rWd*pow(m2,0.33333333333333);
+		potencial->radio_coul=potencial->r0C*pow(m2,0.33333333333333);
+	}
+	for (n=0;n<parm->puntos;n++) {
+		potencial->r[n]=delta_r*(n+1.);
+		if(potencial->r[n]>=potencial->radio_coul) potencial->pot[n]=-potencial->V/(1.+exp((potencial->r[n]-potencial->radioV)/potencial->aV))-I*potencial->W/
+				(1.+exp((potencial->r[n]-potencial->radioW)/potencial->aW))-4.*I*potencial->Wd*
+				exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)/((1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd))
+						*(1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)))+E_CUADRADO*q1q2/potencial->r[n]
+				-2.*spinorbit*potencial->Vso*exp((potencial->r[n]-potencial->radioso)/potencial->aso)
+		/((potencial->aso*potencial->r[n])*(1.+exp((potencial->r[n]-potencial->radioso)/potencial->aso))*(1.+exp((potencial->r[n]-potencial->radioso)/potencial->aso)));
+		if(potencial->r[n]<potencial->radio_coul) potencial->pot[n]=-potencial->V/(1.+exp((potencial->r[n]-potencial->radioV)/potencial->aV))-I*potencial->W/
+				(1.+exp((potencial->r[n]-potencial->radioW)/potencial->aW))-4.*I*potencial->Wd*
+				exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)/((1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd))
+						*(1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)))+E_CUADRADO*q1q2*(3.-(potencial->r[n]/potencial->radio_coul)*
+								(potencial->r[n]/potencial->radio_coul))/(2.*potencial->radio_coul)
+				-2.*spinorbit*potencial->Vso*exp((potencial->r[n]-potencial->radioso)/potencial->aso)
+		/((potencial->aso*potencial->r[n])*(1.+exp((potencial->r[n]-potencial->radioso)/potencial->aso))*
+				(1.+exp((potencial->r[n]-potencial->radioso)/potencial->aso)));
+//		misc1<<potencial->r[n]<<"  "<<real(potencial->pot[n])<<"  "<<imag(potencial->pot[n])<<endl;
+	}
+//	for(n=0;n<parm->puntos;n++)
+//	{
+//		potencial->r[n]=delta_r*(n+1.);
+//		potencial->pot[n]=-potencial->V/(1.+exp((potencial->r[n]-potencial->radioV)/potencial->aV))-I*potencial->W/
+//				(1.+exp((potencial->r[n]-potencial->radioW)/potencial->aW))-4.*I*potencial->Wd*
+//				exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)/((1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd))
+//						*(1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)));
+//	}
 	potencial->puntos=parm->puntos;
 }
 void GeneraPotencialCM(struct parametros *parm,struct potencial *potencial)
@@ -4208,7 +4268,7 @@ void SimIntegral(complejo* integral, complejo*** vcluster,distorted_wave* dwi,di
 	*integral=sum*(dim1->b-dim1->a)*(dim2->b-dim2->a)*(dim3->b-dim3->a)/8.;
 //	misc4<<La<<"  "<<abs(sum)<<endl;
 }
-void elastic(potencial_optico* opt_up,potencial_optico* opt_down,double mass,double energy,parametros* parm,double eta){
+void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,parametros* parm,double eta,double spin){
 	double hbarx =HC*HC/(2.*AMU*mass);
 	double r;
 	int l,n,m,puntos;
@@ -4219,6 +4279,7 @@ void elastic(potencial_optico* opt_up,potencial_optico* opt_down,double mass,dou
 	distorted_wave* f_down= new distorted_wave[1];
 	complejo* delta_up = new complejo[parm->lmax];
 	complejo* delta_down = new complejo[parm->lmax];
+
 	double costheta, cross_dif_total, cross_dif_nuclear,sum,sum2,escala,k;
 	int sc,len,flag;
 	complejo dif_mas, dif_menos;
@@ -4243,16 +4304,18 @@ void elastic(potencial_optico* opt_up,potencial_optico* opt_down,double mass,dou
 		f_up->energia=energy;
 		f_up->l=l;
 		f_up->puntos=puntos;
-		f_up->spin=0;
-		f_up->j=l;
+		f_up->spin=spin;
+		f_up->j=l+spin;
+
 		f_down->energia=energy;
 		f_down->l=l;
 		f_down->puntos=puntos;
-		f_down->spin=0;
-		f_down->j=l;
+		f_down->spin=spin;
+		f_down->j=l-spin;
+		if(l==0) f_down->j=spin;
 		cout << "L: " << l << endl;
-		delta_up[l]=GeneraDWspin(f_up,opt_up,0.,mass,radio,puntos,parm->matching_radio,&fp1);
-		delta_down[l]=GeneraDWspin(f_down,opt_down,0.,mass,radio,puntos,parm->matching_radio,&fp2);
+		delta_up[l]=GeneraDWspin(f_up,opt_up,q1q2,mass,radio,puntos,parm->matching_radio,&fp1);
+		delta_down[l]=GeneraDWspin(f_down,opt_up,q1q2,mass,radio,puntos,parm->matching_radio,&fp2);
 	}
 	for (l = 0; l < parm->lmax; l++) {
 		fp3<< l << "  " << real(delta_up[l])<< "  " << imag(delta_up[l])
@@ -4285,8 +4348,10 @@ void elastic(potencial_optico* opt_up,potencial_optico* opt_down,double mass,dou
 		Error("Unidades desconocidas para la seccion eficaz");
 		break;
 	}
+	for (n=1;n<parm->cross_puntos;n++) {
+		theta[n]=n*PI/parm->cross_puntos;
+	}
 		fcoul(theta, fasecoul, eta, parm->cross_puntos,k);
-		cout<<fasecoul[10]<<"  "<<delta_down[l]<<endl;
 	for (l = 0; l < parm->lmax; l++) {
 		deltacoul[l] = deltac(l, eta);
 	}
@@ -4297,13 +4362,12 @@ void elastic(potencial_optico* opt_up,potencial_optico* opt_down,double mass,dou
 		dif_mas = 0.;
 		dif_menos = 0.;
 		for (l = 0; l < parm->lmax; l++) {
-
-			dif_mas += (exp(2. * I * delta_up[l]) - 1.) * exp(2. * I
-					* deltac(l, eta)) * (2. * l + 1.) *gsl_sf_legendre_Plm(l,0,costheta)
-					/ (2. * I * k);
-			dif_menos += (exp(2. * I * delta_down[l]) - 1.) * exp(2. * I
-					* deltac(l, eta)) * (2. * l + 1.) * gsl_sf_legendre_Plm(l, 0, costheta)
-					/ (2. * I * k);
+			dif_mas+=(exp(2.*I*delta_up[l])-1.)*exp(2.*I
+					*deltac(l,eta))*(2.*l+1.)*gsl_sf_legendre_Pl(l,costheta)
+					/(2.*I*k);
+			dif_menos+=(exp(2.*I*delta_down[l])-1.)*exp(2.*I
+					*deltac(l,eta))*(2.*l+1.)*gsl_sf_legendre_Pl(l,costheta)
+					/(2.*I*k);
 //			cout<<delta_up[l]<<"  "<<delta_down[l]<<"  "<<deltac(l, eta)<<endl;
 		}
 //		exit(0);

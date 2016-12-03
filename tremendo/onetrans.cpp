@@ -51,8 +51,9 @@ void OneTrans(struct parametros* parm)
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_core]),parm->m_A,parm->m_b);
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_A,parm->m_b);
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_scatt]),parm->m_A,parm->m_b);
-	elastic(&(parm->pot_opt[indx_ingreso]),&(parm->pot_opt[indx_ingreso]),parm->mu_Aa,parm->energia_cm,parm,parm->eta);
-	exit(0);
+//	GeneraPotencialOpticoSpinCoulomb(parm,&(parm->pot_opt[indx_ingreso]),parm->m_A,parm->m_a,0,0,0, parm->Z_A*parm->Z_a);
+//	elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,parm->eta,0.5);
+//	exit(0);
 	cout<<"Generando el estado del nucleo a"<<endl;
 	/* Genera niveles del n�cleo 'a' */
 	for (n=0;n<parm->a_numst;n++)
@@ -73,7 +74,7 @@ void OneTrans(struct parametros* parm)
 		GeneraPotencialCM(parm,&(parm->pot[indx_pot_a]));
 	}
 	cout<<"Generando niveles nucleo B"<<endl;
-//	File2Pot(&(parm->pot[indx_pot_B]),parm);
+	File2Pot(&(parm->pot[indx_pot_B]),parm);
 	/* Genera niveles del nucleo 'B' */
 	for (n=0;n<parm->B_numst;n++)
 	{
