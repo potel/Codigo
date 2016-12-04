@@ -95,13 +95,13 @@ void OneTrans(struct parametros* parm)
 //		GeneraPotencialCM(parm,&(parm->pot[indx_pot_B]));
 
 	}
-	File2Pot(&(parm->pot[indx_pot_B]),parm);
+//	File2Pot(&(parm->pot[indx_pot_B]),parm);
 	delta_r=parm->radio/double(parm->puntos);
-	for(n=0;n<parm->puntos;n++){
-		r=delta_r*(n+1);
-		misc1<<r<<"  "<<abs(parm->pot[indx_pot_B].pot[n])<<"  "<<abs(parm->st[0].wf[n])<<
-				"  "<<abs(parm->pot[indx_pot_B].pot[n]*parm->st[0].wf[n])<<endl;
-	}
+//	for(n=0;n<parm->puntos;n++){
+//		r=delta_r*(n+1);
+//		misc1<<r<<"  "<<abs(parm->pot[indx_pot_B].pot[n])<<"  "<<abs(parm->st[0].wf[n])<<
+//				"  "<<abs(parm->pot[indx_pot_B].pot[n]*parm->st[0].wf[n])<<endl;
+//	}
 //	exit(0);
 	cout<<"Absorcion: "<<absorcion<<" MeV"<<endl;
 	/*Genera los potenciales opticos (sin t�rminos coulombiano y spin-�rbita) */

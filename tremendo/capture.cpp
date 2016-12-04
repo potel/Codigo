@@ -82,21 +82,20 @@ void Capture(struct parametros* parm)
 	{
 		for(m=0;m<parm->num_st;m++)
 		{
-
 			if(parm->B_estados[n]==parm->st[m].id) indx_st=m;
-			cout<<n<<"  "<<m<<"  "<<parm->B_estados[n]<<"  "<<parm->st[m].id<<"  "<<indx_st<<endl;
 		}
 		cout<<"Masa reducida: "<<parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa)<<" indx_st:"<<indx_st<<endl;
-		if(parm->st[indx_st].energia<0.)
+//		if(parm->st[indx_st].energia<0.)
 			GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,
 					carga_trans*parm->T_carga,parm,0,parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa),D0,rms);
-		else
-		{
-			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,
-					carga_trans*parm->T_carga,parm,parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa));
-		}
+//		else
+//		{
+//			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,
+//					carga_trans*parm->T_carga,parm,parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa));
+//		}
 		absorcion=Absorcion2(&(parm->pot_opt[indx_intermedio]),&(parm->st[indx_st]));
 	}
+	File2Pot(&(parm->pot[indx_pot_B]),parm);
 	cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
 	EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
 	EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
@@ -174,8 +173,9 @@ void AmplitudeCapture(struct parametros* parm)
 	double* non_orth=new double[1];
 	double* cross_term=new double[1];
 	double** Al=matriz_dbl(2*parm->lmax+1,parm->lmax);
-	int l,lp,ld,indx_salida,indx_ingreso,indx_core,indx_neutron_target,indx_st,n,la,m,len,flag,n1;
-	complejo rhofac,ampli,wronskiano,wronskiano_up,wronskiano_down,fl_int,gl_int,fl_source,gl_source,st_source,st_int,lorentz;
+	int l,lp,ld,indx_salida,indx_ingreso,indx_core,indx_neutron_target,indx_st,n,la,m,len,flag,n1,indx_transfer;
+	complejo rhofac,ampli,wronskiano,wronskiano_up,wronskiano_down,fl_int,gl_int,fl_source,
+	gl_source,st_source,st_int,lorentz;
 	dim1->a=parm->r_Ccmin;
 	dim1->b=parm->r_Ccmax;
 	dim1->num_puntos=parm->rCc_puntos;
@@ -229,6 +229,10 @@ void AmplitudeCapture(struct parametros* parm)
 	{
 		if (parm->a_estados[0] == parm->st[n].id) st= &(parm->st[n]);
 		if (parm->B_estados[0] == parm->st[n].id) st_fin= &(parm->st[n]);
+	}
+	for(n=0;n<parm->num_cm;n++)
+	{
+		if(parm->pot_transfer==parm->pot[n].id) {indx_transfer=n;}
 	}
 	step=double(parm->radio/parm->puntos);
 //	cross=0.;
@@ -295,7 +299,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusi�n: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=7.;energia_out<13.;energia_out+=0.5)
+	for(energia_out=13.;energia_out<19.;energia_out+=0.1)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
@@ -306,7 +310,7 @@ void AmplitudeCapture(struct parametros* parm)
 		cout<<"Energ�a de la particula emitida: "<<energia_out<<"  "<<"Energ�a de la particula transmitida: "
 				<<energia_trans<<endl;
 		cout<<"Energ�a de la resonancia: "<<e_res<<endl;
-		misc3<<energia_out<<"  "<<energia_trans<<"  ";
+		misc3<<energia_out<<"  "<<Ecm<<"  ";
 //		misc2<<endl<<"*********************  Ep= "<<energia_out<<" ****************************"<<endl;
 		k_n=sqrt(2.*parm->n1_masa*AMU*Ecm)/HC;
 		k_p=sqrt(2.*parm->m_b*AMU*Ecm_out)/HC;
@@ -332,6 +336,13 @@ void AmplitudeCapture(struct parametros* parm)
 					if(carga_out<0.1) parm->pot_opt[indx_salida].pot[n]=pot_n;
 				}
 		}
+		for(n=0;n<parm->puntos;n++){
+			rn=step*(n+1.);
+			parm->pot_opt[indx_neutron_target].r[n]=rn;
+			parm->pot_opt[indx_neutron_target].pot[n]=parm->pot[indx_transfer].pot[n]+0.01*I*parm->pot[indx_transfer].pot[n];
+//			misc4<<rn<<" "<<
+//				real(parm->pot_opt[indx_neutron_target].pot[n])<<"  "<<imag(parm->pot_opt[indx_neutron_target].pot[n])<<endl;
+		}
 //		exit(0);
 		v=&(parm->pot_opt[indx_neutron_target]);
 		if(parm->remnant==1 && parm->prior==1) {
@@ -340,7 +351,7 @@ void AmplitudeCapture(struct parametros* parm)
 		}
 		misc1<<"& Proton energy: "<<energia_out<<" MeV. Neutron energy: "<<energia_trans<<" MeV"<<endl;
 //		for(l=0;l<parm->ltransfer;l++)
-		for(l=1;l<2;l++)
+		for(l=2;l<3;l++)
 		{
 			cout<<"L: "<<l<<endl;
 //			cout<<"Escribo"<<endl;
@@ -487,6 +498,7 @@ void AmplitudeCapture(struct parametros* parm)
 //					}
 //					 misc2<<rn<<"  "<<real(phi_up[n][2][0][0])<<"  "<<imag(phi_up[n][2][0][0])<<"  "<<abs(phi_up[n][2][0][0])<<endl;
 				}
+				misc2<<Ecm<<"  "<<real(phi_up[5][2][0][0])<<"  "<<imag(phi_up[5][2][0][0])<<"  "<<abs(phi_up[5][2][0][0])<<endl;
 //					exit(0);
 			}
 //			exit(0);

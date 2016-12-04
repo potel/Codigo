@@ -1,6 +1,6 @@
 num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
 lmin 0      # momento angular mínimo. En una reacción tiene que ser 0.
-lmax 20   # momento angular máximo. En una reacción, número de ondas parciales.
+lmax 10   # momento angular máximo. En una reacción, número de ondas parciales.
 ltransfer 4 #momento angular transferido maximo. Usado para la captura neutronica.
 
 emin -1000.    # energía mínima. 
@@ -91,7 +91,7 @@ energia_lab  21.4
 
 #Qvalue  -2.52	# Q-value de la reacción (5/2+;0.3)  box 50fm
 #Qvalue  -2.96	# Q-value de la reacción (5/2+;0.74) box 50fm
-Qvalue  -3.28	# Q-value de la reacción (5/2+;1.06) box 50fm
+#Qvalue  -3.28	# Q-value de la reacción (5/2+;1.06) box 50fm
 #Qvalue  -3.67	# Q-value de la reacción (5/2+;1.45) box 50fm
 #Qvalue  -4.47	# Q-value de la reacción (5/2+;2.25) box 50fm
 #Qvalue  -5.48	# Q-value de la reacción (5/2+;3.26) box 50fm
@@ -109,7 +109,7 @@ dw_spinA 1   #spin de las ondas distorsionadas entrantes
 dw_spinB 0.5   #spin de las ondas distorsionadas salientes
 
 lambda  0.	# momento angular del cluster transferido
-n_spin 0.5
+n_spin 0.
 a_Sn  -7.66247 # energía de extracción de un neutrón para el núcleo a-1 (debe ser<0, típicamente será la energía del estado del núcleo a con energía mas baja)
 B_Sn   -4.24091 # energía de extracción de un neutrón para el núcleo B-1 (debe ser<0, típicamente será la energía del estado del núcleo B con energía mas baja)
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
@@ -118,8 +118,8 @@ r_Ccmin 0.     # valor mínimo de r_Cc
 r_Ccmax  50.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
 r_A2max   50.    # valor máximo de r_A2
-rCc_puntos  40   # número de puntos de integración gaussiana para r_Cc
-rA2_puntos   40  # número de puntos de integración gaussiana para r_A2
+rCc_puntos  30   # número de puntos de integración gaussiana para r_Cc
+rA2_puntos   30  # número de puntos de integración gaussiana para r_A2
 theta_puntos  10   # número de puntos de integrción gaussiana para theta
 cross_puntos  200 # número de puntos en los que se evalúa la sección eficaz
 matching_radio 20.  #radio de matching para implementar las condiciones de contorno
@@ -138,8 +138,8 @@ pexp  1.
 # gen12 1               # si=1, genera estados de dos partículas (r1,r2) a partir de la matriz de coeficientes en flcoef.
 gen_dens_bound 0      # si=1, genera una densidad y un potencial efectivo tipo Bertsch-Esbensen.
 two_trans 0          # si=1, calcula una reacción de transferencia de 2 nucleones.
-one_trans 1          # si=1, calcula una reacción de transferencia de 1 nucleon.
-capture 0
+one_trans 0          # si=1, calcula una reacción de transferencia de 1 nucleon.
+capture 1
 debug 0                # nivel de debug.
 a_tipo_fun sn           # modo de descripcion de la función de onda del núcleo a. Si=li-> tipo 11Li, si=sn->tipo 120Sn.
 B_tipo_fun sn           # modo de descripcion de la función de onda del núcleo a. Si=li-> tipo 11Li, si=sn->tipo 120Sn.
@@ -485,14 +485,14 @@ InicioEstados
 #*********************
 
 
-#id 1                                                        
-#l 2
-#j 2.5
-#nodos 5
-#spec 0.91891
-#energia 4.01
-#file E:\Gregory\Be\11Be\box45fm\d_5_2_6_45.txt
-#*********************
+id 1                                                        
+l 2
+j 2.5
+nodos 5
+spec 0.91891
+energia 4.01
+file E:\Gregory\Be\11Be\box45fm\d_5_2_6_45.txt
+*********************
 
 
 
@@ -536,14 +536,14 @@ InicioEstados
 #*********************
 
 
-id 1                                                        
-l 2
-j 2.5
-nodos 2
-spec 0.671
-energia 1.06
-file C:\Gregory\Be\11Be\box50fm\d5_2_3_50.txt
-*********************
+#id 1                                                        
+#l 2
+#j 2.5
+#nodos 2
+#spec 0.671
+#energia 1.06
+#file C:\Gregory\Be\11Be\box50fm\d5_2_3_50.txt
+#*********************
 
 
 #id 1                                                        
