@@ -74,7 +74,7 @@ void OneTrans(struct parametros* parm)
 		GeneraPotencialCM(parm,&(parm->pot[indx_pot_a]));
 	}
 	cout<<"Generando niveles nucleo B"<<endl;
-	File2Pot(&(parm->pot[indx_pot_B]),parm);
+//	File2Pot(&(parm->pot[indx_pot_B]),parm);
 	/* Genera niveles del nucleo 'B' */
 	for (n=0;n<parm->B_numst;n++)
 	{
@@ -95,7 +95,7 @@ void OneTrans(struct parametros* parm)
 //		GeneraPotencialCM(parm,&(parm->pot[indx_pot_B]));
 
 	}
-//	File2Pot(&(parm->pot[indx_pot_B]),parm);
+	File2Pot(&(parm->pot[indx_pot_B]),parm);
 	delta_r=parm->radio/double(parm->puntos);
 //	for(n=0;n<parm->puntos;n++){
 //		r=delta_r*(n+1);

@@ -77,6 +77,7 @@ void Capture(struct parametros* parm)
 		}
 	}
 	cout<<"Generando niveles nucleo B"<<endl;
+	File2Pot(&(parm->pot[indx_pot_B]),parm);
 	/* Genera niveles del n�cleo 'B' */
 	for (n=0;n<parm->B_numst;n++)
 	{
@@ -95,11 +96,13 @@ void Capture(struct parametros* parm)
 //		}
 		absorcion=Absorcion2(&(parm->pot_opt[indx_intermedio]),&(parm->st[indx_st]));
 	}
+	cout<<"Energy: "<<parm->st[indx_st].energia<<endl;
 	File2Pot(&(parm->pot[indx_pot_B]),parm);
 	cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
 	EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
 	EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
 	EscribePotencialOptico(parm->puntos,parm->pot_opt,parm->num_opt,parm);
+//	exit(0);
 	AmplitudeCapture(parm);
 }
 void AmplitudeCapture(struct parametros* parm)
@@ -299,7 +302,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusi�n: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=13.;energia_out<19.;energia_out+=0.1)
+	for(energia_out=12.;energia_out<17.2;energia_out+=0.05)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
@@ -339,7 +342,8 @@ void AmplitudeCapture(struct parametros* parm)
 		for(n=0;n<parm->puntos;n++){
 			rn=step*(n+1.);
 			parm->pot_opt[indx_neutron_target].r[n]=rn;
-			parm->pot_opt[indx_neutron_target].pot[n]=parm->pot[indx_transfer].pot[n]+0.01*I*parm->pot[indx_transfer].pot[n];
+//			parm->pot_opt[indx_neutron_target].pot[n]=parm->pot[indx_transfer].pot[n]+0.01*I*parm->pot[indx_transfer].pot[n];
+			parm->pot_opt[indx_neutron_target].pot[n]=parm->pot[indx_transfer].pot[n];
 //			misc4<<rn<<" "<<
 //				real(parm->pot_opt[indx_neutron_target].pot[n])<<"  "<<imag(parm->pot_opt[indx_neutron_target].pot[n])<<endl;
 		}
@@ -351,7 +355,7 @@ void AmplitudeCapture(struct parametros* parm)
 		}
 		misc1<<"& Proton energy: "<<energia_out<<" MeV. Neutron energy: "<<energia_trans<<" MeV"<<endl;
 //		for(l=0;l<parm->ltransfer;l++)
-		for(l=2;l<3;l++)
+		for(l=0;l<4;l++)
 		{
 			cout<<"L: "<<l<<endl;
 //			cout<<"Escribo"<<endl;
@@ -498,7 +502,7 @@ void AmplitudeCapture(struct parametros* parm)
 //					}
 //					 misc2<<rn<<"  "<<real(phi_up[n][2][0][0])<<"  "<<imag(phi_up[n][2][0][0])<<"  "<<abs(phi_up[n][2][0][0])<<endl;
 				}
-				misc2<<Ecm<<"  "<<real(phi_up[5][2][0][0])<<"  "<<imag(phi_up[5][2][0][0])<<"  "<<abs(phi_up[5][2][0][0])<<endl;
+//				misc2<<Ecm<<"  "<<real(phi_up[5][2][0][0])<<"  "<<imag(phi_up[5][2][0][0])<<"  "<<abs(phi_up[5][2][0][0])<<endl;
 //					exit(0);
 			}
 //			exit(0);
