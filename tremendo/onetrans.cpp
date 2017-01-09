@@ -96,6 +96,7 @@ void OneTrans(struct parametros* parm)
 
 	}
 	File2Pot(&(parm->pot[indx_pot_B]),parm);
+//	exit(0);
 	delta_r=parm->radio/double(parm->puntos);
 //	for(n=0;n<parm->puntos;n++){
 //		r=delta_r*(n+1);
@@ -373,7 +374,9 @@ void CrossSectionOneTransSpinless(complejo ***Tlalb,complejo* Sel,struct paramet
 {
 	double constante,cross,theta,costheta,escala,cleb,m,totalcross,
 	delta_theta,constante_prob,constante_prob2,black_disk,const_bd,cross_elastic
-	,cross_nuclear,cross_coulomb,const_thom,thetamin,thetamax,gamma,energia,energia_res,lorentz;
+	,cross_nuclear,cross_coulomb,const_thom,thetamin,thetamax,gamma,energia,energia_res,
+	lorentz, thetacross;
+	bool less,more;
 	ofstream fp(parm->fl_cross_tot);
 	ofstream fp2("probabilidades.txt");
 	ofstream fp3("cross_elastico.txt");
@@ -433,14 +436,14 @@ void CrossSectionOneTransSpinless(complejo ***Tlalb,complejo* Sel,struct paramet
 		cout<<"Seccion eficaz medida en microbarn"<<endl;
 		break;
 	default:
-		Error("Unidades desconocidas para la secci�n eficaz");
+		Error("Unidades desconocidas para la sección eficaz");
 		break;
 	}
 	cout<<"ji: "<<ji<<"   "<<"jf: "<<jf<<endl;
 	uni=-1.;
 	totalcross=0.;
 	delta_theta=PI/double(parm->cross_puntos);
-	File2Smatrix(S_thom,"C:/Gregory/workspace/wfGenerator/smatrix_thompson1.txt");
+	//File2Smatrix(S_thom,"C:/Gregory/workspace/wfGenerator/smatrix_thompson1.txt");
 	for(la=0;la<parm->lmax;la++)
 	{
 		fp6<<la<<"  "<<real(Sel[la])<<"  "<<imag(Sel[la])<<"  "<<abs(Sel[la])<<endl;
@@ -472,6 +475,7 @@ void CrossSectionOneTransSpinless(complejo ***Tlalb,complejo* Sel,struct paramet
 	}
 	thetamin=0.;
 	thetamax=180.;
+	thetacross=6.3;
 	for(n=0;n<parm->cross_puntos;n++)
 	{
 		theta=PI*double(n)/double(parm->cross_puntos);
@@ -520,6 +524,12 @@ void CrossSectionOneTransSpinless(complejo ***Tlalb,complejo* Sel,struct paramet
 		}
 		fp<<theta*180./PI<<"  "<<cross<<endl;
 		if(((theta*180./PI)>=thetamin) && ((theta*180./PI)<=thetamax)) totalcross+=cross*sin(theta)*2.*PI*delta_theta;
+		less=((thetacross-delta_theta*180./PI)<theta*180./PI);
+		more=((thetacross+delta_theta*180./PI)>theta*180./PI);
+		if((less==true) && (more==true))
+			cout<<"Cross section at "<<theta*180./PI<<": "<<cross<<" cond: "<<
+			((less==true)&&(more==true))<<endl;
+//		cout<<theta*180./PI<<"  "<<less<<"  "<<more<<"  "<<((less==true)&&(more==true))<<endl;
 	}
 	cout<<"Seccion eficaz total entre "<<thetamin<<" y "<<thetamax<<": "<<totalcross<<endl;
 	energia_res=26.6;

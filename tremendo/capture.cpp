@@ -77,7 +77,7 @@ void Capture(struct parametros* parm)
 		}
 	}
 	cout<<"Generando niveles nucleo B"<<endl;
-	File2Pot(&(parm->pot[indx_pot_B]),parm);
+//	File2Pot(&(parm->pot[indx_pot_B]),parm);
 	/* Genera niveles del n�cleo 'B' */
 	for (n=0;n<parm->B_numst;n++)
 	{
@@ -88,7 +88,7 @@ void Capture(struct parametros* parm)
 		cout<<"Masa reducida: "<<parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa)<<" indx_st:"<<indx_st<<endl;
 //		if(parm->st[indx_st].energia<0.)
 			GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,
-					carga_trans*parm->T_carga,parm,0,parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa),D0,rms);
+					carga_trans*parm->T_carga,parm,1,parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa),D0,rms);
 //		else
 //		{
 //			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,
@@ -302,7 +302,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusi�n: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=12.;energia_out<17.2;energia_out+=0.05)
+	for(energia_out=15.;energia_out<19.2;energia_out+=0.03)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
@@ -355,7 +355,7 @@ void AmplitudeCapture(struct parametros* parm)
 		}
 		misc1<<"& Proton energy: "<<energia_out<<" MeV. Neutron energy: "<<energia_trans<<" MeV"<<endl;
 //		for(l=0;l<parm->ltransfer;l++)
-		for(l=0;l<4;l++)
+		for(l=2;l<3;l++)
 		{
 			cout<<"L: "<<l<<endl;
 //			cout<<"Escribo"<<endl;
@@ -1107,6 +1107,8 @@ void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* o
 	masa_trans=masa_res-masaT;
 	up=((l+1.)/sqrt((l+1.)*(l+1.)+l*l));
 	down=(l/sqrt((l+1.)*(l+1.)+l*l));
+	up=1.;
+	down=0.;
 	GeneraDWspin(chi_lup,optico,carga_trans*parm->T_carga,masa_trans*masaT/(masa_trans+masaT),
 			parm->radio,parm->puntos,parm->matching_radio,&fp);
 	GeneraDWspin(chi_ldown,optico,carga_trans*parm->T_carga,masa_trans*masaT/(masa_trans+masaT),

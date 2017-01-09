@@ -273,9 +273,9 @@ void EscribePotencial(int puntos,potencial* pot,int numero_potenciales,struct pa
 	int n,i;
 	cout<<"potenciales... "<<numero_potenciales<<endl;
 	for(i=0;i<puntos;i++){
-		fp<<pot[0].r[i]<<"  ";
+		fp<<pot[0].r[i]<<"     ";
 		for(n=0;n<numero_potenciales;n++){
-			fp<<pot[n].pot[i]<<"  ";
+			fp<<pot[n].pot[i]<<"                             ";
 		}
 		fp<<endl;
 	}
@@ -677,6 +677,7 @@ int LeePotencialesCampoMedio(char *s,const char key[100],potencial* pot,FILE* fp
 			if(!strncmp(aux,flag,3)) i++;
 		}
 		cout<<"Leidos "<<i<<" potenciales de campo medio"<<endl;
+		cout<<"file: "<<pot[i].file<<endl;
 		fflush(stdout);
 		return i;
 	}
@@ -731,7 +732,7 @@ void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,d
 	centr=(st->l*(st->l+1.))*hbarx;
 	ls=(st->j*(st->j+1.)-st->l*(st->l+1.)-0.75);
 	st->puntos=puntos;
-	// añade los terminos Coulomb y spin-orbita *********************************************************************
+	// aï¿½ade los terminos Coulomb y spin-orbita *********************************************************************
 	if(!strcmp(potencial->tipo,"ws"))
 	{
 		for (i=0;i<puntos;i++) {
@@ -3260,7 +3261,7 @@ void File2Pot(potencial *pot,parametros *parm)
 	cout<<"Generando potencial de campo medio a partir de "<<pot->file<<endl;
 	ifstream fp;
 	fp.open(pot->file);
-	if(!fp.is_open()) {cout<<"No se pudo abrir "<<pot->file<<endl; exit(0);}
+	if(!fp.is_open()) {cout<<"No se pudo abrir archivo de potencial: "<<pot->file<<endl; exit(0);}
 	int puntos,n;
 	double pos,delta_r;
 	double *r=new double[MAX_PTS];
@@ -4392,8 +4393,8 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 		sum2+=2.*escala*cross_dif_total*M_PI*M_PI*sin(theta[n])/ double(parm->cross_puntos);
 
 	}
-	cout<<"Sección eficaz nuclear: "<<sum<<endl;
-	cout<<"Sección eficaz total: "<<sum2<<endl;
+	cout<<"Secciï¿½n eficaz nuclear: "<<sum<<endl;
+	cout<<"Secciï¿½n eficaz total: "<<sum2<<endl;
 }
 
 
