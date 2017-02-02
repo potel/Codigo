@@ -1,5 +1,5 @@
 num_st 3	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
-lmax 20 # momento angular máximo. En una reacción, número de ondas parciales.
+lmax 150 # momento angular máximo. En una reacción, número de ondas parciales.
 ltransfer 5 #momento angular transferido maximo. Usado para la captura neutronica.
 emax 0. 	   # energía máxima.
 puntos 3000    # número de puntos en los que se definen las funciones.
