@@ -1687,19 +1687,12 @@ void AmplitudeClusterInelastic(struct parametros* parm)
 	ofstream fp1("dw_out1trans.txt");
 	ofstream fp2("dw_in1trans.txt");
 	complejo*** DeltaK=tensor_cmpx(parm->ltransfer,parm->rA2_puntos,parm->rCc_puntos);
-	cout<<"quillo!!1"<<endl;
 	complejo*** IKll=tensor_cmpx(parm->ltransfer,parm->lmax,parm->lmax);
-	cout<<"quillo!!2"<<endl;
 	complejo*** Slmm=tensor_cmpx(parm->lmax,10,10);
-	cout<<"quillo!!3"<<endl;
 	complejo*** rhomm=tensor_cmpx(10,10,parm->cross_puntos);
-	cout<<"quillo!!4"<<endl;
 	complejo** T=matriz_cmpx(10,10);
-	cout<<"quillo!!5"<<endl;
 	complejo*** Ttheta=tensor_cmpx(10,10,parm->cross_puntos);
-	cout<<"quillo!!6"<<endl;
 	complejo** rhoK=matriz_cmpx(parm->ltransfer,parm->rCc_puntos);
-	cout<<"quillo!!7"<<endl;
 	estado* st1=new estado;
 	estado* st2=new estado;
 
@@ -1770,7 +1763,6 @@ void AmplitudeClusterInelastic(struct parametros* parm)
 	KK=st1->l+st2->l;
 	dM=KK;
 	dm=st2->l;
-	cout<<"quillo!!2 "<<endl;
 	cross_const=escala*parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU/(parm->k_Aa*4.*PI*PI*pow(HC,4.));
 	MultipolePotential(DeltaK,dim2->num_puntos,dim1->num_puntos,r,R,&(parm->pot_opt[indx_t]),&(parm->pot_opt[indx_alpha]),
 			&(parm->pot_opt[indx_ingreso]),dM,parm->m_b,parm->m_B);
@@ -1807,64 +1799,89 @@ void AmplitudeClusterInelastic(struct parametros* parm)
 				parm->radio,parm->puntos,parm->matching_radio,&fp2);
 		IntegralIKll(IKll,rhoK,fl,gl,dM,dim1,la,lb);
 		factor=pow(I,la+lb)*exp_delta_coulomb_f[la]*exp_delta_coulomb_f[lb]*sqrt((2.*st1->l+1.)*(2.*st2->l+1.)*(2.*lb+1.));
-		K=0;
-		IKll[K][la][lb]*=factor*ClebsGordan(st1->l,0,st2->l,0,K,0)*ClebsGordan(la,0,lb,0,K,0)/(2*K+1.);
+		for(K=0;K<=dM;K++)
+		{
+			IKll[K][la][lb]*=factor*ClebsGordan(st1->l,0,st2->l,0,K,0)*ClebsGordan(la,0,lb,0,K,0)/(2*K+1.);
+//			cout<<IKll[K][la][lb]<<endl;
+		}
 //		misc4<<K<<"  "<<la<<"  "<<lb<<"  "<<abs(IKll[K][la][lb])<<endl;
-		Slmm[lb][dm][dM]=pow(-1.,0)*c1*ClebsGordan(st1->l,0,st2->l,0,K,0)*IKll[K][la][lb];
-//		if(mm==dm && MM==dM) misc3<<"      la: "<<la<<"      K: "<<K<<"  "<<abs(pow(-1.,m)*c1*ClebsGordan(st1->l,M+m,st2->l,-m,K,M)*IKll[K][la][lb])
-//										<<"  "<<abs(Slmm[lb][dm][dM])<<endl;
 
+		for(m=-dm;m<=dm;m++)
+		{
+			mm=m+dm;
+			for(M=-dM;M<=dM;M++)
+			{
+				MM=M+dM;
+				for(K=0;K<=dM;K++)
+				{
+				Slmm[lb][mm][MM]+=pow(-1.,0)*c1*ClebsGordan(st1->l,M+m,st2->l,-m,K,M)*IKll[K][la][lb];
+				cout<<IKll[K][la][lb]<<"  "<<Slmm[lb][mm][MM]<<"  "<<ClebsGordan(st1->l,M+m,st2->l,-m,K,M)<<endl;
+				}
+			}
+		}
 	}
 	for(lb=0;lb<parm->lmax;lb++)
 	{
 		misc2<<lb<<"  "<<abs(Slmm[lb][dm][dM])<<endl;
 	}
-//	for(n=0;n<parm->cross_puntos;n++)
-//	{
-//		theta=PI*double(n)/double(parm->cross_puntos);
-//		costheta=cos(theta);
-//		cross=0.;
-//		for(m=-dm;m<=dm;m++)
-//		{
-//			mm=m+dm;
-//			for(M=-dM;M<=dM;M++)
-//			{
-//				MM=M+dM;
-//				Ttheta[mm][MM][n]=0.;
-//			}
-//		}
-//		if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
-//		{
-//			for(lb=0;lb<parm->lmax;lb++)
-//			{
-//				for(m=-dm;m<=dm;m++)
-//				{
-//					mm=m+dm;
-//					for(M=-dM;(M<=dM) && (abs(M)<=lb);M++)
-//					{
-//						MM=M+dM;
-////						misc3<<"Quillo "<<lb<<"  "<<mm<<"  "<<MM<<endl;
-//						if(M>=0) Ttheta[mm][MM][n]+=Slmm[lb][mm][MM]*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
-//						if(M<0) Ttheta[mm][MM][n]+=pow(-1.,M)*Slmm[lb][mm][MM]*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
-////						misc3<<"Quillo2 "<<lb<<"  "<<mm<<"  "<<MM<<endl;
-////						misc2<<T[mm][MM]<<endl;
-//					}
-//				}
-//			}
-//			for(m=-dm;m<=dm;m++)
-//			{
-//				mm=m+dm;
-//				for(M=-dM;M<=dM;M++)
-//				{
-//					MM=M+dM;
-////					if(abs(m)==st2->l-1) cross+=cross_const*abs(T[mm][MM])*abs(T[mm][MM]);
-//					cross+=cross_const*abs(Ttheta[mm][MM][n])*abs(Ttheta[mm][MM][n]);
-//				}
-//			}
-//		}
-//		fp<<theta*180./PI<<"  "<<cross<<endl;
-//	}
-	//DecayMatrix(Ttheta,rhomm,dm,parm->cross_puntos);
+	for(n=0;n<parm->cross_puntos;n++)
+	{
+		theta=PI*double(n)/double(parm->cross_puntos);
+		costheta=cos(theta);
+		cross=0.;
+		for(m=-dm;m<=dm;m++)
+		{
+			mm=m+dm;
+			for(M=-dM;M<=dM;M++)
+			{
+				MM=M+dM;
+				Ttheta[mm][MM][n]=0.;
+			}
+		}
+		if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
+		{
+			for(lb=0;lb<parm->lmax;lb++)
+			{
+				for(m=-dm;m<=dm;m++)
+				{
+					mm=m+dm;
+					for(M=-dM;(M<=dM) && (abs(M)<=lb);M++)
+					{
+						MM=M+dM;
+//						misc3<<"Quillo "<<lb<<"  "<<mm<<"  "<<MM<<endl;
+						if(M>=0) Ttheta[mm][MM][n]+=Slmm[lb][mm][MM]*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
+						if(M<0) Ttheta[mm][MM][n]+=pow(-1.,M)*Slmm[lb][mm][MM]*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
+
+//						misc3<<"Quillo2 "<<lb<<"  "<<mm<<"  "<<MM<<endl;
+//						misc2<<T[mm][MM]<<endl;
+					}
+				}
+			}
+			for(m=-dm;m<=dm;m++)
+			{
+				mm=m+dm;
+				for(M=-dM;M<=dM;M++)
+				{
+					MM=M+dM;
+//					if(abs(m)==st2->l-1) cross+=cross_const*abs(T[mm][MM])*abs(T[mm][MM]);
+					cross+=cross_const*abs(Ttheta[mm][MM][n])*abs(Ttheta[mm][MM][n]);
+				}
+			}
+		}
+		fp<<theta*180./PI<<"  "<<cross<<endl;
+	}
+	DecayMatrix(Ttheta,rhomm,dm,parm->cross_puntos);
+	for(n=0;n<parm->cross_puntos;n++)
+	{
+		theta=PI*double(n)/double(parm->cross_puntos);
+		costheta=cos(theta);
+		misc1<<theta*180./PI;
+		for(m=0;m<=dm;m++)
+		{
+			misc1<<"   "<<real(rhomm[m][m][n]);
+		}
+		misc1<<endl;
+	}
 	delete[] exp_delta_coulomb_i;
 	delete[] exp_delta_coulomb_f;
 	delete[] DeltaK;
