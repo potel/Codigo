@@ -64,7 +64,7 @@ void OneTrans(struct parametros* parm)
 		}
 		cout<<"masa reducida: "<<parm->m_b/parm->m_a<<endl;
 //		if(parm->st[indx_st].energia<0.)
-			GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,parm->m_b/parm->m_a,D0,rms);
+			GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,0,parm->m_b/parm->m_a,D0,rms);
 //		else
 //		{
 //			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->m_b/parm->m_a);
@@ -95,7 +95,7 @@ void OneTrans(struct parametros* parm)
 //		GeneraPotencialCM(parm,&(parm->pot[indx_pot_B]));
 
 	}
-	File2Pot(&(parm->pot[indx_pot_B]),parm);
+//	File2Pot(&(parm->pot[indx_pot_B]),parm);
 //	exit(0);
 	delta_r=parm->radio/double(parm->puntos);
 //	for(n=0;n<parm->puntos;n++){

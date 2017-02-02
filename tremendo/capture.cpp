@@ -77,7 +77,7 @@ void Capture(struct parametros* parm)
 		}
 	}
 	cout<<"Generando niveles nucleo B"<<endl;
-//	File2Pot(&(parm->pot[indx_pot_B]),parm);
+	File2Pot(&(parm->pot[indx_pot_B]),parm);
 	/* Genera niveles del n�cleo 'B' */
 	for (n=0;n<parm->B_numst;n++)
 	{
@@ -88,7 +88,7 @@ void Capture(struct parametros* parm)
 		cout<<"Masa reducida: "<<parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa)<<" indx_st:"<<indx_st<<endl;
 //		if(parm->st[indx_st].energia<0.)
 			GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,
-					carga_trans*parm->T_carga,parm,1,parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa),D0,rms);
+					carga_trans*parm->T_carga,parm,0,parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa),D0,rms);
 //		else
 //		{
 //			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,
@@ -302,7 +302,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusi�n: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=15.;energia_out<19.2;energia_out+=0.03)
+	for(energia_out=1.;energia_out<19.2;energia_out+=0.5)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
@@ -1107,8 +1107,8 @@ void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* o
 	masa_trans=masa_res-masaT;
 	up=((l+1.)/sqrt((l+1.)*(l+1.)+l*l));
 	down=(l/sqrt((l+1.)*(l+1.)+l*l));
-	up=1.;
-	down=0.;
+//	up=1.;
+//	down=0.;
 	GeneraDWspin(chi_lup,optico,carga_trans*parm->T_carga,masa_trans*masaT/(masa_trans+masaT),
 			parm->radio,parm->puntos,parm->matching_radio,&fp);
 	GeneraDWspin(chi_ldown,optico,carga_trans*parm->T_carga,masa_trans*masaT/(masa_trans+masaT),
@@ -1687,12 +1687,22 @@ void AmplitudeClusterInelastic(struct parametros* parm)
 	ofstream fp1("dw_out1trans.txt");
 	ofstream fp2("dw_in1trans.txt");
 	complejo*** DeltaK=tensor_cmpx(parm->ltransfer,parm->rA2_puntos,parm->rCc_puntos);
+	cout<<"quillo!!1"<<endl;
 	complejo*** IKll=tensor_cmpx(parm->ltransfer,parm->lmax,parm->lmax);
-	complejo*** Slmm=tensor_cmpx(parm->lmax,500,500);
-	complejo** T=matriz_cmpx(500,500);
+	cout<<"quillo!!2"<<endl;
+	complejo*** Slmm=tensor_cmpx(parm->lmax,10,10);
+	cout<<"quillo!!3"<<endl;
+	complejo*** rhomm=tensor_cmpx(10,10,parm->cross_puntos);
+	cout<<"quillo!!4"<<endl;
+	complejo** T=matriz_cmpx(10,10);
+	cout<<"quillo!!5"<<endl;
+	complejo*** Ttheta=tensor_cmpx(10,10,parm->cross_puntos);
+	cout<<"quillo!!6"<<endl;
 	complejo** rhoK=matriz_cmpx(parm->ltransfer,parm->rCc_puntos);
+	cout<<"quillo!!7"<<endl;
 	estado* st1=new estado;
 	estado* st2=new estado;
+
 	double* r=new double[parm->rA2_puntos];
 	double* R=new double[parm->rCc_puntos];
 	int la,lb,K,indx_ingreso,indx_salida,indx_t,indx_alpha,len,flag,n,m,M,mm,MM,KK,dm,dM;
@@ -1760,72 +1770,26 @@ void AmplitudeClusterInelastic(struct parametros* parm)
 	KK=st1->l+st2->l;
 	dM=KK;
 	dm=st2->l;
+	cout<<"quillo!!2 "<<endl;
 	cross_const=escala*parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU/(parm->k_Aa*4.*PI*PI*pow(HC,4.));
-//	cout<<"constante: "<<cross_const<<endl;
 	MultipolePotential(DeltaK,dim2->num_puntos,dim1->num_puntos,r,R,&(parm->pot_opt[indx_t]),&(parm->pot_opt[indx_alpha]),
 			&(parm->pot_opt[indx_ingreso]),dM,parm->m_b,parm->m_B);
 	IntegralRhoK(rhoK,DeltaK,st1,st2,dM,dim2,dim1->num_puntos);
-	misc1<<"& Multipolar transition density"<<endl<<endl;
-	for(n=0;n<dim1->num_puntos;n++)
-	{
-		misc1<<R[n];
-		for(K=0;K<=dM;K++)
-		{
-			misc1<<"  "<<real(rhoK[K][n])<<"  "<<imag(rhoK[K][n]);
-		}
-		misc1<<endl;
-	}
-//	exit(0);
-	c1=32.*pow(PI,2.5)/(parm->k_Aa*parm->k_Bb);
-//	for(la=0;la<parm->lmax;la++)
+//	misc1<<"& Multipolar transition density"<<endl<<endl;
+//	for(n=0;n<dim1->num_puntos;n++)
 //	{
-//		cout<<"la: "<<la<<endl;
-//		misc4<<"la: "<<la<<endl;
-//		exp_delta_coulomb_f[la]=exp(I*(deltac(la,eta_i)));
-//		fl->energia=parm->energia_cm;
-//		fl->l=la;
-//		fl->spin=0.;
-//		fl->j=la;
-//		GeneraDWspin(fl,&(parm->pot_opt[indx_ingreso]),parm->Z_a*parm->Z_A,parm->mu_Aa,
-//				parm->radio,parm->puntos,parm->matching_radio,&fp1);
-////		for(lb=abs(la-KK);(lb<la+KK)  && (lb<parm->lmax);lb++)
-//		for(lb=0;(lb<=la+KK)  && (lb<parm->lmax);lb++)
+//		misc1<<R[n];
+//		for(K=0;K<=dM;K++)
 //		{
-//			misc3<<"lb: "<<lb<<endl;
-//			misc4
-//			<<"lb: "<<lb<<endl;
-//			exp_delta_coulomb_f[lb]=exp(I*(deltac(lb,eta_f)));
-//			gl->energia=parm->energia_cm+parm->Qvalue;
-//			gl->l=lb;
-//			gl->spin=0.;
-//			gl->j=lb;
-//			GeneraDWspin(gl,&(parm->pot_opt[indx_salida]),parm->Z_a*parm->Z_A,parm->mu_Bb,
-//					parm->radio,parm->puntos,parm->matching_radio,&fp2);
-//			IntegralIKll(IKll,rhoK,fl,gl,dM,dim1,la,lb);
-//			factor=pow(I,la+lb)*exp_delta_coulomb_f[la]*exp_delta_coulomb_f[lb]*sqrt((2.*st1->l+1.)*(2.*st2->l+1.)*(2.*lb+1.));
-//			for(K=0;K<=dM;K++)
-//			{
-////				misc4<<K<<"  "<<la<<"  "<<lb<<"  "<<abs(IKll[K][la][lb])<<endl;
-//				IKll[K][la][lb]*=factor*ClebsGordan(st1->l,0,st2->l,0,K,0)*ClebsGordan(la,0,lb,0,K,0)/(2*K+1.);
-//				misc4<<K<<"  "<<la<<"  "<<lb<<"  "<<abs(IKll[K][la][lb])<<endl;
-//				for(m=-dm;m<=dm;m++)
-//				{
-//					mm=m+dm;
-//					for(M=-dM;M<=dM;M++)
-//					{
-//						MM=M+dM;
-//						Slmm[lb][mm][MM]+=pow(-1.,m)*c1*ClebsGordan(st1->l,M+m,st2->l,-m,K,M)*IKll[K][la][lb];
-//						if(mm==dm && MM==dM) misc3<<"      la: "<<la<<"      K: "<<K<<"  "<<abs(pow(-1.,m)*c1*ClebsGordan(st1->l,M+m,st2->l,-m,K,M)*IKll[K][la][lb])
-//								<<"  "<<abs(Slmm[lb][dm][dM])<<endl;
-//					}
-//				}
-//			}
+//			misc1<<"  "<<real(rhoK[K][n])<<"  "<<imag(rhoK[K][n]);
 //		}
+//		misc1<<endl;
 //	}
+	c1=32.*pow(PI,2.5)/(parm->k_Aa*parm->k_Bb);
 	for(la=0;la<parm->lmax;la++)
 	{
 		cout<<"la: "<<la<<endl;
-		misc4<<"la: "<<la<<endl;
+//		misc4<<"la: "<<la<<endl;
 		exp_delta_coulomb_f[la]=exp(I*(deltac(la,eta_i)));
 		fl->energia=parm->energia_cm;
 		fl->l=la;
@@ -1845,44 +1809,15 @@ void AmplitudeClusterInelastic(struct parametros* parm)
 		factor=pow(I,la+lb)*exp_delta_coulomb_f[la]*exp_delta_coulomb_f[lb]*sqrt((2.*st1->l+1.)*(2.*st2->l+1.)*(2.*lb+1.));
 		K=0;
 		IKll[K][la][lb]*=factor*ClebsGordan(st1->l,0,st2->l,0,K,0)*ClebsGordan(la,0,lb,0,K,0)/(2*K+1.);
-		misc4<<K<<"  "<<la<<"  "<<lb<<"  "<<abs(IKll[K][la][lb])<<endl;
+//		misc4<<K<<"  "<<la<<"  "<<lb<<"  "<<abs(IKll[K][la][lb])<<endl;
 		Slmm[lb][dm][dM]=pow(-1.,0)*c1*ClebsGordan(st1->l,0,st2->l,0,K,0)*IKll[K][la][lb];
-		if(mm==dm && MM==dM) misc3<<"      la: "<<la<<"      K: "<<K<<"  "<<abs(pow(-1.,m)*c1*ClebsGordan(st1->l,M+m,st2->l,-m,K,M)*IKll[K][la][lb])
-										<<"  "<<abs(Slmm[lb][dm][dM])<<endl;
+//		if(mm==dm && MM==dM) misc3<<"      la: "<<la<<"      K: "<<K<<"  "<<abs(pow(-1.,m)*c1*ClebsGordan(st1->l,M+m,st2->l,-m,K,M)*IKll[K][la][lb])
+//										<<"  "<<abs(Slmm[lb][dm][dM])<<endl;
 
 	}
 	for(lb=0;lb<parm->lmax;lb++)
 	{
 		misc2<<lb<<"  "<<abs(Slmm[lb][dm][dM])<<endl;
-	}
-//	misc2<<endl<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
-	for(n=0;n<parm->cross_puntos;n++)
-	{
-		theta=PI*double(n)/double(parm->cross_puntos);
-		costheta=cos(theta);
-		cross=0.;
-		for(m=-dm;m<=dm;m++)
-		{
-			mm=m+dm;
-			for(M=-dM;M<=dM;M++)
-			{
-				MM=M+dM;
-				T[mm][MM]=0.;
-			}
-		}
-		if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
-		{
-			for(lb=0;lb<parm->lmax;lb++)
-			{
-				//						misc3<<"Quillo "<<lb<<"  "<<mm<<"  "<<MM<<endl;
-				if(M>=0) T[0][0]+=Slmm[lb][dm][dM]*gsl_sf_legendre_sphPlm(lb,0,costheta);
-				//						misc3<<"Quillo2 "<<lb<<"  "<<mm<<"  "<<MM<<endl;
-				//						misc2<<T[mm][MM]<<endl;
-			}
-
-			cross=cross_const*abs(T[mm][MM])*abs(T[mm][MM]);
-		}
-		fp<<theta*180./PI<<"  "<<cross<<endl;
 	}
 //	for(n=0;n<parm->cross_puntos;n++)
 //	{
@@ -1895,7 +1830,7 @@ void AmplitudeClusterInelastic(struct parametros* parm)
 //			for(M=-dM;M<=dM;M++)
 //			{
 //				MM=M+dM;
-//				T[mm][MM]=0.;
+//				Ttheta[mm][MM][n]=0.;
 //			}
 //		}
 //		if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
@@ -1909,8 +1844,8 @@ void AmplitudeClusterInelastic(struct parametros* parm)
 //					{
 //						MM=M+dM;
 ////						misc3<<"Quillo "<<lb<<"  "<<mm<<"  "<<MM<<endl;
-//						if(M>=0) T[mm][MM]+=Slmm[lb][mm][MM]*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
-//						if(M<0) T[mm][MM]+=pow(-1.,M)*Slmm[lb][mm][MM]*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
+//						if(M>=0) Ttheta[mm][MM][n]+=Slmm[lb][mm][MM]*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
+//						if(M<0) Ttheta[mm][MM][n]+=pow(-1.,M)*Slmm[lb][mm][MM]*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
 ////						misc3<<"Quillo2 "<<lb<<"  "<<mm<<"  "<<MM<<endl;
 ////						misc2<<T[mm][MM]<<endl;
 //					}
@@ -1923,12 +1858,13 @@ void AmplitudeClusterInelastic(struct parametros* parm)
 //				{
 //					MM=M+dM;
 ////					if(abs(m)==st2->l-1) cross+=cross_const*abs(T[mm][MM])*abs(T[mm][MM]);
-//					cross+=cross_const*abs(T[mm][MM])*abs(T[mm][MM]);
+//					cross+=cross_const*abs(Ttheta[mm][MM][n])*abs(Ttheta[mm][MM][n]);
 //				}
 //			}
 //		}
 //		fp<<theta*180./PI<<"  "<<cross<<endl;
 //	}
+	//DecayMatrix(Ttheta,rhomm,dm,parm->cross_puntos);
 	delete[] exp_delta_coulomb_i;
 	delete[] exp_delta_coulomb_f;
 	delete[] DeltaK;
@@ -2036,4 +1972,45 @@ void IntegralIKll(complejo*** IKll,complejo** rhoK,distorted_wave* f,distorted_w
 		}
 	}
 }
-
+void DecayMatrix(complejo*** T,complejo*** rhomm,int dm,int puntos)
+{
+	complejo*** Cmm=tensor_cmpx(2*dm+1,2*dm+1,puntos);
+	complejo*** alpha=tensor_cmpx(2*dm+1,2*dm+1,puntos);
+	complejo* trace=new complejo[puntos];
+	int m1,m2,mm1,mm2,n,mf,mi,mmf,mmi;
+	for (n=0;n<puntos;n++)
+	{
+		for(mi=-dm;mi<=dm;mi++)
+		{
+			mmi=mi+dm;
+			for(mf=-dm;mf<=dm;mf++)
+			{
+				mmf=mf+dm;
+				if(abs(mi-mf)<=dm) alpha[mmf][mmi][n]=T[mmf][mi-mf+dm][n];
+			}
+		}
+		for(m1=-dm;m1<=dm;m1++)
+		{
+			mm1=m1+dm;
+			for(m2=-dm;m2<=dm;m2++)
+			{
+				mm2=m2+dm;
+				for(mi=-dm;mi<=dm;mi++)
+				{
+					mmi=mi+dm;
+				    Cmm[mm1][mm2][n]+=alpha[mm1][mmi][n]*conj(alpha[mm2][mmi][n]);
+				}
+			}
+		}
+		trace[n]=0.;
+		for(m1=-dm;m1<=dm;m1++)
+		{
+			mm1=m1+dm;
+			trace[n]+=Cmm[mm1][mm1][n];
+		}
+		rhomm[mm1][mm1][n]=Cmm[mm1][mm2][n]/trace[n];
+	}
+	delete[] Cmm;
+	delete[] alpha;
+	delete[] trace;
+}
