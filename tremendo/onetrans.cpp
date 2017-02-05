@@ -861,12 +861,12 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 				if(lb==0) intk->fbB[0].j=intk->fbB[0].spin;
 				GeneraDWspin(&(intk->fbB[0]),&(parm->pot_opt[indx_salida]),parm->Z_A*parm->Z_a,parm->mu_Bb,
 						parm->radio,parm->puntos,parm->matching_radio,&fp4);
-				if(la==0 && lb==0 && K==Kmin) EscribeIntegrandoOneTrans(intk);
+//				if(la==0 && lb==0 && K==Kmin) EscribeIntegrandoOneTrans(intk);
 				if((intk->final_st->spec)!=0. && (intk->inicial_st->spec)!=0.)
 				{
 					fase=pow(I,la-lb);
 					IntegralOneTransSpinless(intk,Ij,K);
-//					exit(0);
+					exit(0);
 //					IntegralOneTransSpinlessZR(intk,Ij,K);
 					T[la][lb][K]+=c2*c1*sqrt(2.*lb+1.)*sqrt(2.*la+1.)*fase*intk->inicial_st->spec*intk->final_st->spec*
 							exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb]*factor*(*Ij);
@@ -985,6 +985,9 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
 								(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
 				*Ij+=kernel;
 //				misc1<<r_An<<" "<<abs(potencial-remnant)<<" "<<abs(estado_final)<<" "<<abs(potencial-remnant)*abs(estado_final)<<endl;
+				misc1<<r_bB<<" "<<abs(r_An*r_An*seno*(potencial-remnant)*estado_inicial*estado_final)
+						<<"  "<<abs(r_An*r_An*estado_inicial*estado_final)<<
+								"  "<<abs(seno*(potencial-remnant))<<endl;
 			}
 		}
 	}
