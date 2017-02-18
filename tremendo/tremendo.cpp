@@ -1575,7 +1575,7 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
 }
 
 /*****************************************************************************
-Lee coeficientes del desarrollo de la funcion de onda de dos part�culas
+Lee coeficientes del desarrollo de la funcion de onda de dos particulas
  *****************************************************************************/
 int LeeMatrizCoeficientes(const char *fname,double** anm,int dimension)
 {

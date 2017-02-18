@@ -77,7 +77,7 @@ void Capture(struct parametros* parm)
 		}
 	}
 	cout<<"Generando niveles nucleo B"<<endl;
-	File2Pot(&(parm->pot[indx_pot_B]),parm);
+//	File2Pot(&(parm->pot[indx_pot_B]),parm);
 	/* Genera niveles del n�cleo 'B' */
 	for (n=0;n<parm->B_numst;n++)
 	{
@@ -97,7 +97,7 @@ void Capture(struct parametros* parm)
 		absorcion=Absorcion2(&(parm->pot_opt[indx_intermedio]),&(parm->st[indx_st]));
 	}
 	cout<<"Energy: "<<parm->st[indx_st].energia<<endl;
-	File2Pot(&(parm->pot[indx_pot_B]),parm);
+//	File2Pot(&(parm->pot[indx_pot_B]),parm);
 	cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
 	EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
 	EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
@@ -302,7 +302,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusi�n: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=1.;energia_out<19.2;energia_out+=0.5)
+	for(energia_out=14.;energia_out<95.;energia_out+=200.)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
@@ -314,7 +314,6 @@ void AmplitudeCapture(struct parametros* parm)
 				<<energia_trans<<endl;
 		cout<<"Energ�a de la resonancia: "<<e_res<<endl;
 		misc3<<energia_out<<"  "<<Ecm<<"  ";
-//		misc2<<endl<<"*********************  Ep= "<<energia_out<<" ****************************"<<endl;
 		k_n=sqrt(2.*parm->n1_masa*AMU*Ecm)/HC;
 		k_p=sqrt(2.*parm->m_b*AMU*Ecm_out)/HC;
 		rhoE=parm->m_b*AMU*k_p/(8.*PI*PI*PI*HC*HC);
@@ -339,15 +338,14 @@ void AmplitudeCapture(struct parametros* parm)
 					if(carga_out<0.1) parm->pot_opt[indx_salida].pot[n]=pot_n;
 				}
 		}
-		for(n=0;n<parm->puntos;n++){
-			rn=step*(n+1.);
-			parm->pot_opt[indx_neutron_target].r[n]=rn;
-//			parm->pot_opt[indx_neutron_target].pot[n]=parm->pot[indx_transfer].pot[n]+0.01*I*parm->pot[indx_transfer].pot[n];
-			parm->pot_opt[indx_neutron_target].pot[n]=parm->pot[indx_transfer].pot[n];
-//			misc4<<rn<<" "<<
-//				real(parm->pot_opt[indx_neutron_target].pot[n])<<"  "<<imag(parm->pot_opt[indx_neutron_target].pot[n])<<endl;
-		}
-//		exit(0);
+//		for(n=0;n<parm->puntos;n++){
+//			rn=step*(n+1.);
+//			parm->pot_opt[indx_neutron_target].r[n]=rn;
+////			parm->pot_opt[indx_neutron_target].pot[n]=parm->pot[indx_transfer].pot[n]+0.01*I*parm->pot[indx_transfer].pot[n];
+////			parm->pot_opt[indx_neutron_target].pot[n]=parm->pot[indx_transfer].pot[n];
+////			misc4<<rn<<" "<<
+////				real(parm->pot_opt[indx_neutron_target].pot[n])<<"  "<<imag(parm->pot_opt[indx_neutron_target].pot[n])<<endl;
+//		}
 		v=&(parm->pot_opt[indx_neutron_target]);
 		if(parm->remnant==1 && parm->prior==1) {
 			GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_salida],parm->T_carga*parm->P_carga,
@@ -355,12 +353,9 @@ void AmplitudeCapture(struct parametros* parm)
 		}
 		misc1<<"& Proton energy: "<<energia_out<<" MeV. Neutron energy: "<<energia_trans<<" MeV"<<endl;
 //		for(l=0;l<parm->ltransfer;l++)
-		for(l=2;l<3;l++)
+		for(l=1;l<2;l++)
 		{
 			cout<<"L: "<<l<<endl;
-//			cout<<"Escribo"<<endl;
-//			misc3<<"Escribo"<<endl;
-//			exit(0);
 			funcion_regular_up[0].energia=Ecm;
 			funcion_irregular_up[0].energia=Ecm;
 			funcion_regular_up[0].l=l;
@@ -381,7 +376,6 @@ void AmplitudeCapture(struct parametros* parm)
 				GeneraGreenFunction(funcion_regular_up,funcion_irregular_up,(v),
 						carga_trans*(parm->T_carga),parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),
 						parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
-//				exit(0);
 				wronskiano_up=k_n;
 			}
 			funcion_regular_down[1].energia=Ecm;
@@ -404,7 +398,6 @@ void AmplitudeCapture(struct parametros* parm)
 					(&(funcion_regular_down[1]),&(funcion_irregular_down[1]),
 							&(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
 							parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),parm->n_spin);
-//			misc2<<energia_trans<<"  "<<abs(wronskiano_down)<<endl;
 			if (Ecm>0.)
 			{
 				GeneraGreenFunction(funcion_regular_down,funcion_irregular_down,(v),
@@ -421,7 +414,6 @@ void AmplitudeCapture(struct parametros* parm)
 				gl->j=lp;
 				GeneraDWspin(gl,&(parm->pot_opt[indx_salida]),parm->res_carga*carga_out,parm->m_b*parm->res_masa/(parm->m_b+parm->res_masa),
 						parm->radio,parm->puntos,parm->matching_radio,&fp2);
-//				exit(0);
 				for(n=0;n<dim1->num_puntos;n++){
 					for(m=0;m<=lp;m++){
 						rho[n][l][m][lp]=0.;
@@ -430,7 +422,6 @@ void AmplitudeCapture(struct parametros* parm)
 				}
 				exp_delta_coulomb_f[lp]=exp(I*(deltac(lp,eta_f)));
 				for(ld=abs(l-lp);(ld<=l+lp)&&(ld<parm->lmax);ld++)
-//				for(ld=1;ld<2;ld++)
 				{
 					rhofac=(16.*pow(PI,2.5)*pow(I,ld-lp)*pow(-1.,l)*
 							exp_delta_coulomb_f[lp]*exp_delta_coulomb_i[ld]*sqrt(2.*ld+1.))/(parm->k_Aa*k_p*sqrt(2.*l+1.));
@@ -451,29 +442,13 @@ void AmplitudeCapture(struct parametros* parm)
 						dim3->b=rAn+parm->r_A2max;
 						if(dim3->a<0.) dim3->a=0.;
 						if(dim3->b>parm->radio) dim3->b=parm->radio-1.;
-//						dim3->a=0;
-//						dim3->b=parm->r_A2max;
-//						if(dim3->b>parm->radio) dim3->b=parm->radio-1.;
-//						dim3->num_puntos=parm->rA2_puntos;
 						GaussLegendre(dim3->puntos,dim3->pesos,dim3->num_puntos);
-//						rn=1;
 						SourcePrior2(rhom,nonm,fl,gl,st,v,optico,core,l,rn,parm,dim3,dim2);
-//						exit(0);
 						for(m=0;m<=lp;m++){
 							rho[n][l][m][lp]+=(redfac*rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*rhom[0]);
-//							rho[n][l][m][lp]+=(redfac*rhofac*rhom[0]);
 							if(parm->prior==1) non[n][l][m][lp]+=(rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*nonm[0]*rn);
 						}
-//						misc2<<rn<<"  "<<real(redfac*rhofac*rhom[0])<<"  "<<-imag(redfac*rhofac*rhom[0])
-//		                          <<"  "<<abs(redfac*rhofac*rhom[0])<<endl;
-//						if(lp==2) misc2<<rn<<"  "<<real(rho[n][1][0][2])<<"  "<<-imag(rho[n][1][0][2])
-//		                          <<"  "<<abs(rhom[0])<<endl;
-//						misc2<<rn<<"  "<<real(rho[n][1][0][0])<<"  "<<-imag(rho[n][1][0][0])<<"  "<<abs(rho[n][1][0][0])
-//		                <<"  "<<-redfac*real(rn*non[n][1][0][0])<<"  "<<-redfac*imag(rn*non[n][1][0][0])<<"  "<<redfac*abs(rn*non[n][1][0][0])<<endl;
-//						cout<<ClebsGordan(2,0,ld,0,l,0)<<"  "<<rho[2][1][0][2]<<endl;
 					}
-
-//					exit(0);
 				}
 				dim1->a=parm->r_Ccmin;
 				dim1->b=parm->r_Ccmax;
@@ -493,45 +468,29 @@ void AmplitudeCapture(struct parametros* parm)
 						phi_down[n][l][m][lp]=(l/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
 //						phi_down[n][l][m][lp]=phim[m];
 					}
-
-
-//					NeutronWaveResonant(phim,rho,st_fin,e_res,energia_trans,absorcion,
-//										dim1,parm,rn,l,lp);
-//					for(m=0;m<=lp;m++){
-//						phi_resonant[n][l][m][lp]=phim[m];
-//					}
-//					 misc2<<rn<<"  "<<real(phi_up[n][2][0][0])<<"  "<<imag(phi_up[n][2][0][0])<<"  "<<abs(phi_up[n][2][0][0])<<endl;
 				}
-//				misc2<<Ecm<<"  "<<real(phi_up[5][2][0][0])<<"  "<<imag(phi_up[5][2][0][0])<<"  "<<abs(phi_up[5][2][0][0])<<endl;
-//					exit(0);
 			}
-//			exit(0);
 			inc_break[l]=0.;
 			elastic_break[l]=0.;
-			total_break[l]=rhoE*escala*sigma_const*TotalBreakup(phi_down,rho,parm,dim1,l);
-			total_break[l]+=rhoE*escala*sigma_const*TotalBreakup(phi_up,rho,parm,dim1,l);
 			inc_break_lmenos[l]=0.;
 			inc_break_lmas[l]=rhoE*escala*sigma_const*AbsorcionPrior(direct,non_orth,cross_term,&(parm->pot_opt[indx_neutron_target]),
 					phi_up,non,dim1,l,parm->lmax,r_F);
 			inc_break[l]=inc_break_lmas[l];
 			inc_break_lmenos[l]=rhoE*escala*sigma_const*AbsorcionPrior(direct,non_orth,cross_term,&(parm->pot_opt[indx_neutron_target]),
-					phi_down,dumb,dim1,l,parm->lmax,r_F);
+					phi_down,non,dim1,l,parm->lmax,r_F);
 
 			inc_break[l]+=inc_break_lmenos[l];
 			if(energia_trans>0.) elastic_break[l]=rhoE*rhoE_n*escala*sigma_const*PI*ElasticBreakupCross(Teb,l,parm->lmax);
 			cross_total+=inc_break[l];
 			cross_total_elasticb+=elastic_break[l];
 			cross_total_breakup+=total_break[l];
-			cout<<" Seccion eficaz NEB: "<<inc_break[l]<<endl<<endl;
-			cout<<" Seccion eficaz EB: "<<elastic_break[l]<<endl<<endl;
-			cout<<" Seccion total (conservacion de flujo): "<<total_break[l]<<endl<<endl;
-//			misc3<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<"  "<<"  "<<total_break[l]<<"  ";
+			cout<<" NEB cross section: "<<inc_break[l]<<endl<<endl;
+			cout<<" EB cross section: "<<elastic_break[l]<<endl<<endl;
 			misc3<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<"  ";
 			misc1<<l<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<endl;
 		}
 //		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp3,&fp4,&fp7,parm->J_A);
-		cout<<"Secci�n eficaz NEB:  "<<cross_total<<"   Secci�n eficaz EB:  "<<cross_total_elasticb<<endl;
-//		misc3<<cross_total<<"  "<<cross_total_elasticb<<"  "<<cross_total+cross_total_elasticb<<"  "<<cross_total_breakup<<endl;
+		cout<<"NEB cross section:  "<<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
 		misc3<<cross_total<<"  "<<cross_total_elasticb<<
 				"  "<<cross_total+cross_total_elasticb<<endl;
 		cross_total=0.;
@@ -541,38 +500,30 @@ void AmplitudeCapture(struct parametros* parm)
 			inc_break_lmenos[l]=0.;
 			inc_break_lmas[l]=0.;
 		}
-		cout<<"calculando seccion eficaz diferencial"<<endl;
-//		for(n=0;n<parm->cross_puntos;n++)
-//		{
-//			theta=PI*double(n)/double(parm->cross_puntos);
-//			direct[0]=0.;
-//			non_orth[0]=0.;
-//			cross_term[0]=0.;
-//			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
-//			{
-//				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
-//						direct,non_orth,cross_term,cross_up);
-////				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
-////						direct,non_orth,cross_term,cross_down);
-//				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
-//				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-//				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-//				misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
-//						"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
-//						sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
-//			}
-//		}
-//////		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A);
-//		cout<<"Secci�n eficaz NEB:  "<<cross_total<<"   Secci�n eficaz EB:  "<<cross_total_elasticb<<endl;
+		cout<<"computing angular differential cross section"<<endl;
+		for(n=0;n<parm->cross_puntos;n++)
+		{
+			theta=PI*double(n)/double(parm->cross_puntos);
+			direct[0]=0.;
+			non_orth[0]=0.;
+			cross_term[0]=0.;
+			if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
+			{
+				cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
+						direct,non_orth,cross_term,cross_up);
+				cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
+						direct,non_orth,cross_term,cross_down);
+				elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
+				cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+				cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+				misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
+						"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
+						sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
+			}
+		}
+////		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A);
+		cout<<"NEB cross section:  "<<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
 	}
-/// First order approximation
-//	cross_total=cross_total*absorcion;
-//	for (energia_trans=-10;energia_trans<10.;energia_trans+=0.1)
-//	{
-//		lorentz=(absorcion/((e_res-energia_trans)*(e_res-energia_trans)+absorcion*absorcion));
-//		inc_break[0]=abs(lorentz)*cross_total;
-//		misc1<<energia_trans<<"  "<<inc_break[0]<<endl;
-//	}
 	delete[] funcion_regular_up;
 	delete[] funcion_irregular_up;
 	delete[] funcion_regular_down;
@@ -804,10 +755,11 @@ void SourcePrior2(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* 
 //					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
 //			sumanon+=rAp*seno*fl*gl*ud*coupling*
 //					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
-//			misc1<<rBp<<"  "<<real(rBp*seno*fl*gl*ud*(vpn-remnant)*coupling)<<"  "<<imag(rBp*seno*fl*gl*ud*coupling)<<endl;
+//			misc2<<rd<<"  "<<rBp<<"  "<<rAp<<"  "<<abs(inpot)<<"  "<<abs(corepot)<<"  "<<abs(fl)<<"  "<<abs(gl)<<endl;
 		}
 //		if(lp==0) misc1<<abs(rAp-rAn)<<"  "<<abs(suma)<<endl;
 	}
+//	exit(0);
 	rho[0]=suma*((dim1->b)-(dim1->a))*((dim2->b)-(dim2->a))/4.;
 	non[0]=sumanon*((dim1->b)-(dim1->a))*((dim2->b)-(dim2->a))/4.;
 //	cout<<rBn<<"  "<<abs(rho[0])<<"  "<<abs(non[0])<<endl;
@@ -1215,7 +1167,6 @@ double AbsorcionPrior(double* direct,double* non_orth,double* cross,
     suma=0.;
     sumaUT=0.;
     sumaHM=0.;
-//    misc2<<"Quillo!!+++++++++++++++++++++++++++++++++++++++++++"<<endl;
     for(lp=0;lp<lmax;lp++)
     {
     	for(m=0;m<=lp;m++)
@@ -1238,15 +1189,11 @@ double AbsorcionPrior(double* direct,double* non_orth,double* cross,
     				sumaUT+=-imag(pot_int)*abs(UT)*abs(UT)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
     				sumaHM+=-imag(pot_int)*abs(HM)*abs(HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
     			}
-//    			if(lp==0 && m==0) misc2<<R<<"  "<<abs(UT)<<"  "<<abs(HM)<<endl;
-//    			misc1<<R<<"  "<<suma<<endl;
     		}
 
     	}
     }
-//	return direct[0]+non_orth[0]+cross[0];
 	return suma;
-//    return sumaUT;
 }
 double ElasticBreakupCross(complejo*** Teb,int l,int lmax)
 {
@@ -2001,8 +1948,7 @@ void IntegralRhoK(complejo** rhoK,complejo*** DeltaK,estado* st1,estado* st2,
 				rhoK[K][nR]+=r*r*int_st1*int_st2*DeltaK[K][nr][nR]*dim->pesos[nr]*
 						(dim->b-dim->a)/2.;
 			}
-			misc4<<nR<<"  "<<abs(r*r*int_st1*int_st2*DeltaK[2][nr][nR]*dim->pesos[nr]*
-					(dim->b-dim->a)/2.)<<"  "<<abs(r*r*int_st1*int_st2)<<"  "<<abs(DeltaK[2][nr][nR])<<endl;
+			misc4<<nR<<"  "<<r<<"  "<<abs(int_st1)<<"  "<<abs(r*r*int_st1*int_st2)<<endl;
 		}
 	}
 //	cout<<"IntegralRhoK3  "<<endl;

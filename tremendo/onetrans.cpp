@@ -64,7 +64,8 @@ void OneTrans(struct parametros* parm)
 		}
 		cout<<"masa reducida: "<<parm->m_b/parm->m_a<<endl;
 //		if(parm->st[indx_st].energia<0.)
-			GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,0,parm->m_b/parm->m_a,D0,rms);
+//			GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,50.,parm,0,parm->m_b/parm->m_a,D0,rms);
+		GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,51.,parm,0,parm->m_b/parm->m_a,D0,rms);
 //		else
 //		{
 //			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->m_b/parm->m_a);
@@ -73,6 +74,7 @@ void OneTrans(struct parametros* parm)
 		cout<<"Profundidad pozo: "<<parm->pot[indx_pot_a].V<<endl;
 		GeneraPotencialCM(parm,&(parm->pot[indx_pot_a]));
 	}
+	exit(0);
 	cout<<"Generando niveles nucleo B"<<endl;
 //	File2Pot(&(parm->pot[indx_pot_B]),parm);
 	/* Genera niveles del nucleo 'B' */
@@ -866,7 +868,7 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 				{
 					fase=pow(I,la-lb);
 					IntegralOneTransSpinless(intk,Ij,K);
-					exit(0);
+//					exit(0);
 //					IntegralOneTransSpinlessZR(intk,Ij,K);
 					T[la][lb][K]+=c2*c1*sqrt(2.*lb+1.)*sqrt(2.*la+1.)*fase*intk->inicial_st->spec*intk->final_st->spec*
 							exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb]*factor*(*Ij);
@@ -985,9 +987,9 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
 								(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
 				*Ij+=kernel;
 //				misc1<<r_An<<" "<<abs(potencial-remnant)<<" "<<abs(estado_final)<<" "<<abs(potencial-remnant)*abs(estado_final)<<endl;
-				misc1<<r_bB<<" "<<abs(r_An*r_An*seno*(potencial-remnant)*estado_inicial*estado_final)
-						<<"  "<<abs(r_An*r_An*estado_inicial*estado_final)<<
-								"  "<<abs(seno*(potencial-remnant))<<endl;
+//				misc1<<r_bB<<" "<<r_An
+//						<<"  "<<abs(estado_inicial)<<
+//								"  "<<abs(r_An*r_An*estado_final*estado_inicial)<<endl;
 			}
 		}
 	}
