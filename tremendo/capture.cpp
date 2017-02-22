@@ -302,7 +302,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusi�n: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=14.;energia_out<95.;energia_out+=200.)
+	for(energia_out=75.;energia_out<81.;energia_out+=0.5)
 //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
@@ -352,8 +352,8 @@ void AmplitudeCapture(struct parametros* parm)
 					parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
 		}
 		misc1<<"& Proton energy: "<<energia_out<<" MeV. Neutron energy: "<<energia_trans<<" MeV"<<endl;
-//		for(l=0;l<parm->ltransfer;l++)
-		for(l=1;l<2;l++)
+		for(l=0;l<parm->ltransfer;l++)
+//		for(l=1;l<2;l++)
 		{
 			cout<<"L: "<<l<<endl;
 			funcion_regular_up[0].energia=Ecm;
