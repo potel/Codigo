@@ -14,13 +14,13 @@ ofstream misc9("misc9.txt");
 ofstream misc10("misc10.txt");
 ofstream informe("informe.txt");
 
-int main()
+int main(int argc,char* argv[])
 {
 	parametros *parm=new struct parametros;
-	cout<<"Project managed with Git!!"<<endl;
+	cout<<"Project managed with Git!!"<<" parameter file: "<<argv[1]<<endl;
 	cout<<"Linux :"<<LINUX<<"  Windows :"<<WINDOWS<<endl;
 	if (!parm) Error("No se pudo reservar memoria para parametros");
-	const char* input="parametros.txt";
+	const char* input=argv[1];
 	LeeParametros(input,parm);
 //	SpinAlignment(parm);
 //	exit(0);
@@ -36,7 +36,7 @@ int main()
     if(parm->capture) {Capture(parm);}
     if(parm->cluster_inelastic) {ClusterInelastic(parm);}
     delete[] parm;
-	return(0);
+    return(0);
 }
 /*****************************************************************************
 Genera "regla" puntos de integracion gaussiana. "abs" contiene las posiciones
@@ -253,6 +253,7 @@ void EscribeEstados(int puntos,estado* st,int numero_estados,struct parametros *
 		fpen<<"  "<<n<<"........"<<st[n].nodos<<"..........."<<" "<<st[n].l<<"..........."<<" "<<st[n].j<<"..........."<<st[n].energia<<"\n";
 		cout<<"  "<<n<<"........"<<st[n].nodos<<"..........."<<" "<<st[n].l<<"..........."<<" "<<st[n].j<<"..........."<<st[n].energia<<"\n";
 	}
+	cout<<"Writing "<<numero_estados<<" states and energies in "<<parm->fl_funondas<<" and "<<parm->fl_energias<<endl;
 	for(i=0;i<puntos;i++){
 		fpst<<st[0].r[i]<<"  ";
 		for(n=0;n<numero_estados;n++){
@@ -271,7 +272,8 @@ void EscribePotencial(int puntos,potencial* pot,int numero_potenciales,struct pa
 {
 	ofstream fp(parm->fl_potcm);
 	int n,i;
-	cout<<"potenciales... "<<numero_potenciales<<endl;
+	cout<<"Writing "<<numero_potenciales<<"  potentials in "<<parm->fl_potcm<<endl;
+	fp<<"& "<<numero_potenciales<<" mean field potentials"<<endl;
 	for(i=0;i<puntos;i++){
 		fp<<pot[0].r[i]<<"     ";
 		for(n=0;n<numero_potenciales;n++){
@@ -325,6 +327,7 @@ void LeeParametros(const char *fname,struct parametros *x)
     x->scatt_pot=200;
     x->angle0=0;
     x->angle1=180;
+    x->n1_carga=0.;
     strcpy(x->flcoef,"nada");
     strcpy(x->file_dens,"\0");
     potopt=0;
@@ -401,15 +404,19 @@ void LeeParametros(const char *fname,struct parametros *x)
 		ReadParD(aux,"dumb",&(x->dumb));
 		ReadParD(aux,"lmax_PT",&(x->lmax_PT));
 		ReadParD(aux,"lmax_RN",&(x->lmax_RN));
+		ReadParD(aux,"capture_angular",&(x->capture_angular));
 		ReadParF(aux,"m_A",&(x->m_A));
 		ReadParF(aux,"m_a",&(x->m_a));
 		ReadParF(aux,"m_B",&(x->m_B));
 		ReadParF(aux,"m_b",&(x->m_b));
 		ReadParF(aux,"Z_A",&(x->Z_A));
 		ReadParF(aux,"Z_a",&(x->Z_a));
-		ReadParF(aux,"Z_B",&(x->Z_A));
-		ReadParF(aux,"Z_b",&(x->Z_a));
+		ReadParF(aux,"Z_B",&(x->Z_B));
+		ReadParF(aux,"Z_b",&(x->Z_b));
 		ReadParF(aux,"energia_lab",&(x->energia_lab));
+		ReadParF(aux,"enerange_min",&(x->enerange_min));
+                ReadParF(aux,"enerange_max",&(x->enerange_max));
+                ReadParF(aux,"enerange_step",&(x->enerange_step));	
 		ReadParF(aux,"Qvalue",&(x->Qvalue));
 		ReadParF(aux,"int_Qvalue",&(x->int_Qvalue));
 		ReadParF(aux,"J_a",&(x->J_a));
@@ -1363,99 +1370,99 @@ Integral interna para el c�lculo sucesivo y de no ortogonalidad
  *****************************************************************************/
 void SChica(integrando_schica *integrando,int P,int la,int lc,complejo* schica_mas,complejo* schica_menos)
 {
-	int n1,n2,n3;
-	complejo suma1_mas=0.;
-	complejo suma1_menos=0.;
-	complejo suma2_mas=0.;
-	complejo suma2_menos=0.;
-	double r_Cc,rA2,theta,potencial,angsum;
-	complejo fla_mas,fla_menos,estado_inicial,estado_final;
-	complejo* flc_mas=new complejo[integrando->dim1->num_puntos];
-	complejo* flc_menos=new complejo[integrando->dim1->num_puntos];
-	complejo* Plc_mas=new complejo[integrando->dim1->num_puntos];
-	complejo* Plc_menos=new complejo[integrando->dim1->num_puntos];
+  int n1,n2,n3;
+  complejo suma1_mas=0.;
+  complejo suma1_menos=0.;
+  complejo suma2_mas=0.;
+  complejo suma2_menos=0.;
+  double r_Cc,rA2,theta,potencial,angsum;
+  complejo fla_mas,fla_menos,estado_inicial,estado_final;
+  complejo* flc_mas=new complejo[integrando->dim1->num_puntos];
+  complejo* flc_menos=new complejo[integrando->dim1->num_puntos];
+  complejo* Plc_mas=new complejo[integrando->dim1->num_puntos];
+  complejo* Plc_menos=new complejo[integrando->dim1->num_puntos];
 
-	complejo* sumafmas=new complejo[integrando->dim1->num_puntos];
-	complejo* sumafmenos=new complejo[integrando->dim1->num_puntos];
-	complejo* sumaPmas=new complejo[integrando->dim1->num_puntos];
-	complejo* sumaPmenos=new complejo[integrando->dim1->num_puntos];
-	for (n1 = 0; n1 <integrando->dim1->num_puntos; n1++) {
-		schica_mas[n1]=0.;
-		schica_menos[n1]=0.;
-		sumafmas[n1]=0.;
-		sumafmenos[n1]=0.;
-		sumaPmas[n1]=0.;
-		sumaPmenos[n1]=0.;
-		r_Cc=(integrando->dim1)->a+((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim1)->puntos[n1]+1.)/2.;
-		flc_mas[n1]=interpola_cmpx(integrando->funcion_regular[0].wf,integrando->funcion_regular[0].r,r_Cc,
-				integrando->funcion_regular[0].puntos);
-		flc_menos[n1]=interpola_cmpx(integrando->funcion_regular[1].wf,integrando->funcion_regular[1].r,r_Cc,
-				integrando->funcion_regular[1].puntos);
-		Plc_mas[n1]=interpola_cmpx(integrando->funcion_irregular[0].wf,integrando->funcion_irregular[0].r,r_Cc,
-				integrando->funcion_irregular[0].puntos);
-		Plc_menos[n1]=interpola_cmpx(integrando->funcion_irregular[1].wf,integrando->funcion_irregular[1].r,r_Cc,
-				integrando->funcion_irregular[1].puntos);
-		for (n2 = 0; n2 <integrando->dim2->num_puntos; n2++) {
-			rA2 = (integrando->dim2->a)+((integrando->dim2->b)-(integrando->dim2->a))*(integrando->dim2->puntos[n2]+1.)/2.;
-			estado_final=interpola_cmpx(integrando->final_st->wf,integrando->final_st->r,rA2,integrando->final_st->puntos);
-			for (n3 = 0; n3 <integrando->dim3->num_puntos; n3++) {
-				theta =integrando->dim3->a+((integrando->dim3->b)-(integrando->dim3->a))*(integrando->dim3->puntos[n3]+1.)/2.;
-				estado_inicial=interpola_cmpx(integrando->inicial_st->wf,integrando->inicial_st->r,
-						integrando->coords->r_c2[n1][n2][n3],integrando->inicial_st->puntos);
-				if(integrando->prior==0) potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,
-						integrando->coords->r_c2[n1][n2][n3],integrando->pot->puntos);
+  complejo* sumafmas=new complejo[integrando->dim1->num_puntos];
+  complejo* sumafmenos=new complejo[integrando->dim1->num_puntos];
+  complejo* sumaPmas=new complejo[integrando->dim1->num_puntos];
+  complejo* sumaPmenos=new complejo[integrando->dim1->num_puntos];
+  for (n1 = 0; n1 <integrando->dim1->num_puntos; n1++) {
+    schica_mas[n1]=0.;
+    schica_menos[n1]=0.;
+    sumafmas[n1]=0.;
+    sumafmenos[n1]=0.;
+    sumaPmas[n1]=0.;
+    sumaPmenos[n1]=0.;
+    r_Cc=(integrando->dim1)->a+((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim1)->puntos[n1]+1.)/2.;
+    flc_mas[n1]=interpola_cmpx(integrando->funcion_regular[0].wf,integrando->funcion_regular[0].r,r_Cc,
+			       integrando->funcion_regular[0].puntos);
+    flc_menos[n1]=interpola_cmpx(integrando->funcion_regular[1].wf,integrando->funcion_regular[1].r,r_Cc,
+				 integrando->funcion_regular[1].puntos);
+    Plc_mas[n1]=interpola_cmpx(integrando->funcion_irregular[0].wf,integrando->funcion_irregular[0].r,r_Cc,
+			       integrando->funcion_irregular[0].puntos);
+    Plc_menos[n1]=interpola_cmpx(integrando->funcion_irregular[1].wf,integrando->funcion_irregular[1].r,r_Cc,
+				 integrando->funcion_irregular[1].puntos);
+    for (n2 = 0; n2 <integrando->dim2->num_puntos; n2++) {
+      rA2 = (integrando->dim2->a)+((integrando->dim2->b)-(integrando->dim2->a))*(integrando->dim2->puntos[n2]+1.)/2.;
+      estado_final=interpola_cmpx(integrando->final_st->wf,integrando->final_st->r,rA2,integrando->final_st->puntos);
+      for (n3 = 0; n3 <integrando->dim3->num_puntos; n3++) {
+	theta =integrando->dim3->a+((integrando->dim3->b)-(integrando->dim3->a))*(integrando->dim3->puntos[n3]+1.)/2.;
+	estado_inicial=interpola_cmpx(integrando->inicial_st->wf,integrando->inicial_st->r,
+				      integrando->coords->r_c2[n1][n2][n3],integrando->inicial_st->puntos);
+	if(integrando->prior==0) potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,
+							 integrando->coords->r_c2[n1][n2][n3],integrando->pot->puntos);
 
-				if(integrando->prior==1) potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,rA2,integrando->pot->puntos);
+	if(integrando->prior==1) potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,rA2,integrando->pot->puntos);
 
-				fla_mas=interpola_cmpx(integrando->entrante[0].wf,integrando->entrante[0].r,integrando->coords->r_Aa[n1][n2][n3],
-						integrando->entrante[0].puntos);
+	fla_mas=interpola_cmpx(integrando->entrante[0].wf,integrando->entrante[0].r,integrando->coords->r_Aa[n1][n2][n3],
+			       integrando->entrante[0].puntos);
 
-				fla_menos=interpola_cmpx(integrando->entrante[1].wf,integrando->entrante[1].r,integrando->coords->r_Aa[n1][n2][n3],
-						integrando->entrante[1].puntos);
+	fla_menos=interpola_cmpx(integrando->entrante[1].wf,integrando->entrante[1].r,integrando->coords->r_Aa[n1][n2][n3],
+				 integrando->entrante[1].puntos);
 
-				angsum=AcoplamientoAngular(lc,la,integrando->final_st->l,integrando->inicial_st->l,P,-cos(theta),
-						integrando->coords->coseno_r_c2[n1][n2][n3],integrando->coords->coseno_r_Aa[n1][n2][n3]);
+	angsum=AcoplamientoAngular(lc,la,integrando->final_st->l,integrando->inicial_st->l,P,-cos(theta),
+				   integrando->coords->coseno_r_c2[n1][n2][n3],integrando->coords->coseno_r_Aa[n1][n2][n3]);
 
-				sumafmas[n1]+=((r_Cc*rA2*rA2*sin(theta)*potencial*estado_final*estado_inicial*fla_mas*flc_mas[n1]*angsum)/
-						integrando->coords->r_Aa[n1][n2][n3])*
-						(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
-				sumafmenos[n1]+=((r_Cc*rA2*rA2*sin(theta)*potencial*estado_final*estado_inicial*fla_menos*flc_menos[n1]*angsum)/
-						integrando->coords->r_Aa[n1][n2][n3])*
-						(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
-				sumaPmas[n1]+=((r_Cc*rA2*rA2*sin(theta)*potencial*estado_final*estado_inicial*fla_mas*Plc_mas[n1]*angsum)/
-						integrando->coords->r_Aa[n1][n2][n3])*
-						(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
-				sumaPmenos[n1]+=((r_Cc*rA2*rA2*sin(theta)*potencial*estado_final*estado_inicial*fla_menos*Plc_menos[n1]*angsum)/
-						integrando->coords->r_Aa[n1][n2][n3])*
-						(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
-			}
-		}
-		if(n1>0)
-		{
-			sumafmas[n1]+=sumafmas[n1-1];
-			sumafmenos[n1]+=sumafmenos[n1-1];
-			sumaPmas[n1]+=sumaPmas[n1-1];
-			sumaPmenos[n1]+=sumaPmenos[n1-1];
-		}
-	}
-	for (n1 = 0; n1 <integrando->dim1->num_puntos; n1++)
-	{
-		r_Cc=(integrando->dim1)->a+((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim1)->puntos[n1]+1.)/2.;
-		schica_mas[n1]=(Plc_mas[n1]*sumafmas[n1]+(sumaPmas[integrando->dim1->num_puntos-1]-sumaPmas[n1])*flc_mas[n1])*
-				((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
-				((integrando->dim3)->b-(integrando->dim3)->a)/8.;
-		schica_menos[n1]=(Plc_menos[n1]*sumafmenos[n1]+(sumaPmenos[integrando->dim1->num_puntos-1]-sumaPmenos[n1])*flc_menos[n1])*
-				((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
-				((integrando->dim3)->b-(integrando->dim3)->a)/8.;
-	}
-	delete[] flc_mas;
-	delete[] flc_menos;
-	delete[] Plc_mas;
-	delete[] Plc_menos;
-	delete[] sumafmas;
-	delete[] sumafmenos;
-	delete[] sumaPmas;
-	delete[] sumaPmenos;
+	sumafmas[n1]+=((r_Cc*rA2*rA2*sin(theta)*potencial*estado_final*estado_inicial*fla_mas*flc_mas[n1]*angsum)/
+		       integrando->coords->r_Aa[n1][n2][n3])*
+	  (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+	sumafmenos[n1]+=((r_Cc*rA2*rA2*sin(theta)*potencial*estado_final*estado_inicial*fla_menos*flc_menos[n1]*angsum)/
+			 integrando->coords->r_Aa[n1][n2][n3])*
+	  (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+	sumaPmas[n1]+=((r_Cc*rA2*rA2*sin(theta)*potencial*estado_final*estado_inicial*fla_mas*Plc_mas[n1]*angsum)/
+		       integrando->coords->r_Aa[n1][n2][n3])*
+	  (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+	sumaPmenos[n1]+=((r_Cc*rA2*rA2*sin(theta)*potencial*estado_final*estado_inicial*fla_menos*Plc_menos[n1]*angsum)/
+			 integrando->coords->r_Aa[n1][n2][n3])*
+	  (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+      }
+    }
+    if(n1>0)
+      {
+	sumafmas[n1]+=sumafmas[n1-1];
+	sumafmenos[n1]+=sumafmenos[n1-1];
+	sumaPmas[n1]+=sumaPmas[n1-1];
+	sumaPmenos[n1]+=sumaPmenos[n1-1];
+      }
+  }
+  for (n1 = 0; n1 <integrando->dim1->num_puntos; n1++)
+    {
+      r_Cc=(integrando->dim1)->a+((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim1)->puntos[n1]+1.)/2.;
+      schica_mas[n1]=(Plc_mas[n1]*sumafmas[n1]+(sumaPmas[integrando->dim1->num_puntos-1]-sumaPmas[n1])*flc_mas[n1])*
+	((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
+	((integrando->dim3)->b-(integrando->dim3)->a)/8.;
+      schica_menos[n1]=(Plc_menos[n1]*sumafmenos[n1]+(sumaPmenos[integrando->dim1->num_puntos-1]-sumaPmenos[n1])*flc_menos[n1])*
+	((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
+	((integrando->dim3)->b-(integrando->dim3)->a)/8.;
+    }
+  delete[] flc_mas;
+  delete[] flc_menos;
+  delete[] Plc_mas;
+  delete[] Plc_menos;
+  delete[] sumafmas;
+  delete[] sumafmenos;
+  delete[] sumaPmas;
+  delete[] sumaPmenos;
 }
 /*****************************************************************************
 Interpolacion lineal de una funcion compleja
@@ -1893,74 +1900,86 @@ void PotencialEfectivo(struct parametros* parm,double* dnsty,double* poteff)
 }
 void TwoTrans(struct parametros* parm)
 {
-	cout<<"********************************************************************************"<<endl;
-	cout<<"*                                                                              *"<<endl;
-	cout<<"*                       TRANSFERENCIA DE 2 NUCLEONES                           *"<<endl;
-	cout<<"*                                                                              *"<<endl;
-	cout<<"********************************************************************************"<<endl;
-	int n,m,indx_pot_a,indx_pot_B,indx_st,indx_ingreso,indx_intermedio,indx_salida;
-	double energia,etrial,vmax,vmin,energia_ws;
-	double *D0=new double[1];
-	double *rms=new double[1];
-	complejo*** succClalb;
-	complejo*** simClalb;
-	complejo*** nonClalb;
-	succClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
-	simClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
-	nonClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
-	InicializaTwoTrans(parm);
-	cout<<"Generando potenciales de campo medio"<<endl;
-	for(n=0;n<parm->num_cm;n++)
+  cout<<"********************************************************************************"<<endl;
+  cout<<"*                                                                              *"<<endl;
+  cout<<"*                       TRANSFERENCIA DE 2 NUCLEONES                           *"<<endl;
+  cout<<"*                                                                              *"<<endl;
+  cout<<"********************************************************************************"<<endl;
+  int n,m,indx_pot_a,indx_pot_B,indx_st,indx_ingreso,indx_intermedio,indx_salida;
+  double energia,etrial,vmax,vmin,energia_ws;
+  double *D0=new double[1];
+  double *rms=new double[1];
+  complejo*** succClalb;
+  complejo*** simClalb;
+  complejo*** nonClalb;
+  complejo* dumb_pot=new complejo[1];
+  potencial_optico* dumb_pot_opt=new potencial_optico[1];
+  succClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
+  simClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
+  nonClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
+  HanShiShen(parm->energia_lab+parm->int_Qvalue,parm->T_N,parm->T_carga);
+  PangPotential(dumb_pot_opt,parm->energia_lab,parm->T_N,parm->T_carga,0,-1.,"3He");
+  //CH89(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+  //	KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+  cout<<"quillo1"<<endl;
+  KoningDelaroche(parm->energia_lab+parm->Qvalue,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+  cout<<"quillo2"<<endl;
+  InicializaTwoTrans(parm);
+  cout<<"Generando potenciales de campo medio"<<endl;
+  for(n=0;n<parm->num_cm;n++)
+    {
+      GeneraPotencialCM(parm,&(parm->pot[n]));
+      if(parm->a_potcm==parm->pot[n].id) indx_pot_a=n;
+      if(parm->B_potcm==parm->pot[n].id) indx_pot_B=n;
+    }
+  cout<<"Generando niveles nucleo a"<<endl;
+  /* Genera niveles del n�cleo 'a' */
+  cout<<"Cargas: "<<(parm->n1_carga)*parm->Z_b<<"   "<<(parm->n1_carga)*parm->Z_A<<endl;
+  for (n=0;n<parm->a_numst;n++)
+    {
+      for(m=0;m<parm->num_st;m++)
 	{
-		GeneraPotencialCM(parm,&(parm->pot[n]));
-		if(parm->a_potcm==parm->pot[n].id) indx_pot_a=n;
-		if(parm->B_potcm==parm->pot[n].id) indx_pot_B=n;
+	  if(parm->a_estados[n]==parm->st[m].id) indx_st=m;
 	}
-	cout<<"Generando niveles nucleo a"<<endl;
-	/* Genera niveles del n�cleo 'a' */
-	for (n=0;n<parm->a_numst;n++)
+      GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),
+		      parm->radio,parm->puntos,(parm->n1_carga)*parm->Z_b,parm,1,parm->m_b/(parm->m_b+1.),D0,rms);
+      //GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,50.,parm,1,parm->m_b/(parm->m_b+1.),D0,rms);
+      cout<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_a].V<<endl;
+    }
+  cout<<"Generando niveles nucleo B"<<endl;
+  /* Genera niveles del n�cleo 'B' */
+  for (n=0;n<parm->B_numst;n++)
+    {
+      for(m=0;m<parm->num_st;m++)
 	{
-		for(m=0;m<parm->num_st;m++)
-		{
-			if(parm->a_estados[n]==parm->st[m].id) indx_st=m;
-		}
-//		GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,parm->m_b/(parm->m_b+1.));
-		GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,0.991935483870968,D0,rms);
-		cout<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_a].V<<endl;
+	  if(parm->B_estados[n]==parm->st[m].id) indx_st=m;
 	}
-	cout<<"Generando niveles nucleo B"<<endl;
-	/* Genera niveles del n�cleo 'B' */
-	for (n=0;n<parm->B_numst;n++)
-	{
-		for(m=0;m<parm->num_st;m++)
-		{
-			if(parm->B_estados[n]==parm->st[m].id) indx_st=m;
-		}
-//		GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,parm->m_A/(parm->m_A+1.));
-		GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,2./3.,D0,rms);
-		cout<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_B].V<<endl;
-	}
+      GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),
+		      parm->radio,parm->puntos,(parm->n1_carga)*parm->Z_A,parm,1,parm->m_A/(parm->m_A+1.),D0,rms);
+      //GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,50.,parm,1,parm->m_A/(parm->m_A+1.),D0,rms);
+      cout<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_B].V<<endl;
+    }
 
-	/*Genera los potenciales opticos (sin t�rminos coulombiano y spin-�rbita) */
-	for (n=0;n<parm->num_opt;n++)
-	{
-		if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
-		if(parm->optico_intermedio==parm->pot_opt[n].id) indx_intermedio=n;
-		if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
-	}
-	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_ingreso]),parm->m_A,parm->m_a);
-	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_A+1,parm->m_a-1);
-	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_salida]),parm->m_B,parm->m_b);
-	EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
-	EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
-	if(parm->form_factor) GeneraFormFactor(parm);
-	if(parm->successive && ((!strcmp(parm->a_tipo_fun,"li"))||(!strcmp(parm->B_tipo_fun,"li")))) SuccessiveTipoLi(parm,succClalb);
-	if(parm->successive) {cout<<"Successive..."<<endl; Successive(parm,succClalb);}
-	if(parm->simultaneous) {cout<<"Simultaneous..."<<endl; Simultaneous(parm,simClalb);}
-	CrossSection(succClalb,simClalb,nonClalb,parm);
-	delete[] succClalb;
-	delete[] simClalb;
-	delete[] nonClalb;
+  /*Genera los potenciales opticos (sin t�rminos coulombiano y spin-�rbita) */
+  for (n=0;n<parm->num_opt;n++)
+    {
+      if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
+      if(parm->optico_intermedio==parm->pot_opt[n].id) indx_intermedio=n;
+      if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
+    }
+  GeneraPotencialOptico(parm,&(parm->pot_opt[indx_ingreso]),parm->m_A,parm->m_a);
+  GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_A+1,parm->m_a-1);
+  GeneraPotencialOptico(parm,&(parm->pot_opt[indx_salida]),parm->m_B,parm->m_b);
+  EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
+  EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
+  if(parm->form_factor) GeneraFormFactor(parm);
+  if(parm->successive && ((!strcmp(parm->a_tipo_fun,"li"))||(!strcmp(parm->B_tipo_fun,"li")))) SuccessiveTipoLi(parm,succClalb);
+  if(parm->successive) {cout<<"Successive..."<<endl; Successive(parm,succClalb);}
+  if(parm->simultaneous) {cout<<"Simultaneous..."<<endl; Simultaneous(parm,simClalb);}
+  CrossSection(succClalb,simClalb,nonClalb,parm);
+  delete[] succClalb;
+  delete[] simClalb;
+  delete[] nonClalb;
 }
 
 
@@ -1988,204 +2007,202 @@ void InicializaTwoTrans(struct parametros* parm)
 
 void Successive(struct parametros *parm,complejo*** Clalb)
 {
-	int la,lb,lc,st_a,st_B,n,K,P,indx_ingreso,indx_intermedio,indx_salida;
-	double factor,c1,c2,c3,c4;
-	double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
-	double eta_i=parm->eta;
-	complejo exp_delta_coulomb_i,exp_delta_coulomb_f,fase;
-	integrando_schica *ints=new integrando_schica;
-	integrando_sgrande *intS=new integrando_sgrande;
-	parametros_integral *dim1=new parametros_integral;
-	parametros_integral *dim2=new parametros_integral;
-	parametros_integral *dim3=new parametros_integral;
-	coordenadas_successive *coords=new coordenadas_successive;
-	if (!ints) Error("No se pudo reservar memoria para ints");
-	if (!intS) Error("No se pudo reservar memoria para intS");
-	if (!coords) Error("No se pudo reservar memoria para coords");
-	complejo *schica_mas,*schica_menos,*sgrande_mas,*sgrande_menos;
-	schica_mas=new complejo[parm->rCc_puntos];
-	schica_menos=new complejo[parm->rCc_puntos];
-	sgrande_mas=new complejo;
-	sgrande_menos=new complejo;
-	ofstream fp(parm->fl_amplitudes);
-	ofstream fp2(parm->fl_dw);
-	ofstream fp3(parm->fl_gf);
-	ofstream fp5("dw_out1trans.txt");
-	ofstream fp4("dw_in1trans.txt");
-	factor=2048*PI*PI*PI*PI*PI*parm->mu_Cc*AMU/(HC*HC*parm->k_Aa*parm->k_Cc*parm->k_Bb);
-	/*Par�metros num�ricos para s */
-	ints->dim1=dim1;
-	ints->dim2=dim2;
-	ints->dim3=dim3;
-	ints->coords=coords;
-	ints->dim1->a=parm->r_Ccmin;
-	ints->dim1->b=parm->r_Ccmax;
-	ints->dim1->num_puntos=parm->rCc_puntos;
-	ints->dim2->a=parm->r_A2min;
-	ints->dim2->b=parm->r_A2max;
-	ints->dim2->num_puntos=parm->rA2_puntos;
-	ints->dim3->a=0.;
-	ints->dim3->b=PI;
-	ints->dim3->num_puntos=parm->theta_puntos;
-	GaussLegendre(ints->dim1->puntos,ints->dim1->pesos,ints->dim1->num_puntos);
-	GaussLegendre(ints->dim2->puntos,ints->dim2->pesos,ints->dim2->num_puntos);
-	GaussLegendre(ints->dim3->puntos,ints->dim3->pesos,ints->dim3->num_puntos);
+  int la,lb,lc,st_a,st_B,n,K,P,indx_ingreso,indx_intermedio,indx_salida;
+  double factor,c1,c2,c3,c4;
+  double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
+  double eta_i=parm->eta;
+  complejo exp_delta_coulomb_i,exp_delta_coulomb_f,fase;
+  integrando_schica *ints=new integrando_schica;
+  integrando_sgrande *intS=new integrando_sgrande;
+  parametros_integral *dim1=new parametros_integral;
+  parametros_integral *dim2=new parametros_integral;
+  parametros_integral *dim3=new parametros_integral;
+  coordenadas_successive *coords=new coordenadas_successive;
+  if (!ints) Error("No se pudo reservar memoria para ints");
+  if (!intS) Error("No se pudo reservar memoria para intS");
+  if (!coords) Error("No se pudo reservar memoria para coords");
+  complejo *schica_mas,*schica_menos,*sgrande_mas,*sgrande_menos;
+  schica_mas=new complejo[parm->rCc_puntos];
+  schica_menos=new complejo[parm->rCc_puntos];
+  sgrande_mas=new complejo;
+  sgrande_menos=new complejo;
+  ofstream fp(parm->fl_amplitudes);
+  ofstream fp2(parm->fl_dw);
+  ofstream fp3(parm->fl_gf);
+  ofstream fp5("dw_out1trans.txt");
+  ofstream fp4("dw_in1trans.txt");
+  factor=2048*PI*PI*PI*PI*PI*parm->mu_Cc*AMU/(HC*HC*parm->k_Aa*parm->k_Cc*parm->k_Bb);
+  /*Par�metros num�ricos para s */
+  ints->dim1=dim1;
+  ints->dim2=dim2;
+  ints->dim3=dim3;
+  ints->coords=coords;
+  ints->dim1->a=parm->r_Ccmin;
+  ints->dim1->b=parm->r_Ccmax;
+  ints->dim1->num_puntos=parm->rCc_puntos;
+  ints->dim2->a=parm->r_A2min;
+  ints->dim2->b=parm->r_A2max;
+  ints->dim2->num_puntos=parm->rA2_puntos;
+  ints->dim3->a=0.;
+  ints->dim3->b=PI;
+  ints->dim3->num_puntos=parm->theta_puntos;
+  GaussLegendre(ints->dim1->puntos,ints->dim1->pesos,ints->dim1->num_puntos);
+  GaussLegendre(ints->dim2->puntos,ints->dim2->pesos,ints->dim2->num_puntos);
+  GaussLegendre(ints->dim3->puntos,ints->dim3->pesos,ints->dim3->num_puntos);
 
-	/*Par�metros num�ricos para S iguales que los de s*/
-	intS->dim1=ints->dim1;
-	intS->dim2=ints->dim2;
-	intS->dim3=ints->dim3;
-	intS->schica_mas=schica_mas;
-	intS->schica_menos=schica_menos;
-	GeneraCoordenadasSuccessive(parm,ints->coords,ints->dim1,ints->dim2,ints->dim3);
-	intS->coords=ints->coords;
+  /*Par�metros num�ricos para S iguales que los de s*/
+  intS->dim1=ints->dim1;
+  intS->dim2=ints->dim2;
+  intS->dim3=ints->dim3;
+  intS->schica_mas=schica_mas;
+  intS->schica_menos=schica_menos;
+  GeneraCoordenadasSuccessive(parm,ints->coords,ints->dim1,ints->dim2,ints->dim3);
+  intS->coords=ints->coords;
 
-	/*Selecciona los potenciales opticos en los distintos canales*/
-	for (n=0;n<parm->num_opt;n++)
+  /*Selecciona los potenciales opticos en los distintos canales*/
+  for (n=0;n<parm->num_opt;n++)
+    {
+      if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
+      if(parm->optico_intermedio==parm->pot_opt[n].id) indx_intermedio=n;
+      if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
+    }
+  /*Selecciona el potencial de transfer*/
+  for(n=0;n<parm->num_cm;n++)
+    {
+      if(parm->pot_transfer==parm->pot[n].id)
 	{
-		if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
-		if(parm->optico_intermedio==parm->pot_opt[n].id) indx_intermedio=n;
-		if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
+	  ints->pot=&(parm->pot[n]);
+	  intS->pot=&(parm->pot[n]);
 	}
-	/*Selecciona el potencial de transfer*/
-	for(n=0;n<parm->num_cm;n++)
+    }
+  cout<<ints->pot->pot<<endl;
+  ints->prior=parm->prior;
+  intS->prior=parm->prior;
+  /*Calculo de las amplitudes de transferencia**************************************************************************/
+  cout<<"Energia del centro de masa: "<<parm->energia_cm<<endl;
+  cout<<"Q-value: "<<parm->Qvalue<<endl;
+  for(la=0;la<parm->lmax;la++)
+    {
+      cout<<"la: "<<la<<endl;
+      exp_delta_coulomb_i=exp(I*(deltac(la,eta_i)));
+      /* distorted wave en el canal de entrada con spin up (entrante[0]) y spin down (entrante[1]) */
+      ints->entrante[0].energia=parm->energia_cm;
+      ints->entrante[0].l=la;
+      ints->entrante[1].energia=parm->energia_cm;
+      ints->entrante[1].l=la;
+      GeneraDW(ints->entrante,&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,
+	       parm->radio,parm->puntos,parm->matching_radio,&fp4);
+      for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
 	{
-		if(parm->pot_transfer==parm->pot[n].id)
+	  cout<<"lb: "<<lb<<endl;
+	  exp_delta_coulomb_f=exp(I*(deltac(lb,eta_f)));
+	  /* distorted wave en el canal de salida con spin up (saliente[0]) y spin down (saliente[1]) */
+	  intS->saliente[0].energia=parm->energia_cm+parm->Qvalue;
+	  intS->saliente[0].l=lb;
+	  intS->saliente[1].energia=parm->energia_cm+parm->Qvalue;
+	  intS->saliente[1].l=lb;
+	  GeneraDW(intS->saliente,&(parm->pot_opt[indx_salida]),parm->Z_B*parm->Z_b,parm->mu_Bb,
+		   parm->radio,parm->puntos,parm->matching_radio,&fp5);
+	  for(st_a=0;st_a<parm->a_numst;st_a++)
+	    {
+	      for(n=0;n<parm->num_st;n++)
 		{
-			ints->pot=&(parm->pot[n]);
-			intS->pot=&(parm->pot[n]);
+		  if (parm->a_estados[st_a] == parm->st[n].id) {
+		    ints->inicial_st = &(parm->st[n]);
+		    intS->inicial_st = &(parm->st[n]);
+		  }
 		}
-	}
-	cout<<ints->pot->pot<<endl;
-	ints->prior=parm->prior;
-	intS->prior=parm->prior;
-	/*Calculo de las amplitudes de transferencia**************************************************************************/
-	cout<<"Energia del centro de masa: "<<parm->energia_cm<<endl;
-	cout<<"Q-value: "<<parm->Qvalue<<endl;
-	for(la=0;la<parm->lmax;la++)
-	{
-		cout<<"la: "<<la<<endl;
-		exp_delta_coulomb_i=exp(I*(deltac(la,eta_i)));
-		/* distorted wave en el canal de entrada con spin up (entrante[0]) y spin down (entrante[1]) */
-		ints->entrante[0].energia=parm->energia_cm;
-		ints->entrante[0].l=la;
-		ints->entrante[1].energia=parm->energia_cm;
-		ints->entrante[1].l=la;
-		GeneraDW(ints->entrante,&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,
-				parm->radio,parm->puntos,parm->matching_radio,&fp4);
-		for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
+	      for(st_B=0;(st_B<parm->B_numst);st_B++)
 		{
-			cout<<"lb: "<<lb<<endl;
-			exp_delta_coulomb_f=exp(I*(deltac(lb,eta_f)));
-			/* distorted wave en el canal de salida con spin up (saliente[0]) y spin down (saliente[1]) */
-			intS->saliente[0].energia=parm->energia_cm+parm->Qvalue;
-			intS->saliente[0].l=lb;
-			intS->saliente[1].energia=parm->energia_cm+parm->Qvalue;
-			intS->saliente[1].l=lb;
-			GeneraDW(intS->saliente,&(parm->pot_opt[indx_salida]),parm->Z_A*parm->Z_a,parm->mu_Bb,
-					parm->radio,parm->puntos,parm->matching_radio,&fp5);
-			for(st_a=0;st_a<parm->a_numst;st_a++)
+		  for (n = 0; n < parm->num_st; n++) {
+		    if (parm->B_estados[st_B] == parm->st[n].id) {
+		      ints->final_st = &(parm->st[n]);
+		      intS->final_st = &(parm->st[n]);
+		    }
+		  }
+		  if((intS->final_st->spec)!=0. && (ints->inicial_st->spec)!=0.)
+		    {
+		      fase=pow(I,intS->final_st->l+ints->inicial_st->l)*pow(-1.,intS->final_st->j+intS->final_st->j);
+		      fase=pow(-1.,intS->final_st->j+intS->inicial_st->j);
+		      cout<<" formfactor: "<<st_a<<"  "<<st_B<<endl;
+		      c1=sqrt((2.*ints->inicial_st->j+1.)/((2.*parm->lambda+1.)*(2.*ints->final_st->j+1.)));
+		      for(K=abs((intS->final_st->l)-(ints->inicial_st->l));K<=(intS->final_st->l)+(ints->inicial_st->l);K++)
 			{
-				for(n=0;n<parm->num_st;n++)
+			  c2=Wigner9j(intS->final_st->l,0.5,intS->final_st->j,ints->inicial_st->l,0.5,ints->inicial_st->j,K,0.,K)*
+			    pow(-1.,K)/(2.*K+1.);
+			  for(P=abs((intS->final_st->l)-(ints->inicial_st->l));(P<=(intS->final_st->l)+(ints->inicial_st->l)) && (c2!=0.);P++)
+			    {
+			      c3=Wigner9j(intS->final_st->l,0.5,intS->final_st->j,ints->inicial_st->l,0.5,ints->inicial_st->j,P,0.,P)*
+				Wigner9j(intS->inicial_st->j,intS->final_st->j,K,intS->inicial_st->j,ints->inicial_st->j,parm->lambda,0.,P,P)*
+				(1./sqrt(2.*P+1.));
+			      for(lc=abs(la-P);(lc<=la+P) && (c3!=0.) && (lc<parm->lmax);lc++)
 				{
-					if (parm->a_estados[st_a] == parm->st[n].id) {
-						ints->inicial_st = &(parm->st[n]);
-						intS->inicial_st = &(parm->st[n]);
-					}
-				}
-				for(st_B=0;(st_B<parm->B_numst);st_B++)
-				{
-					for (n = 0; n < parm->num_st; n++) {
-						if (parm->B_estados[st_B] == parm->st[n].id) {
-							ints->final_st = &(parm->st[n]);
-							intS->final_st = &(parm->st[n]);
-						}
-					}
-					if((intS->final_st->spec)!=0. && (ints->inicial_st->spec)!=0.)
+				  c4=Wigner9j(la,lb,parm->lambda,lc,lc,0.,P,K,parm->lambda)*pow(2.*lc+1.,1.5);
+				  if(c4!=0.)
+				    {
+				      /* funci�n de Green con spin up y spin down Energ�a corregida (factor adiab�tico)*/
+				      if(parm->adiabatico)
 					{
-						fase=pow(I,intS->final_st->l+ints->inicial_st->l)*pow(-1.,intS->final_st->j+intS->final_st->j);
-						fase=pow(-1.,intS->final_st->j+intS->inicial_st->j);
-						cout<<" formfactor: "<<st_a<<"  "<<st_B<<endl;
-						c1=sqrt((2.*ints->inicial_st->j+1.)/((2.*parm->lambda+1.)*(2.*ints->final_st->j+1.)));
-						for(K=abs((intS->final_st->l)-(ints->inicial_st->l));K<=(intS->final_st->l)+(ints->inicial_st->l);K++)
-						{
-							c2=Wigner9j(intS->final_st->l,0.5,intS->final_st->j,ints->inicial_st->l,0.5,ints->inicial_st->j,K,0.,K)*
-									pow(-1.,K)/(2.*K+1.);
-							for(P=abs((intS->final_st->l)-(ints->inicial_st->l));(P<=(intS->final_st->l)+(ints->inicial_st->l)) && (c2!=0.);P++)
-							{
-								c3=Wigner9j(intS->final_st->l,0.5,intS->final_st->j,ints->inicial_st->l,0.5,ints->inicial_st->j,P,0.,P)*
-										Wigner9j(intS->inicial_st->j,intS->final_st->j,K,intS->inicial_st->j,ints->inicial_st->j,parm->lambda,0.,P,P)*
-										(1./sqrt(2.*P+1.));
-								for(lc=abs(la-P);(lc<=la+P) && (c3!=0.) && (lc<parm->lmax);lc++)
-								{
-									c4=Wigner9j(la,lb,parm->lambda,lc,lc,0.,P,K,parm->lambda)*pow(2.*lc+1.,1.5);
-									if(c4!=0.)
-									{
-										/* funci�n de Green con spin up y spin down Energ�a corregida (factor adiab�tico)*/
-										if(parm->adiabatico)
-										{
-											ints->funcion_regular[0].energia=parm->energia_cm+parm->int_Qvalue-
-													fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
+					  ints->funcion_regular[0].energia=parm->energia_cm+parm->int_Qvalue-
+					    fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
 
-											ints->funcion_regular[1].energia=parm->energia_cm+parm->int_Qvalue-
-													fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
+					  ints->funcion_regular[1].energia=parm->energia_cm+parm->int_Qvalue-
+					    fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
 
-											ints->funcion_irregular[0].energia=parm->energia_cm+parm->int_Qvalue-
-													fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
+					  ints->funcion_irregular[0].energia=parm->energia_cm+parm->int_Qvalue-
+					    fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
 
-											ints->funcion_irregular[1].energia=parm->energia_cm+parm->int_Qvalue-
-													fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
-										}
-										/* funci�n de Green con spin up y spin down sin correccion de energ�a */
-										if(!(parm->adiabatico))
-										{
-											ints->funcion_regular[0].energia=parm->energia_cm+parm->int_Qvalue;
-											ints->funcion_regular[1].energia=parm->energia_cm+parm->int_Qvalue;
-
-											ints->funcion_irregular[0].energia=parm->energia_cm+parm->int_Qvalue;
-											ints->funcion_irregular[1].energia=parm->energia_cm+parm->int_Qvalue;
-										}
-										ints->funcion_regular[0].l=lc;
-										ints->funcion_regular[1].l=lc;
-										ints->funcion_irregular[0].l=lc;
-										ints->funcion_irregular[1].l=lc;
-										if(lc==abs(la-P)) cout<<"Energ�a dw intermedia: "<<ints->funcion_regular[0].energia<<endl;
-										GeneraGreenFunction(ints->funcion_regular,ints->funcion_irregular,&(parm->pot_opt[indx_intermedio]),
-												parm->Z_A*parm->Z_a,parm->mu_Cc,parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
-										SChica(ints,P,la,lc,schica_mas,schica_menos);
-										SGrande(intS,K,la,lb,lc,sgrande_mas,sgrande_menos);
-										Clalb[la][lb][0]+=fase*pow(I,la-lb)*ints->inicial_st->spec*intS->final_st->spec*
-												exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor*(*sgrande_mas);
-										Clalb[la][lb][1]+=fase*pow(I,la-lb)*ints->inicial_st->spec*intS->final_st->spec*
-												exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor*(*sgrande_menos);
-										misc4<<la<<"   "<<abs(*sgrande_mas)<<"   "<<abs(Clalb[la][lb][0])<<endl;
-//										misc1<<la<<"   "<<abs(Clalb[la][lb][0])<<"  "<<
-//												abs(*sgrande_mas)<<endl;
-									}
-								}
-							}
-						}
+					  ints->funcion_irregular[1].energia=parm->energia_cm+parm->int_Qvalue-
+					    fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
 					}
+				      /* funci�n de Green con spin up y spin down sin correccion de energ�a */
+				      if(!(parm->adiabatico))
+					{
+					  ints->funcion_regular[0].energia=parm->energia_cm+parm->int_Qvalue;
+					  ints->funcion_regular[1].energia=parm->energia_cm+parm->int_Qvalue;
+
+					  ints->funcion_irregular[0].energia=parm->energia_cm+parm->int_Qvalue;
+					  ints->funcion_irregular[1].energia=parm->energia_cm+parm->int_Qvalue;
+					}
+				      ints->funcion_regular[0].l=lc;
+				      ints->funcion_regular[1].l=lc;
+				      ints->funcion_irregular[0].l=lc;
+				      ints->funcion_irregular[1].l=lc;
+				      if(lc==abs(la-P)) cout<<"Energ�a dw intermedia: "<<ints->funcion_regular[0].energia<<endl;
+				      GeneraGreenFunction(ints->funcion_regular,ints->funcion_irregular,&(parm->pot_opt[indx_intermedio]),
+							  (parm->Z_A+parm->n1_carga)*(parm->Z_a-parm->n1_carga),parm->mu_Cc,parm->radio,
+							  parm->puntos,parm->matching_radio,parm->n_spin);
+				      SChica(ints,P,la,lc,schica_mas,schica_menos);
+				      SGrande(intS,K,la,lb,lc,sgrande_mas,sgrande_menos);
+				      Clalb[la][lb][0]+=fase*pow(I,la-lb)*ints->inicial_st->spec*intS->final_st->spec*
+					exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor*(*sgrande_mas);
+				      Clalb[la][lb][1]+=fase*pow(I,la-lb)*ints->inicial_st->spec*intS->final_st->spec*
+					exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor*(*sgrande_menos);
+				    }
 				}
+			    }
 			}
+		    }
 		}
+	    }
 	}
-	for(la=0;la<parm->lmax;la++)
+    }
+  for(la=0;la<parm->lmax;la++)
+    {
+      for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
 	{
-		for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
-		{
-			fp<<la<<"  "<<lb<<"  "<<real(Clalb[la][lb][0])<<"  "<<imag(Clalb[la][lb][0])
-		<<"  "<<real(Clalb[la][lb][1])<<"  "<<imag(Clalb[la][lb][1])<<endl;
-		}
+	  fp<<la<<"  "<<lb<<"  "<<real(Clalb[la][lb][0])<<"  "<<imag(Clalb[la][lb][0])
+	    <<"  "<<real(Clalb[la][lb][1])<<"  "<<imag(Clalb[la][lb][1])<<endl;
 	}
-	delete[] sgrande_mas;
-	delete[] sgrande_menos;
-	delete[] ints;
-	delete[] intS;
-	delete[] dim1;
-	delete[] dim2;
-	delete[] dim3;
-	delete[] coords;
+    }
+  delete[] sgrande_mas;
+  delete[] sgrande_menos;
+  delete[] ints;
+  delete[] intS;
+  delete[] dim1;
+  delete[] dim2;
+  delete[] dim3;
+  delete[] coords;
 }
 void Simultaneous(struct parametros *parm,complejo*** Clalb)
 {
@@ -2332,253 +2349,253 @@ void Simultaneous(struct parametros *parm,complejo*** Clalb)
 }
 void SuccessiveTipoLi(struct parametros *parm,complejo*** Clalb)
 {
-	int la,lb,lc,st_a,st_B,n,K,P,indx_ingreso,indx_intermedio,indx_salida,indx_pot,m;
-	int l1,l2,lp,estado1,estado2;
-	double j1,j2,jp;
-	double factor,c1,c2,c3,c4,energia,etrial,energia_ws,vmax,vmin;
-	double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
-	double eta_i=parm->eta;
-	double *D0,*rms;
-	complejo exp_delta_coulomb_i,exp_delta_coulomb_f,fase;
-	integrando_schica *ints=new integrando_schica;
-	integrando_sgrande *intS=new integrando_sgrande;
-	parametros_integral *dim1=new parametros_integral;
-	parametros_integral *dim2=new parametros_integral;
-	parametros_integral *dim3=new parametros_integral;
-	coordenadas_successive *coords=new coordenadas_successive;
-	if (!ints) Error("No se pudo reservar memoria para ints");
-	if (!intS) Error("No se pudo reservar memoria para intS");
-	if (!coords) Error("No se pudo reservar memoria para coords");
-	complejo *schica_mas,*schica_menos,*sgrande_mas,*sgrande_menos;
-	schica_mas=new complejo[parm->rCc_puntos];
-	schica_menos=new complejo[parm->rCc_puntos];
-	sgrande_mas=new complejo;
-	sgrande_menos=new complejo;
-	double** anm=matriz_dbl(parm->num_st+10,parm->num_st+10);
-	estado* st1=new estado[parm->num_st];
-	ofstream fp(parm->fl_amplitudes);
-	ofstream fp2(parm->fl_dw);
-	ofstream fp3(parm->fl_gf);
-	factor=sqrt(2.)*2048*PI*PI*PI*PI*PI*parm->mu_Cc*AMU/(HC*HC*parm->k_Aa*parm->k_Cc*parm->k_Bb);
-	cout<<"C�lculo de transferencia de 2 nucleones con funciones de onda tipo Li +++++++++++++++++++++++++++++++"<<endl;
-	/*Par�metros num�ricos para s */
-	ints->dim1=dim1;
-	ints->dim2=dim2;
-	ints->dim3=dim3;
-	ints->coords=coords;
-	ints->dim1->a=parm->r_Ccmin;
-	ints->dim1->b=parm->r_Ccmax;
-	ints->dim1->num_puntos=parm->rCc_puntos;
-	ints->dim2->a=parm->r_A2min;
-	ints->dim2->b=parm->r_A2max;
-	ints->dim2->num_puntos=parm->rA2_puntos;
-	ints->dim3->a=0.;
-	ints->dim3->b=PI;
-	ints->dim3->num_puntos=parm->theta_puntos;
-	GaussLegendre(ints->dim1->puntos,ints->dim1->pesos,ints->dim1->num_puntos);
-	GaussLegendre(ints->dim2->puntos,ints->dim2->pesos,ints->dim2->num_puntos);
-	GaussLegendre(ints->dim3->puntos,ints->dim3->pesos,ints->dim3->num_puntos);
+  int la,lb,lc,st_a,st_B,n,K,P,indx_ingreso,indx_intermedio,indx_salida,indx_pot,m;
+  int l1,l2,lp,estado1,estado2;
+  double j1,j2,jp;
+  double factor,c1,c2,c3,c4,energia,etrial,energia_ws,vmax,vmin;
+  double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
+  double eta_i=parm->eta;
+  double *D0,*rms;
+  complejo exp_delta_coulomb_i,exp_delta_coulomb_f,fase;
+  integrando_schica *ints=new integrando_schica;
+  integrando_sgrande *intS=new integrando_sgrande;
+  parametros_integral *dim1=new parametros_integral;
+  parametros_integral *dim2=new parametros_integral;
+  parametros_integral *dim3=new parametros_integral;
+  coordenadas_successive *coords=new coordenadas_successive;
+  if (!ints) Error("No se pudo reservar memoria para ints");
+  if (!intS) Error("No se pudo reservar memoria para intS");
+  if (!coords) Error("No se pudo reservar memoria para coords");
+  complejo *schica_mas,*schica_menos,*sgrande_mas,*sgrande_menos;
+  schica_mas=new complejo[parm->rCc_puntos];
+  schica_menos=new complejo[parm->rCc_puntos];
+  sgrande_mas=new complejo;
+  sgrande_menos=new complejo;
+  double** anm=matriz_dbl(parm->num_st+10,parm->num_st+10);
+  estado* st1=new estado[parm->num_st];
+  ofstream fp(parm->fl_amplitudes);
+  ofstream fp2(parm->fl_dw);
+  ofstream fp3(parm->fl_gf);
+  factor=sqrt(2.)*2048*PI*PI*PI*PI*PI*parm->mu_Cc*AMU/(HC*HC*parm->k_Aa*parm->k_Cc*parm->k_Bb);
+  cout<<"C�lculo de transferencia de 2 nucleones con funciones de onda tipo Li +++++++++++++++++++++++++++++++"<<endl;
+  /*Par�metros num�ricos para s */
+  ints->dim1=dim1;
+  ints->dim2=dim2;
+  ints->dim3=dim3;
+  ints->coords=coords;
+  ints->dim1->a=parm->r_Ccmin;
+  ints->dim1->b=parm->r_Ccmax;
+  ints->dim1->num_puntos=parm->rCc_puntos;
+  ints->dim2->a=parm->r_A2min;
+  ints->dim2->b=parm->r_A2max;
+  ints->dim2->num_puntos=parm->rA2_puntos;
+  ints->dim3->a=0.;
+  ints->dim3->b=PI;
+  ints->dim3->num_puntos=parm->theta_puntos;
+  GaussLegendre(ints->dim1->puntos,ints->dim1->pesos,ints->dim1->num_puntos);
+  GaussLegendre(ints->dim2->puntos,ints->dim2->pesos,ints->dim2->num_puntos);
+  GaussLegendre(ints->dim3->puntos,ints->dim3->pesos,ints->dim3->num_puntos);
 
-	/*Par�metros num�ricos para S iguales que los de s*/
-	intS->dim1=ints->dim1;
-	intS->dim2=ints->dim2;
-	intS->dim3=ints->dim3;
-	intS->schica_mas=schica_mas;
-	intS->schica_menos=schica_menos;
-	GeneraCoordenadasSuccessive(parm,ints->coords,ints->dim1,ints->dim2,ints->dim3);
-	intS->coords=ints->coords;
+  /*Par�metros num�ricos para S iguales que los de s*/
+  intS->dim1=ints->dim1;
+  intS->dim2=ints->dim2;
+  intS->dim3=ints->dim3;
+  intS->schica_mas=schica_mas;
+  intS->schica_menos=schica_menos;
+  GeneraCoordenadasSuccessive(parm,ints->coords,ints->dim1,ints->dim2,ints->dim3);
+  intS->coords=ints->coords;
 
-	/*Selecciona los potenciales opticos en los distintos canales*/
-	for (n=0;n<parm->num_opt;n++)
-	{
-		if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
-		if(parm->optico_intermedio==parm->pot_opt[n].id) indx_intermedio=n;
-		if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
-	}
-	/*Selecciona el potencial de transfer*/
-	for(n=0;n<parm->num_cm;n++)
-	{
-		if(parm->pot_transfer==parm->pot[n].id) {ints->pot=&(parm->pot[n]);intS->pot=&(parm->pot[n]);
-		cout<<"indice del potencial de interaccion: "<<n<<endl;}
-	}
-	ints->prior=parm->prior;
-	intS->prior=parm->prior;
-	cout<<"Leyendo diagrama...."<<endl;
-	LeeDiagrama(parm->fl_diagrama,anm,st1,parm->num_st);
+  /*Selecciona los potenciales opticos en los distintos canales*/
+  for (n=0;n<parm->num_opt;n++)
+    {
+      if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
+      if(parm->optico_intermedio==parm->pot_opt[n].id) indx_intermedio=n;
+      if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
+    }
+  /*Selecciona el potencial de transfer*/
+  for(n=0;n<parm->num_cm;n++)
+    {
+      if(parm->pot_transfer==parm->pot[n].id) {ints->pot=&(parm->pot[n]);intS->pot=&(parm->pot[n]);
+	cout<<"indice del potencial de interaccion: "<<n<<endl;}
+    }
+  ints->prior=parm->prior;
+  intS->prior=parm->prior;
+  cout<<"Leyendo diagrama...."<<endl;
+  LeeDiagrama(parm->fl_diagrama,anm,st1,parm->num_st);
 
-	cout<<"....Ok"<<endl;
-	cout<<"Generando potenciales de campo medio"<<endl;
-	for(n=0;n<parm->num_cm;n++)
+  cout<<"....Ok"<<endl;
+  cout<<"Generando potenciales de campo medio"<<endl;
+  for(n=0;n<parm->num_cm;n++)
+    {
+      if(parm->a_potcm==parm->pot[n].id && !strcmp(parm->a_tipo_fun,"li")) indx_pot=n;
+      if(parm->B_potcm==parm->pot[n].id && !strcmp(parm->B_tipo_fun,"li")) indx_pot=n;
+    }
+  cout<<"indice del potencial CM: "<<indx_pot<<endl;
+  cout<<"Generando niveles de part�cula independiente"<<endl;
+  /* Genera niveles primera columna */
+  for (n=0;n<parm->num_st;n++)
+    {
+      //		cout<<"parametros: "<<parm->m_b/(parm->m_b+1.)<<"  "<<parm->m_A/(parm->m_A+1.)<<endl;
+      if(!strcmp(parm->a_tipo_fun,"li")) GeneraEstadosPI(&(parm->pot[indx_pot]),&(st1[n]),parm->radio,
+							 parm->puntos,0.,parm,1,parm->m_b/(parm->m_b+1.),D0,rms);
+      if(!strcmp(parm->B_tipo_fun,"li")) GeneraEstadosPI(&(parm->pot[indx_pot]),&(st1[n]),parm->radio,
+							 parm->puntos,0.,parm,1,parm->m_A/(parm->m_A+1.),D0,rms);
+    }
+  for(n=0;n<parm->num_st;n++)
+    {
+      if ((parm->a_estados[0] == parm->st[n].id) && parm->m_a==3.) {
+	ints->inicial_st = &(parm->st[n]);
+	intS->inicial_st = &(parm->st[n]);
+      }
+      if (parm->B_estados[0] == parm->st[n].id && parm->m_B==3.) {
+	ints->final_st = &(parm->st[n]);
+	intS->final_st = &(parm->st[n]);
+      }
+    }
+  for(n=0;n<parm->puntos;n++)
+    {
+      misc2<<intS->pot->r[n]<<"   "<<intS->pot->pot[n]<<endl;
+    }
+  //	EscribeEstados(parm->puntos,ints->inicial_st,1,parm);
+  //	EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
+  cout<<"Energia del centro de masa: "<<parm->energia_cm<<endl;
+  cout<<"Q-value: "<<parm->Qvalue<<endl;
+  lp=0;
+  jp=0.5;
+  /*Calculo de las amplitudes de transferencia**************************************************************************/
+  for(la=0;la<parm->lmax;la++)
+    {
+      cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++    la: "<<la<<endl;
+      exp_delta_coulomb_i=exp(I*(deltac(la,eta_i)));
+      /* distorted wave en el canal de entrada con spin up (entrante[0]) y spin down (entrante[1]) */
+      ints->entrante[0].energia=parm->energia_cm;
+      ints->entrante[0].l=la;
+      ints->entrante[1].energia=parm->energia_cm;
+      ints->entrante[1].l=la;
+      GeneraDW(ints->entrante,&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,
+	       parm->radio,parm->puntos,parm->matching_radio,&fp2);
+      for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
 	{
-		if(parm->a_potcm==parm->pot[n].id && !strcmp(parm->a_tipo_fun,"li")) indx_pot=n;
-		if(parm->B_potcm==parm->pot[n].id && !strcmp(parm->B_tipo_fun,"li")) indx_pot=n;
-	}
-	cout<<"indice del potencial CM: "<<indx_pot<<endl;
-	cout<<"Generando niveles de part�cula independiente"<<endl;
-	/* Genera niveles primera columna */
-	for (n=0;n<parm->num_st;n++)
-	{
-//		cout<<"parametros: "<<parm->m_b/(parm->m_b+1.)<<"  "<<parm->m_A/(parm->m_A+1.)<<endl;
-		if(!strcmp(parm->a_tipo_fun,"li")) GeneraEstadosPI(&(parm->pot[indx_pot]),&(st1[n]),parm->radio,
-				parm->puntos,0.,parm,1,parm->m_b/(parm->m_b+1.),D0,rms);
-		if(!strcmp(parm->B_tipo_fun,"li")) GeneraEstadosPI(&(parm->pot[indx_pot]),&(st1[n]),parm->radio,
-				parm->puntos,0.,parm,1,parm->m_A/(parm->m_A+1.),D0,rms);
-	}
-	for(n=0;n<parm->num_st;n++)
-	{
-		if ((parm->a_estados[0] == parm->st[n].id) && parm->m_a==3.) {
-			ints->inicial_st = &(parm->st[n]);
-			intS->inicial_st = &(parm->st[n]);
-		}
-		if (parm->B_estados[0] == parm->st[n].id && parm->m_B==3.) {
-			ints->final_st = &(parm->st[n]);
-			intS->final_st = &(parm->st[n]);
-		}
-	}
-	for(n=0;n<parm->puntos;n++)
-	{
-		misc2<<intS->pot->r[n]<<"   "<<intS->pot->pot[n]<<endl;
-	}
-//	EscribeEstados(parm->puntos,ints->inicial_st,1,parm);
-//	EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
-	cout<<"Energia del centro de masa: "<<parm->energia_cm<<endl;
-	cout<<"Q-value: "<<parm->Qvalue<<endl;
-	lp=0;
-	jp=0.5;
-	/*Calculo de las amplitudes de transferencia**************************************************************************/
-	for(la=0;la<parm->lmax;la++)
-	{
-		cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++    la: "<<la<<endl;
-		exp_delta_coulomb_i=exp(I*(deltac(la,eta_i)));
-		/* distorted wave en el canal de entrada con spin up (entrante[0]) y spin down (entrante[1]) */
-		ints->entrante[0].energia=parm->energia_cm;
-		ints->entrante[0].l=la;
-		ints->entrante[1].energia=parm->energia_cm;
-		ints->entrante[1].l=la;
-		GeneraDW(ints->entrante,&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,
-				parm->radio,parm->puntos,parm->matching_radio,&fp2);
-		for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
+	  cout<<"lb: "<<lb<<endl;
+	  exp_delta_coulomb_f=exp(I*(deltac(lb,eta_f)));
+	  /* distorted wave en el canal de salida con spin up (saliente[0]) y spin down (saliente[1]) */
+	  intS->saliente[0].energia=parm->energia_cm+parm->Qvalue;
+	  intS->saliente[0].l=lb;
+	  intS->saliente[1].energia=parm->energia_cm+parm->Qvalue;
+	  intS->saliente[1].l=lb;
+	  GeneraDW(intS->saliente,&(parm->pot_opt[indx_salida]),parm->Z_A*parm->Z_a,parm->mu_Bb,
+		   parm->radio,parm->puntos,parm->matching_radio,&fp2);
+	  for(estado1=0;estado1<parm->num_st;estado1++)
+	    {
+	      for(estado2=0;estado2<parm->num_st;estado2++)
 		{
-			cout<<"lb: "<<lb<<endl;
-			exp_delta_coulomb_f=exp(I*(deltac(lb,eta_f)));
-			/* distorted wave en el canal de salida con spin up (saliente[0]) y spin down (saliente[1]) */
-			intS->saliente[0].energia=parm->energia_cm+parm->Qvalue;
-			intS->saliente[0].l=lb;
-			intS->saliente[1].energia=parm->energia_cm+parm->Qvalue;
-			intS->saliente[1].l=lb;
-			GeneraDW(intS->saliente,&(parm->pot_opt[indx_salida]),parm->Z_A*parm->Z_a,parm->mu_Bb,
-					parm->radio,parm->puntos,parm->matching_radio,&fp2);
-			for(estado1=0;estado1<parm->num_st;estado1++)
+		  if (!strcmp(parm->a_tipo_fun,"li")) {
+		    intS->inicial_st = &(st1[estado1]);
+		    ints->inicial_st = &(st1[estado2]);
+		    l1=intS->inicial_st->l;
+		    l2=ints->inicial_st->l;
+		    j1=intS->inicial_st->j;
+		    j2=ints->inicial_st->j;
+
+		  }
+		  if (!strcmp(parm->B_tipo_fun,"li")) {
+		    intS->final_st = &(st1[estado1]);
+		    ints->final_st = &(st1[estado2]);
+		    l1=intS->final_st->l;
+		    l2=ints->final_st->l;
+		    j1=intS->final_st->j;
+		    j2=ints->final_st->j;
+		  }
+		  //					misc3<<estado1<<"  "<<estado2<<"  "<<anm[estado1][estado2]<<endl;
+		  if(anm[estado1][estado2]!=0.)
+		    {
+		      //						fase=pow(-1.,jp+j2+lp)*pow(I,l1+l2);
+		      fase=pow(I,l1+l2);
+		      c1=sqrt((2.*j2+1.)/((2.*parm->lambda+1.)*(2.*jp+1.)));
+		      for(K=abs(l1-lp);K<=l1+lp;K++)
 			{
-				for(estado2=0;estado2<parm->num_st;estado2++)
+			  c2=Wigner9j(lp,0.5,jp,l1,0.5,j1,K,0.,K)*
+			    pow(-1.,K)/(2.*K+1.);
+			  for(P=abs(lp-l2);(P<=lp+l2) && (c2!=0.);P++)
+			    {
+
+			      c3=Wigner9j(lp,0.5,jp,l2,0.5,j2,P,0.,P)*
+				Wigner9j(j1,jp,K,j1,j2,parm->lambda,0.,P,P)*
+				(1./sqrt(2.*P+1.));
+			      for(lc=abs(la-P);(lc<=la+P) && (c3!=0.) && (lc<parm->lmax);lc++)
 				{
-					if (!strcmp(parm->a_tipo_fun,"li")) {
-						intS->inicial_st = &(st1[estado1]);
-						ints->inicial_st = &(st1[estado2]);
-						l1=intS->inicial_st->l;
-						l2=ints->inicial_st->l;
-						j1=intS->inicial_st->j;
-						j2=ints->inicial_st->j;
 
-					}
-					if (!strcmp(parm->B_tipo_fun,"li")) {
-						intS->final_st = &(st1[estado1]);
-						ints->final_st = &(st1[estado2]);
-						l1=intS->final_st->l;
-						l2=ints->final_st->l;
-						j1=intS->final_st->j;
-						j2=ints->final_st->j;
-					}
-//					misc3<<estado1<<"  "<<estado2<<"  "<<anm[estado1][estado2]<<endl;
-					if(anm[estado1][estado2]!=0.)
+				  c4=Wigner9j(la,lb,parm->lambda,lc,lc,0.,P,K,parm->lambda)*pow(2.*lc+1.,1.5);
+				  if(c4!=0.)
+				    {
+				      /* funci�n de Green con spin up y spin down Energ�a corregida (factor adiab�tico)*/
+				      if(parm->adiabatico)
 					{
-//						fase=pow(-1.,jp+j2+lp)*pow(I,l1+l2);
-						fase=pow(I,l1+l2);
-						c1=sqrt((2.*j2+1.)/((2.*parm->lambda+1.)*(2.*jp+1.)));
-						for(K=abs(l1-lp);K<=l1+lp;K++)
-						{
-							c2=Wigner9j(lp,0.5,jp,l1,0.5,j1,K,0.,K)*
-									pow(-1.,K)/(2.*K+1.);
-							for(P=abs(lp-l2);(P<=lp+l2) && (c2!=0.);P++)
-							{
+					  ints->funcion_regular[0].energia=parm->energia_cm+parm->int_Qvalue-
+					    fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
 
-								c3=Wigner9j(lp,0.5,jp,l2,0.5,j2,P,0.,P)*
-										Wigner9j(j1,jp,K,j1,j2,parm->lambda,0.,P,P)*
-										(1./sqrt(2.*P+1.));
-								for(lc=abs(la-P);(lc<=la+P) && (c3!=0.) && (lc<parm->lmax);lc++)
-								{
+					  ints->funcion_regular[1].energia=parm->energia_cm+parm->int_Qvalue-
+					    fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
 
-									c4=Wigner9j(la,lb,parm->lambda,lc,lc,0.,P,K,parm->lambda)*pow(2.*lc+1.,1.5);
-									if(c4!=0.)
-									{
-										/* funci�n de Green con spin up y spin down Energ�a corregida (factor adiab�tico)*/
-										if(parm->adiabatico)
-										{
-											ints->funcion_regular[0].energia=parm->energia_cm+parm->int_Qvalue-
-													fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
+					  ints->funcion_irregular[0].energia=parm->energia_cm+parm->int_Qvalue-
+					    fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
 
-											ints->funcion_regular[1].energia=parm->energia_cm+parm->int_Qvalue-
-													fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
-
-											ints->funcion_irregular[0].energia=parm->energia_cm+parm->int_Qvalue-
-													fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
-
-											ints->funcion_irregular[1].energia=parm->energia_cm+parm->int_Qvalue-
-													fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
-										}
-										/* funci�n de Green con spin up y spin down sin correccion de energ�a */
-										if(!(parm->adiabatico))
-										{
-											ints->funcion_regular[0].energia=parm->energia_cm+parm->int_Qvalue;
-											ints->funcion_regular[1].energia=parm->energia_cm+parm->int_Qvalue;
-
-											ints->funcion_irregular[0].energia=parm->energia_cm+parm->int_Qvalue;
-											ints->funcion_irregular[1].energia=parm->energia_cm+parm->int_Qvalue;
-										}
-										ints->funcion_regular[0].l=lc;
-										ints->funcion_regular[1].l=lc;
-										ints->funcion_irregular[0].l=lc;
-										ints->funcion_irregular[1].l=lc;
-										if(lc==abs(la-P)) cout<<"Energ�a dw intermedia: "<<ints->funcion_regular[0].energia<<endl;
-										GeneraGreenFunction(ints->funcion_regular,ints->funcion_irregular,&(parm->pot_opt[indx_intermedio]),
-												parm->Z_A*parm->Z_a,parm->mu_Cc,parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
-										SChica(ints,P,la,lc,schica_mas,schica_menos);
-										SGrande(intS,K,la,lb,lc,sgrande_mas,sgrande_menos);
-										Clalb[la][lb][0]+=anm[estado1][estado2]*fase*pow(I,la-lb)*
-												exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor*(*sgrande_mas);
-										Clalb[la][lb][1]+=anm[estado1][estado2]*fase*pow(I,la-lb)*
-												exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor*(*sgrande_menos);
-//										if(la==3 && lb==0) misc1<<estado1<<"  "<<estado2<<"  "<<la<<"   "<<lb<<"  "<<anm[estado1][estado2]<<"  "
-//												<<fase*pow(I,la-lb)*exp_delta_coulomb_i*exp_delta_coulomb_f
-//												<<"   "<<c1*c2*c3*c4<<"   "<<(*sgrande_mas)<<"  "<<
-//												Clalb[la][lb][0]<<endl;
-									}
-								}
-							}
-						}
+					  ints->funcion_irregular[1].energia=parm->energia_cm+parm->int_Qvalue-
+					    fabs(parm->a_Sn-ints->inicial_st->energia)-fabs(parm->B_Sn-ints->final_st->energia);
 					}
-//					misc1<<estado1<<"  "<<estado2<<"  "<<la<<"   "<<lb<<"  "<<real(Clalb[la][lb][0])<<"  "
-//							<<imag(Clalb[la][lb][0])<<endl;
+				      /* funci�n de Green con spin up y spin down sin correccion de energ�a */
+				      if(!(parm->adiabatico))
+					{
+					  ints->funcion_regular[0].energia=parm->energia_cm+parm->int_Qvalue;
+					  ints->funcion_regular[1].energia=parm->energia_cm+parm->int_Qvalue;
+
+					  ints->funcion_irregular[0].energia=parm->energia_cm+parm->int_Qvalue;
+					  ints->funcion_irregular[1].energia=parm->energia_cm+parm->int_Qvalue;
+					}
+				      ints->funcion_regular[0].l=lc;
+				      ints->funcion_regular[1].l=lc;
+				      ints->funcion_irregular[0].l=lc;
+				      ints->funcion_irregular[1].l=lc;
+				      if(lc==abs(la-P)) cout<<"Energ�a dw intermedia: "<<ints->funcion_regular[0].energia<<endl;
+				      GeneraGreenFunction(ints->funcion_regular,ints->funcion_irregular,&(parm->pot_opt[indx_intermedio]),
+							  parm->Z_A*parm->Z_a,parm->mu_Cc,parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
+				      SChica(ints,P,la,lc,schica_mas,schica_menos);
+				      SGrande(intS,K,la,lb,lc,sgrande_mas,sgrande_menos);
+				      Clalb[la][lb][0]+=anm[estado1][estado2]*fase*pow(I,la-lb)*
+					exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor*(*sgrande_mas);
+				      Clalb[la][lb][1]+=anm[estado1][estado2]*fase*pow(I,la-lb)*
+					exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor*(*sgrande_menos);
+				      //										if(la==3 && lb==0) misc1<<estado1<<"  "<<estado2<<"  "<<la<<"   "<<lb<<"  "<<anm[estado1][estado2]<<"  "
+				      //												<<fase*pow(I,la-lb)*exp_delta_coulomb_i*exp_delta_coulomb_f
+				      //												<<"   "<<c1*c2*c3*c4<<"   "<<(*sgrande_mas)<<"  "<<
+				      //												Clalb[la][lb][0]<<endl;
+				    }
 				}
+			    }
 			}
+		    }
+		  //					misc1<<estado1<<"  "<<estado2<<"  "<<la<<"   "<<lb<<"  "<<real(Clalb[la][lb][0])<<"  "
+		  //							<<imag(Clalb[la][lb][0])<<endl;
 		}
+	    }
 	}
-	for(la=0;la<parm->lmax;la++)
+    }
+  for(la=0;la<parm->lmax;la++)
+    {
+      for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
 	{
-		for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
-		{
-			fp<<la<<"  "<<lb<<"  "<<real(Clalb[la][lb][0])<<"  "<<imag(Clalb[la][lb][0])
-		<<"  "<<real(Clalb[la][lb][1])<<"  "<<imag(Clalb[la][lb][1])<<endl;
-		}
+	  fp<<la<<"  "<<lb<<"  "<<real(Clalb[la][lb][0])<<"  "<<imag(Clalb[la][lb][0])
+	    <<"  "<<real(Clalb[la][lb][1])<<"  "<<imag(Clalb[la][lb][1])<<endl;
 	}
-	delete[] sgrande_mas;
-	delete[] sgrande_menos;
-	delete[] ints;
-	delete[] intS;
-	delete[] dim1;
-	delete[] dim2;
-	delete[] dim2;
-	delete[] coords;
+    }
+  delete[] sgrande_mas;
+  delete[] sgrande_menos;
+  delete[] ints;
+  delete[] intS;
+  delete[] dim1;
+  delete[] dim2;
+  delete[] dim2;
+  delete[] coords;
 }
 void GeneraPotencialOptico(struct parametros *parm,struct potencial_optico *potencial,double m1,double m2)
 {
@@ -4296,8 +4313,8 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 	ofstream fp3("phase_shifts.txt");
 	ofstream elastic_relativo("elastic_relativo.txt");
 	ofstream elastic_nuclear("elastic_nuclear.txt");
-	ofstream cross("cross.txt");
-	cout<< "+++Calculo de la dispersion elastica, version con spin-orbita +++"<< endl << endl;
+	ofstream cross("elastic.txt");
+	cout<< "+++ Computing elastic cross section, spin-orbit version +++"<< endl << endl;
 	k=sqrt(2.*mass*AMU*energy)/HC;
 
 	for (l = 0; l < parm->lmax; l++) {
@@ -4393,10 +4410,106 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 		sum2+=2.*escala*cross_dif_total*M_PI*M_PI*sin(theta[n])/ double(parm->cross_puntos);
 
 	}
-	cout<<"Secci�n eficaz nuclear: "<<sum<<endl;
-	cout<<"Secci�n eficaz total: "<<sum2<<endl;
+	cout<<"Nuclear elastic cross section: "<<sum<<endl;
+	cout<<"Total elastic cross section: "<<sum2<<endl;
 }
+void PangPotential(potencial_optico* pot,double E,int N,int Z,int l,double j,string projectile)
+{
+  double Vr,V0,Ve,EC,R0,r0,r00,a0;
+  double Wv,Wv0,Wve0,Wvew,Ws,Ws0,Wste,
+    Wse0,Wsew,epsilon,Rw,Rwv,Rws,rw,rw0,awv,aws,aw,Wst;
+  double VC,RC,rc,rc0;
+  double Vso,Vso0,Vsoe,Rso,rso,rso0,ls,aso;
+  double r;
+  int Np,Zp,AT,n;
+  ofstream fp("PangPotential.txt");
+  fp<<"Lab Energy: "<<E<<" MeV. N: "<<N<<". Z: "<<Z<<endl;
+  fp<<"Potential for "<<projectile<<endl;
+  fp<<"*********************************************"<<endl<<endl;
 
+  ls=0.;
+  if(j>0.) ls=j*(j+1.)-l*(l+1.)-0.75;
+  AT=N+Z;
+  if(projectile.compare("3He")==0){
+    Np=1;
+    Zp=2;
+    epsilon=(N-Z)/AT;
+  }
+  else if(projectile.compare("3H")==0 || projectile.compare("t")){
+    Np=2;
+    Zp=1;
+    epsilon=-(N-Z)/AT;
+  }
+  else Error("Projectile has to be 3He or 3H in PangPotential");
+  V0=118.3;
+  Ve=-0.13;
+  r0=1.30;
+  r00=-0.48;
+  a0=0.82;
+  Wv0=38.5;
+  Wve0=156.1;
+  Wvew=52.4;
+  Ws0=35.0;
+  Wst=34.2;
+  rw=1.31;
+  rw0=-0.13;
+  aw=0.84;
+  Wse0=30.8;
+  Wsew=106.4;
+  rc=1.24;
+  rc0=0.12;
+  awv=aw;
+  aws=aw;
+  R0=r0*pow(AT,0.3333333333333333)+r00;
+  Rwv=rw*pow(AT,0.3333333333333333)+rw0;
+  Rws=Rwv;
+  Rw=Rws;
+  RC=1.24*pow(AT,0.3333333333333333)+0.12;
+  
+
+  Vso0=1.7;
+  Vsoe=-0.02;
+  rso=0.64;
+  rso0=1.18;
+  aso=0.13;
+  Rso=rso*pow(AT,0.3333333333333333)+rso0;
+
+  EC=6.*Zp*Z*E_CUADRADO/(5.*RC);
+  Vr=V0+Ve*(E-EC);
+
+  Wv=Wv0/(1.+exp((Wve0-(E-EC))/Wvew));
+  Ws=(Ws0+Wst*epsilon)/(1.+exp(((E-EC)-Wse0)/Wsew));
+
+  Vso=Vso0+Vsoe*E;
+
+  for(n=0;n<pot->puntos;n++)
+  {
+    r=pot->r[n];
+    if(r>=RC) VC=Zp*Z*E_CUADRADO/r;
+    if(r<RC) VC=Zp*Z*E_CUADRADO/(2.*RC)*(3.-r*r/(RC*RC));
+    pot->pot[n]=-Vr/(1.+exp((r-R0)/a0))
+      -I*Wv/(1.+exp((r-Rw)/aw))
+      -4.*I*Ws*exp((r-Rw)/aw)/((1.+exp((r-Rw)/aw))*(1.+exp((r-Rw)/aw)))
+      -2.*Vso*ls*exp((r-Rso)/aso)/(r*(1.+exp((r-Rso)/aso))*(1.+exp((r-Rso)/aso)))
+      +VC;           
+      }
+  fp<<"RealVolumen "<<Vr<<endl<<
+    "ImaginarioVolumen  "<<Wv<<endl<<
+    "RealSpinOrbita  "   <<Vso<<endl<<
+    "ImaginarioSpinOrbita	"<<0.<<endl<<
+    "ImaginarioSuperficie  " <<Ws<<endl<<
+    "RadioRealVolumen  "   <<r0<<endl<<
+    "RadioCoulomb  "            <<RC<<endl<<
+    "RadioImaginarioVolumen  "       <<rw<<endl<<
+    "DifusividadRealVolumen  "         <<a0<<endl<<
+    "DifusividadImaginarioVolumen  "   <<aw<<endl<<
+    "RadioSpinOrbita    "         	<<rso<<endl<<
+    "DifusividadSpinOrbita  "       <<aso<<endl<<
+    "RadioImaginarioSuperficie  "          <<rw<<endl<<
+    "DifusividadImaginarioSuperficie "    <<aw<<endl;
+
+
+}
 
 
 

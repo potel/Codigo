@@ -102,6 +102,9 @@ double Z_b;
 double Z_B;
 double energia_lab;
 double energia_cm;
+double enerange_min;
+double enerange_max;
+double enerange_step;
 double Qvalue;
 double int_Qvalue;
 double mu_Aa;
@@ -145,7 +148,7 @@ double a_Sn;
 double B_Sn;
 int remnant;
 int core_pot;
-
+int capture_angular;
 /**** Parametros para Knock-Out*******/
 double P_masa;
 double T_masa;
