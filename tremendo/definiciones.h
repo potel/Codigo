@@ -226,3 +226,4 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 void GeneraPotencialOpticoSpinCoulomb(struct parametros *parm,struct potencial_optico *potencial,double m1,double m2, double spin,double j,int l, double q1q2);
 void DecayMatrix(complejo*** T,complejo*** rhomm,int dmi,int dmf,int puntos);
 void PangPotential(potencial_optico* pot,double E,int N,int Z,int l,double j,string projectile);
+void SimpleRho(double li,double lf,double K,int lg,complejo*** rhomm,int puntos,double theta1,double theta2);

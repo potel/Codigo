@@ -347,7 +347,7 @@ void AmplitudeCapture(struct parametros* parm)
 		      parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
       }
       misc1<<"& Proton energy: "<<energia_out<<" MeV. Neutron energy: "<<energia_trans<<" MeV"<<endl;
-      for(l=0;l<parm->ltransfer;l++)
+      for(l=parm->lmin;l<parm->ltransfer;l++)
 	//		for(l=1;l<2;l++)
 	{
 	  cout<<"L: "<<l<<endl;
@@ -458,13 +458,13 @@ void AmplitudeCapture(struct parametros* parm)
 		NeutronWave(phim,rho,&(funcion_regular_up[0]),&(funcion_irregular_up[0]),
 			    dim1,parm,rn,l,lp,ld,wronskiano_up);
 		for(m=0;m<=lp;m++){
-		  phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
-		  //						phi_up[n][l][m][lp]=phim[m];
+		  //phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
+		  phi_up[n][l][m][lp]=phim[m];
 		}
-		NeutronWave(phim,rho,&(funcion_regular_down[1]),&(funcion_irregular_down[1]),
-			    dim1,parm,rn,l,lp,ld,wronskiano_down);
+		// NeutronWave(phim,rho,&(funcion_regular_down[1]),&(funcion_irregular_down[1]),
+		// 	    dim1,parm,rn,l,lp,ld,wronskiano_down);
 		for(m=0;m<=lp;m++){
-		  phi_down[n][l][m][lp]=(l/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
+		  // phi_down[n][l][m][lp]=(l/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
 		  //						phi_down[n][l][m][lp]=phim[m];
 		}
 	      }
@@ -476,10 +476,10 @@ void AmplitudeCapture(struct parametros* parm)
 	    AbsorcionPrior(direct,non_orth,cross_term,&(parm->pot_opt[indx_neutron_target]),
 			   phi_up,non,dim1,l,parm->lmax,r_F);
 	  inc_break[l]=inc_break_lmas[l];
-	  inc_break_lmenos[l]=rhoE*escala*sigma_const*AbsorcionPrior(direct,non_orth,cross_term,&(parm->pot_opt[indx_neutron_target]),
-								     phi_down,non,dim1,l,parm->lmax,r_F);
+	  // inc_break_lmenos[l]=rhoE*escala*sigma_const*AbsorcionPrior(direct,non_orth,cross_term,&(parm->pot_opt[indx_neutron_target]),
+	  // 							     phi_down,non,dim1,l,parm->lmax,r_F);
 
-	  inc_break[l]+=inc_break_lmenos[l];
+	  // inc_break[l]+=inc_break_lmenos[l];
 	  if(energia_trans>0.) elastic_break[l]=rhoE*rhoE_n*escala*sigma_const*PI*ElasticBreakupCross(Teb,l,parm->lmax);
 	  cross_total+=inc_break[l];
 	  cross_total_elasticb+=elastic_break[l];
@@ -513,8 +513,8 @@ void AmplitudeCapture(struct parametros* parm)
 		{
 		  cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
 					 direct,non_orth,cross_term,cross_up);
-		  cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
-					  direct,non_orth,cross_term,cross_down);
+		  // cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
+		  // 			  direct,non_orth,cross_term,cross_down);
 		  elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
 		  cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
 		  cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*
@@ -1572,7 +1572,7 @@ void ClusterInelastic(struct parametros* parm)
 	cout<<"*                                                                              *"<<endl;
 	cout<<"********************************************************************************"<<endl;
 	int n,m,indx_pot_a,indx_pot_B,indx_st,indx_ingreso,indx_intermedio,indx_salida,indx_core,indx_transfer,indx_scatt;
-	double energia,etrial,vmax,vmin,energia_ws,absorcion,carga_out,carga_trans,A_P,A_T;
+	double energia,etrial,vmax,vmin,energia_ws,absorcion,carga_out,carga_trans,A_P,A_T,theta;
 	cout<<" Energia laboratorio **********************"<<parm->energia_lab<<endl;
 	InicializaClusterInelastic(parm);
 	double* D0=new double[1];
@@ -1598,8 +1598,13 @@ void ClusterInelastic(struct parametros* parm)
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_salida]),parm->m_A,parm->m_a);
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_A,parm->m_b);
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_core]),parm->m_B,parm->m_A);
+	
+	// GeneraPotencialOpticoSpinCoulomb(parm,&(parm->pot_opt[indx_ingreso]),parm->m_A,parm->m_a,0.,0.,0.,parm->Z_A*parm->Z_a);
+	// GeneraPotencialOpticoSpinCoulomb(parm,&(parm->pot_opt[indx_salida]),parm->m_A,parm->m_a,0.,0.,0.,parm->Z_A*parm->Z_a);
+	// GeneraPotencialOpticoSpinCoulomb(parm,&(parm->pot_opt[indx_intermedio]),parm->m_A,parm->m_b,0.,0.,0.,parm->Z_A*parm->Z_b);
+	// GeneraPotencialOpticoSpinCoulomb(parm,&(parm->pot_opt[indx_core]),parm->m_B,parm->m_A,0.,0.,0.,parm->Z_A*parm->Z_B);
 
-
+	
 	cout<<"Generando el estado del nucleo a"<<endl;
 	/* Genera niveles del n�cleo 'a' */
 	for (n=0;n<parm->a_numst;n++)
@@ -1633,336 +1638,383 @@ void ClusterInelastic(struct parametros* parm)
 }
 void AmplitudeClusterInelastic(struct parametros* parm)
 {
-	parametros_integral *dim1=new parametros_integral;
-	parametros_integral *dim2=new parametros_integral;
-	complejo* exp_delta_coulomb_i=new complejo[parm->lmax];
-	complejo* exp_delta_coulomb_f=new complejo[parm->lmax];
-	double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
-	double eta_i=parm->eta;
-	double escala,c1,theta,cross_const,costheta,cross;
-	distorted_wave* fl=new distorted_wave;
-	distorted_wave* gl=new distorted_wave;
-	ofstream fp1("dw_out1trans.txt");
-	ofstream fp2("dw_in1trans.txt");
-	complejo*** DeltaK=tensor_cmpx(parm->ltransfer,parm->rA2_puntos,parm->rCc_puntos);
-	complejo*** IKll=tensor_cmpx(parm->ltransfer,parm->lmax,parm->lmax);
-	complejo*** Slmm=tensor_cmpx(parm->lmax,10,10);
-	complejo*** rhomm=tensor_cmpx(10,10,parm->cross_puntos);
-	complejo** T=matriz_cmpx(10,10);
-	complejo*** Ttheta=tensor_cmpx(10,10,parm->cross_puntos);
-	complejo** rhoK=matriz_cmpx(parm->ltransfer,parm->rCc_puntos);
-	estado* st1=new estado;
-	estado* st2=new estado;
+  parametros_integral *dim1=new parametros_integral;
+  parametros_integral *dim2=new parametros_integral;
+  complejo* exp_delta_coulomb_i=new complejo[parm->lmax];
+  complejo* exp_delta_coulomb_f=new complejo[parm->lmax];
+  double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
+  double eta_i=parm->eta;
+  double escala,c1,theta,cross_const,costheta,cross;
+  distorted_wave* fl=new distorted_wave;
+  distorted_wave* gl=new distorted_wave;
+  ofstream fp1("dw_out1trans.txt");
+  ofstream fp2("dw_in1trans.txt");
+  complejo*** DeltaK=tensor_cmpx(parm->ltransfer,parm->rA2_puntos,parm->rCc_puntos);
+  complejo*** IKll=tensor_cmpx(parm->ltransfer,parm->lmax,parm->lmax);
+  complejo*** Slmm=tensor_cmpx(parm->lmax,10,10);
+  complejo*** rhomm=tensor_cmpx(10,10,parm->cross_puntos);
+  complejo** T=matriz_cmpx(10,10);
+  complejo*** Ttheta=tensor_cmpx(10,10,parm->cross_puntos);
+  complejo** rhoK=matriz_cmpx(parm->ltransfer,parm->rCc_puntos);
+  estado* st1=new estado;
+  estado* st2=new estado;
+  double* sum_rho=new double[10];
 
-	double* r=new double[parm->rA2_puntos];
-	double* R=new double[parm->rCc_puntos];
-	int la,lb,K,indx_ingreso,indx_salida,indx_t,indx_alpha,len,flag,n,m,M,mm,
-	MM,KK,dm,dM,dmi,dmf,mi,mf,mmf;
-	complejo factor;
-	dim1->a=parm->r_Ccmin;
-	dim1->b=parm->r_Ccmax;
-	dim1->num_puntos=parm->rCc_puntos;
-	dim2->a=parm->r_A2min;
-	dim2->b=parm->r_A2max;
-	dim2->num_puntos=parm->rA2_puntos;
-	GaussLegendre(dim1->puntos,dim1->pesos,dim1->num_puntos);
-	GaussLegendre(dim2->puntos,dim2->pesos,dim2->num_puntos);
-	ofstream fp(parm->fl_cross_tot);
-	cout<<"eta: "<<eta_i<<", "<<eta_f<<endl;
-	for(n=0;n<dim2->num_puntos;n++)
-	{
-		r[n]=dim2->a+(dim2->b-dim2->a)*(dim2->puntos[n]+1.)/2.;
-	}
-	for(n=0;n<dim1->num_puntos;n++)
-	{
-		R[n]=dim1->a+(dim1->b-dim1->a)*(dim1->puntos[n]+1.)/2.;
-	}
+  double* r=new double[parm->rA2_puntos];
+  double* R=new double[parm->rCc_puntos];
+  int la,lb,K,indx_ingreso,indx_salida,indx_t,indx_alpha,len,flag,n,m,M,mm,
+    MM,KK,dm,dM,dmi,dmf,mi,mf,mmf;
+  complejo factor;
+  dim1->a=parm->r_Ccmin;
+  dim1->b=parm->r_Ccmax;
+  dim1->num_puntos=parm->rCc_puntos;
+  dim2->a=parm->r_A2min;
+  dim2->b=parm->r_A2max;
+  dim2->num_puntos=parm->rA2_puntos;
+  GaussLegendre(dim1->puntos,dim1->pesos,dim1->num_puntos);
+  GaussLegendre(dim2->puntos,dim2->pesos,dim2->num_puntos);
+  ofstream fp(parm->fl_cross_tot);
+  cout<<"eta: "<<eta_i<<", "<<eta_f<<endl;
+  for(n=0;n<dim2->num_puntos;n++)
+    {
+      r[n]=dim2->a+(dim2->b-dim2->a)*(dim2->puntos[n]+1.)/2.;
+    }
+  for(n=0;n<dim1->num_puntos;n++)
+    {
+      R[n]=dim1->a+(dim1->b-dim1->a)*(dim1->puntos[n]+1.)/2.;
+    }
 
-	/*Selecciona los potenciales opticos en los distintos canales*/
-	for (n=0;n<parm->num_opt;n++)
+  /*Selecciona los potenciales opticos en los distintos canales*/
+  for (n=0;n<parm->num_opt;n++)
+    {
+      if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
+      if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
+      if(parm->optico_intermedio==parm->pot_opt[n].id) indx_t=n;
+      if(parm->core_pot==parm->pot_opt[n].id) indx_alpha=n;
+    }
+  for(n=0;n<parm->num_st;n++)
+    {
+      //		cout<<n<<"  "<<"parm->num_st: "<<parm->num_st<<"  st_a: "<<st_a<<endl;
+      if (parm->a_estados[0] == parm->st[n].id) st1=&(parm->st[n]);
+      if (parm->a_estados[1] == parm->st[n].id) st2=&(parm->st[n]);
+    }
+  len=strlen(parm->unidades);
+  if(!strncmp(parm->unidades,"milib",len)) flag=1;
+  if(!strncmp(parm->unidades,"fm2",len)) flag=2;
+  if(!strncmp(parm->unidades,"b",len)) flag=3;
+  if(!strncmp(parm->unidades,"microb",len)) flag=4;
+  switch(flag)
+    {
+    case 1:
+      escala=10.;
+      cout<<"Seccion eficaz medida en milibarn"<<endl;
+      break;
+    case 2:
+      escala=1.;
+      cout<<"Seccion eficaz medida en fm^2"<<endl;
+      break;
+    case 3:
+      escala=0.01;
+      cout<<"Seccion eficaz medida en barn"<<endl;
+      break;
+    case 4:
+      escala=10000.;
+      cout<<"Seccion eficaz medida en microbarn"<<endl;
+      break;
+    default:
+      Error("Unidades desconocidas para la seccion eficaz");
+      break;
+    }
+  //  SimpleRho(st1->l,st2->l,2.,25,rhomm,parm->cross_puntos,0.,180.);
+  SimpleRho(1,1,1.,25,rhomm,parm->cross_puntos,0.,180.);
+  for(mf=0;mf<=dmf;mf++)
+    {
+      sum_rho[mf]=0.;
+    }
+  for(n=0;n<parm->cross_puntos;n++)
+    {
+      theta=PI*double(n)/double(parm->cross_puntos);
+      costheta=cos(theta);
+      if(5.<=(theta*180./PI)&& 16.>=(theta*180./PI))
 	{
-		if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
-		if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
-		if(parm->optico_intermedio==parm->pot_opt[n].id) indx_t=n;
-		if(parm->core_pot==parm->pot_opt[n].id) indx_alpha=n;
+	  misc2<<theta*180./PI;
+	  for(mf=0;mf<=st2->l;mf++)
+	    {
+	      misc2<<"   "<<real(rhomm[mf][mf][n]);
+	      sum_rho[mf]+=real(rhomm[mf][mf][n])*double(n)/double(parm->cross_puntos);
+	    }
+	  misc2<<endl;
 	}
-	for(n=0;n<parm->num_st;n++)
+    }
+  exit(0);
+  KK=st1->l+st2->l;
+  dM=st1->l+st2->l;
+  dmf=st2->l;
+  dmi=st1->l;
+  cross_const=escala*parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU/(parm->k_Aa*4.*PI*PI*pow(HC,4.));
+  MultipolePotential(DeltaK,dim2->num_puntos,dim1->num_puntos,r,R,&(parm->pot_opt[indx_t]),&(parm->pot_opt[indx_alpha]),
+		     &(parm->pot_opt[indx_ingreso]),KK,parm->m_b,parm->m_B);
+  IntegralRhoK(rhoK,DeltaK,st1,st2,KK,dim2,dim1->num_puntos);
+  //exit(0);
+  misc2<<"& Multipolar potential"<<endl<<endl;
+  // for(n=0;n<dim1->num_puntos;n++)
+  //   {
+  //     misc2<<R[n];
+  //     for(K=0;K<=KK;K++)
+  // 	{
+  // 	  misc2<<"  "<<real(DeltaK[K][16][n])<<"  "<<imag(DeltaK[K][16][n]);
+  // 	  if(K==2 && n==10) cout<<real(DeltaK[2][10][2])<<"  r: "<<r[16]<<endl;
+  // 	}
+  //     misc2<<endl;
+  //   }
+  //exit(0);
+  misc3<<"& Multipolar transition density"<<endl<<endl;
+  for(n=0;n<dim1->num_puntos;n++)
+    {
+      misc3<<R[n];
+      for(K=0;K<=KK;K++)
 	{
-//		cout<<n<<"  "<<"parm->num_st: "<<parm->num_st<<"  st_a: "<<st_a<<endl;
-		if (parm->a_estados[0] == parm->st[n].id) st1=&(parm->st[n]);
-		if (parm->a_estados[1] == parm->st[n].id) st2=&(parm->st[n]);
+	  misc3<<"  "<<real(rhoK[K][n])<<"  "<<imag(rhoK[K][n]);
 	}
-	len=strlen(parm->unidades);
-	if(!strncmp(parm->unidades,"milib",len)) flag=1;
-	if(!strncmp(parm->unidades,"fm2",len)) flag=2;
-	if(!strncmp(parm->unidades,"b",len)) flag=3;
-	if(!strncmp(parm->unidades,"microb",len)) flag=4;
-	switch(flag)
+      misc3<<endl;
+    }
+  //	exit(0);
+  // elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,eta_i,0.);
+  // exit(0);
+  //	cout<<"Angular momenta: "<<st1->l<<"  "<<st2->l<<endl
+  c1=32.*pow(PI,2.5)/(parm->k_Aa*parm->k_Bb);
+  for(la=0;la<parm->lmax;la++)
+    {
+      cout<<"la: "<<la<<endl;
+      //		misc4<<"la: "<<la<<endl;
+      exp_delta_coulomb_f[la]=exp(I*(deltac(la,eta_i)));
+      fl->energia=parm->energia_cm;
+      fl->l=la;
+      fl->spin=0.;
+      fl->j=la;
+      // GeneraDWspin(fl,&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,
+      // 		parm->radio,parm->puntos,parm->matching_radio,&fp2);
+      GeneraDWspin(fl,&(parm->pot_opt[indx_ingreso]),0.,parm->mu_Aa,
+		   parm->radio,parm->puntos,parm->matching_radio,&fp2);
+      for(lb=abs(la-KK);(lb<=la+KK)&&(lb<parm->lmax);lb++)
 	{
-	case 1:
-		escala=10.;
-		cout<<"Seccion eficaz medida en milibarn"<<endl;
-		break;
-	case 2:
-		escala=1.;
-		cout<<"Seccion eficaz medida en fm^2"<<endl;
-		break;
-	case 3:
-		escala=0.01;
-		cout<<"Seccion eficaz medida en barn"<<endl;
-		break;
-	case 4:
-		escala=10000.;
-		cout<<"Seccion eficaz medida en microbarn"<<endl;
-		break;
-	default:
-		Error("Unidades desconocidas para la seccion eficaz");
-		break;
-	}
-	KK=st1->l+st2->l;
-	dM=st1->l+st2->l;
-	dmf=st2->l;
-	dmi=st1->l;
-	cross_const=escala*parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU/(parm->k_Aa*4.*PI*PI*pow(HC,4.));
-	MultipolePotential(DeltaK,dim2->num_puntos,dim1->num_puntos,r,R,&(parm->pot_opt[indx_t]),&(parm->pot_opt[indx_alpha]),
-			   &(parm->pot_opt[indx_ingreso]),KK,parm->m_b,parm->m_B);
-	IntegralRhoK(rhoK,DeltaK,st1,st2,KK,dim2,dim1->num_puntos);
-	 //	exit(0);
-	misc2<<"& Multipolar potential"<<endl<<endl;
-	for(n=0;n<dim1->num_puntos;n++)
-	{
-		misc2<<R[n];
-		for(K=0;K<=KK;K++)
-		{
-			misc2<<"  "<<real(DeltaK[K][2][n])<<"  "<<imag(DeltaK[K][2][n]);
-		}
-		misc2<<endl;
-	}
-//	exit(0);
-	misc3<<"& Multipolar transition density"<<endl<<endl;
-	for(n=0;n<dim1->num_puntos;n++)
-	{
-		misc3<<R[n];
-		for(K=0;K<=KK;K++)
-		{
-			misc3<<"  "<<real(rhoK[K][n])<<"  "<<imag(rhoK[K][n]);
-		}
-		misc3<<endl;
-	}
-//	exit(0);
-	elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_a*parm->Z_A,parm->mu_Aa,parm->energia_cm,parm,eta_i,0.);
-	c1=32.*pow(PI,2.5)/(parm->k_Aa*parm->k_Bb);
-	for(la=0;la<parm->lmax;la++)
-	{
-		cout<<"la: "<<la<<endl;
-		//		misc4<<"la: "<<la<<endl;
-		exp_delta_coulomb_f[la]=exp(I*(deltac(la,eta_i)));
-		fl->energia=parm->energia_cm;
-		fl->l=la;
-		fl->spin=0.;
-		fl->j=la;
-		GeneraDWspin(fl,&(parm->pot_opt[indx_ingreso]),parm->Z_a*parm->Z_A,parm->mu_Aa,
-				parm->radio,parm->puntos,parm->matching_radio,&fp2);
-//		exit(0);
-//		for(mi=-dmi;mi<=dmi;mi++)
-//		{
-//			M=mi-mf;
-//			MM=M+dM;
-//			for(K=0;K<=KK;K++)
-//			{
-//				Slmm[lb][mm][MM]=0.;
-//			}
-//		}
-		for(lb=abs(la-KK);(lb<=la+KK)&&(lb<parm->lmax);lb++)
-		{
-			exp_delta_coulomb_f[lb]=exp(I*(deltac(lb,eta_f)));
-			gl->energia=parm->energia_cm+parm->Qvalue;
-			gl->l=lb;
-			gl->spin=0.;
-			gl->j=lb;
-			GeneraDWspin(gl,&(parm->pot_opt[indx_salida]),parm->Z_a*parm->Z_A,parm->mu_Bb,
-					parm->radio,parm->puntos,parm->matching_radio,&fp1);
-			IntegralIKll(IKll,rhoK,fl,gl,KK,dim1,la,lb);
-			factor=pow(I,la+lb)*exp_delta_coulomb_f[la]*exp_delta_coulomb_f[lb]*sqrt((2.*st1->l+1.)*(2.*st2->l+1.)*(2.*lb+1.));
-			for(K=0;K<=KK;K++)
-			{
-				IKll[K][la][lb]*=factor*ClebsGordan(st1->l,0,st2->l,0,K,0)*ClebsGordan(la,0,lb,0,K,0)/(2*K+1.);
-				//			cout<<IKll[K][la][lb]<<endl;
-			}
-			//		misc4<<K<<"  "<<la<<"  "<<lb<<"  "<<abs(IKll[K][la][lb])<<endl;
+	  exp_delta_coulomb_f[lb]=exp(I*(deltac(lb,eta_f)));
+	  gl->energia=parm->energia_cm+parm->Qvalue;
+	  gl->l=lb;
+	  gl->spin=0.;
+	  gl->j=lb;
+	  // GeneraDWspin(gl,&(parm->pot_opt[indx_salida]),parm->Z_A*parm->Z_a,parm->mu_Bb,
+	  // 		parm->radio,parm->puntos,parm->matching_radio,&fp1);
+	  GeneraDWspin(gl,&(parm->pot_opt[indx_salida]),0.,parm->mu_Bb,
+		       parm->radio,parm->puntos,parm->matching_radio,&fp1);
+	  IntegralIKll(IKll,rhoK,fl,gl,KK,dim1,la,lb);
+	  factor=pow(I,la+lb)*exp_delta_coulomb_f[la]*exp_delta_coulomb_f[lb]*sqrt((2.*st1->l+1.)*(2.*st2->l+1.)*(2.*lb+1.));
+	  for(K=0;K<=KK;K++)
+	    {
+	      IKll[K][la][lb]*=factor*ClebsGordan(st1->l,0,st2->l,0,K,0)*ClebsGordan(la,0,lb,0,K,0)/(2*K+1.);
+	      //			cout<<IKll[K][la][lb]<<endl;
+	    }
+	  //		misc4<<K<<"  "<<la<<"  "<<lb<<"  "<<abs(IKll[K][la][lb])<<endl;
 
-			for(mf=-dmf;mf<=dmf;mf++)
-			{
-				m=mf;
-				mm=m+dmf;
-				for(mi=-dmi;mi<=dmi;mi++)
-				{
-					M=mi-mf;
-					MM=M+dM;
-					for(K=0;K<=KK;K++)
-					{
-					  if(K==2) Slmm[lb][mm][MM]+=pow(-1.,0)*c1*ClebsGordan(st1->l,M+m,st2->l,-m,K,M)*IKll[K][la][lb];
-						 //cout<<IKll[K][la][lb]<<"  "<<Slmm[lb][mm][MM]<<"  "<<
-						 //ClebsGordan(st1->l,M+m,st2->l,-m,K,M)<<endl;
-					}
-				}
-			}
+	  for(mf=-dmf;mf<=dmf;mf++)
+	    {
+	      m=mf;
+	      mm=m+dmf;
+	      for(mi=-dmi;mi<=dmi;mi++)
+		{
+		  M=mi-mf;
+		  MM=M+dM;
+		  for(K=0;K<=KK;K++)
+		    {
+		      if(K==2) Slmm[lb][mm][MM]+=pow(-1.,0)*c1*ClebsGordan(st1->l,M+m,st2->l,-m,K,M)*IKll[K][la][lb];
+		      //cout<<IKll[K][la][lb]<<"  "<<Slmm[lb][mm][MM]<<"  "<<
+		      //ClebsGordan(st1->l,M+m,st2->l,-m,K,M)<<endl;
+		    }
 		}
+	    }
 	}
-//	for(lb=0;lb<parm->lmax;lb++)
-//	{
-//		misc2<<lb<<"  "<<abs(Slmm[lb][dm][dM])<<endl;
-//	}
-	for(n=0;n<parm->cross_puntos;n++)
+    }
+  // for(lb=0;lb<parm->lmax;lb++)
+  //   {
+  //     misc2<<lb<<"  "<<abs(IKll[2][lb][lb])<<endl;
+  //   }
+  for(n=0;n<parm->cross_puntos;n++)
+    {
+      theta=PI*double(n)/double(parm->cross_puntos);
+      costheta=cos(theta);
+      cross=0.;
+      for(mf=-dmf;mf<=dmf;mf++)
 	{
-		theta=PI*double(n)/double(parm->cross_puntos);
-		costheta=cos(theta);
-		cross=0.;
-		for(mf=-dmf;mf<=dmf;mf++)
-		{
-			m=mf;
-			mm=m+dmf;
-			for(mi=-dmi;mi<=dmi;mi++)
-			{
-				M=mi-mf;
-				MM=M+dM;
-				Ttheta[mm][MM][n]=0.;
-			}
-		}
-		if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
-		{
-			for(lb=0;lb<parm->lmax;lb++)
-			{
-				for(mf=-dmf;mf<=dmf;mf++)
-				{
-					m=mf;
-					mm=m+dmf;
-					for(mi=-dmi;mi<=dmi;mi++)
-					{
-						M=mi-mf;
-						MM=M+dM;
-						if(lb>=abs(M))
-						{
-							if(M>=0) Ttheta[mm][MM][n]+=Slmm[lb][mm][MM]*
-								   gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
-							if(M<0) Ttheta[mm][MM][n]+=pow(-1.,M)*Slmm[lb][mm][MM]*
-								  gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
-						}
-					}
-				}
-			}
-			for(mf=-dmf;mf<=dmf;mf++)
-			{
-				m=mf;
-				mm=m+dmf;
-				for(mi=-dmi;mi<=dmi;mi++)
-				{
-					M=mi-mf;
-					MM=M+dM;
-//					if(abs(m)==st2->l-1) cross+=cross_const*abs(T[mm][MM])*abs(T[mm][MM]);
-					cross+=cross_const*abs(Ttheta[mm][MM][n])*abs(Ttheta[mm][MM][n]);
-				}
-			}
-		}
-		fp<<theta*180./PI<<"  "<<cross<<endl;
+	  m=mf;
+	  mm=m+dmf;
+	  for(mi=-dmi;mi<=dmi;mi++)
+	    {
+	      M=mi-mf;
+	      MM=M+dM;
+	      Ttheta[mm][MM][n]=0.;
+	    }
 	}
-	DecayMatrix(Ttheta,rhomm,dmi,dmf,parm->cross_puntos);
-	for(n=0;n<parm->cross_puntos;n++)
+      if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
 	{
-		theta=PI*double(n)/double(parm->cross_puntos);
-		costheta=cos(theta);
-		misc1<<theta*180./PI;
-		for(mf=0;mf<=dmf;mf++)
+	  for(lb=0;lb<parm->lmax;lb++)
+	    {
+	      for(mf=-dmf;mf<=dmf;mf++)
 		{
-			mmf=mf+dmf;
-			misc1<<"   "<<real(rhomm[mmf][mmf][n]);
+		  m=mf;
+		  mm=m+dmf;
+		  for(mi=-dmi;mi<=dmi;mi++)
+		    {
+		      M=mi-mf;
+		      MM=M+dM;
+		      if(lb>=abs(M))
+			{
+			  if(M>=0) Ttheta[mm][MM][n]+=Slmm[lb][mm][MM]*
+				     gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
+			  if(M<0) Ttheta[mm][MM][n]+=pow(-1.,M)*Slmm[lb][mm][MM]*
+				    gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
+			}
+		    }
 		}
-		misc1<<endl;
+	    }
+	  for(mf=-dmf;mf<=dmf;mf++)
+	    {
+	      m=mf;
+	      mm=m+dmf;
+	      for(mi=-dmi;mi<=dmi;mi++)
+		{
+		  M=mi-mf;
+		  MM=M+dM;
+		  //					if(abs(m)==st2->l-1) cross+=cross_const*abs(T[mm][MM])*abs(T[mm][MM]);
+		  cross+=cross_const*abs(Ttheta[mm][MM][n])*abs(Ttheta[mm][MM][n]);
+		}
+	    }
 	}
-	delete[] exp_delta_coulomb_i;
-	delete[] exp_delta_coulomb_f;
-	delete[] DeltaK;
-	delete[] Slmm;
-	delete[] IKll;
-	delete[] T;
+      fp<<theta*180./PI<<"  "<<cross<<endl;
+    }
+  DecayMatrix(Ttheta,rhomm,dmi,dmf,parm->cross_puntos);
+  for(mf=0;mf<=dmf;mf++)
+    {
+      sum_rho[mf]=0.;
+    }
+  for(n=0;n<parm->cross_puntos;n++)
+    {
+      theta=PI*double(n)/double(parm->cross_puntos);
+      costheta=cos(theta);
+      //	    cout<<theta*180./PI<<" "<<parm->angle0<<"  "<<parm->angle1<<endl;
+      //	    if(parm->angle0<=(theta*180./PI)&& parm->angle1>=(theta*180./PI))
+      if(5.<=(theta*180./PI)&& 16.>=(theta*180./PI))
+	{
+	  misc1<<theta*180./PI;
+	  for(mf=0;mf<=dmf;mf++)
+	    {
+	      mmf=mf+dmf;
+	      misc1<<"   "<<real(rhomm[mmf][mmf][n]);
+	      sum_rho[mf]+=real(rhomm[mmf][mmf][n])*double(n)/double(parm->cross_puntos);
+	    }
+	  misc1<<endl;
+	}
+    }
+  // for(mf=0;mf<=dmf;mf++)
+  //   {
+  //     misc4<<mf+dmf-3<<"   "<<sum_rho[mf]<<endl;
+  //   }
+  delete[] exp_delta_coulomb_i;
+  delete[] exp_delta_coulomb_f;
+  delete[] DeltaK;
+  delete[] Slmm;
+  delete[] IKll;
+  delete[] T;
+  delete[] Ttheta;
+  delete[] sum_rho;
 
 }
 void MultipolePotential(complejo*** DeltaK,int numr,int numR,double* r, double* R,
 		potencial_optico* pot_t,potencial_optico* pot_alpha, potencial_optico* pot_Li,int numK,double mt, double ma)
 {
-	int nr,nR,ntheta,K,rpoint;
-	complejo V1,V2,V3;
-	double theta,r_alpha,r_t,k1,k2,costheta,sintheta;
-	parametros_integral* dim=new parametros_integral [1];
-	dim->a=0;
-	dim->b=PI;
-	dim->num_puntos=20;
-	GaussLegendre(dim->puntos,dim->pesos,dim->num_puntos);
-	k1=mt/(ma+mt);
-	k2=ma/(ma+mt);
-	rpoint=int(ceil(numr/2));
-	for(K=0;K<=numK;K++)
+  int nr,nR,ntheta,K,rpoint;
+  complejo V1,V2,V3;
+  double theta,r_alpha,r_t,k1,k2,costheta,sintheta;
+  parametros_integral* dim=new parametros_integral [1];
+  dim->a=0;
+  dim->b=PI;
+  dim->num_puntos=20;
+  GaussLegendre(dim->puntos,dim->pesos,dim->num_puntos);
+  k1=mt/(ma+mt);
+  k2=ma/(ma+mt);
+  rpoint=int(ceil(numr/2));
+  for(K=0;K<=numK;K++)
+    {
+      for(nr=0;nr<numr;nr++)
 	{
-		for(nr=0;nr<numr;nr++)
-		{
-			for(nR=0;nR<numR;nR++)
-			{
+	  for(nR=0;nR<numR;nR++)
+	    {
 
-			   DeltaK[K][nr][nR]=0.;
-			}
-		}
+	      DeltaK[K][nr][nR]=0.;
+	    }
 	}
-	for(nr=0;nr<numr;nr++)
+    }
+  for(nr=0;nr<numr;nr++)
+    {
+      for(nR=0;nR<numR;nR++)
 	{
-		for(nR=0;nR<numR;nR++)
+	  for(ntheta=0;ntheta<dim->num_puntos;ntheta++)
+	    {
+	      theta = dim->a+(dim->b-dim->a)*(dim->puntos[ntheta]+1.)/2.;
+	      costheta=cos(theta);
+	      sintheta=sin(theta);
+	      r_alpha=sqrt(R[nR]*R[nR]+k1*k1*r[nr]*r[nr]-2.*k1*r[nr]*R[nR]*costheta);
+	      r_t=sqrt(R[nR]*R[nR]+k2*k2*r[nr]*r[nr]+2.*k2*r[nr]*R[nR]*costheta);
+	      V1=interpola_cmpx(pot_t->pot,pot_t->r,r_t,pot_t->puntos);
+	      V2=interpola_cmpx(pot_alpha->pot,pot_alpha->r,r_alpha,pot_alpha->puntos);
+	      V3=interpola_cmpx(pot_Li->pot,pot_Li->r,R[nR],pot_Li->puntos);
+	      // if(abs(V3-V1-V2)>10. && R[nR]>15.) misc4<<r_t<<"  "<<real(V1)<<"  "<<r_alpha
+	      // 						<<"  "<<real(V2)<<"  "<<R[nR]<<"  "<<real(V3)<<"  "<<
+	      //real(V3-V1-V2)<<endl;
+	      // if(r_t<5. && r_alpha<5. && R[nR]>2.) misc4<<r_t<<"  "<<r_alpha<<"  "<<R[nR]
+	      // 						<<"  "<<real(V3-V1-V2)<<"++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+	      for(K=0;K<=numK;K++)
 		{
-			for(ntheta=0;ntheta<dim->num_puntos;ntheta++)
-			{
-				theta = dim->a+(dim->b-dim->a)*(dim->puntos[ntheta]+1.)/2.;
-				costheta=cos(theta);
-				sintheta=sin(theta);
-				r_alpha=sqrt(R[nR]*R[nR]+k1*k1*r[nr]*r[nr]-2.*k1*r[nr]*R[nR]*costheta);
-				r_t=sqrt(R[nR]*R[nR]+k2*k2*r[nr]*r[nr]+2.*k2*r[nr]*R[nR]*costheta);
-				V1=interpola_cmpx(pot_t->pot,pot_t->r,r_t,pot_t->puntos);
-				V2=interpola_cmpx(pot_alpha->pot,pot_alpha->r,r_alpha,pot_alpha->puntos);
-				V3=interpola_cmpx(pot_Li->pot,pot_Li->r,R[nR],pot_Li->puntos);
-				for(K=0;K<=numK;K++)
-				{
-					DeltaK[K][nr][nR]+=(2.*K+1.)*(V3-V1-V2)*gsl_sf_legendre_Pl(K,costheta)*sintheta*dim->pesos[ntheta]*
-							(dim->b-dim->a)/4.;
-				}
-			}
+		  DeltaK[K][nr][nR]+=(2.*K+1.)*(-V1-V2)*gsl_sf_legendre_Pl(K,costheta)*sintheta*dim->pesos[ntheta]*
+		    (dim->b-dim->a)/4.;
+		  //if(K==2) misc4<<R[nR]<<"  "<<real(DeltaK[K][nr][nR])<<"  "<<real()<<endl;
 		}
+	    }
 	}
+    }
 }
 void IntegralRhoK(complejo** rhoK,complejo*** DeltaK,estado* st1,estado* st2,
 		int numK,parametros_integral* dim,int numR)
 {
-	int nr,nR,K;
-	double r;
-	complejo int_f,int_g,int_st1,int_st2;
-	for(nR=0;nR<numR;nR++)
+  int nr,nR,K;
+  double r,R;
+  complejo int_f,int_g,int_st1,int_st2;
+  for(nR=0;nR<numR;nR++)
+    {
+      for(K=0;K<numK;K++)
 	{
-		for(K=0;K<numK;K++)
-		{
-			rhoK[K][nR]=0.;
-		}
+	  rhoK[K][nR]=0.;
 	}
-	for(nr=0;nr<dim->num_puntos;nr++)
+    }
+  for(nr=0;nr<dim->num_puntos;nr++)
+    {
+      r=dim->a+(dim->b-dim->a)*(dim->puntos[nr]+1.)/2.;
+      int_st1=interpola_cmpx(st1->wf,st1->r,r,st1->puntos);
+      int_st2=interpola_cmpx(st2->wf,st2->r,r,st2->puntos);
+      for(nR=0;nR<numR;nR++)
 	{
-		r=dim->a+(dim->b-dim->a)*(dim->puntos[nr]+1.)/2.;
-		int_st1=interpola_cmpx(st1->wf,st1->r,r,st1->puntos);
-		int_st2=interpola_cmpx(st2->wf,st2->r,r,st2->puntos);
-		for(nR=0;nR<numR;nR++)
-		  {
-		    for(K=0;K<=numK;K++)
-		      {
-			rhoK[K][nR]+=r*r*int_st1*int_st2*DeltaK[K][nr][nR]*dim->pesos[nr]*
-			  (dim->b-dim->a)/2.;
-		      }
-		    // misc4<<nR<<"  "<<r<<"  "<<abs(int_st1)<<"  "<<abs(r*r*int_st1*int_st2)<<endl;
-		  }
+	  R=dim->a+(dim->b-dim->a)*(dim->puntos[nR]+1.)/2.;
+	  for(K=0;K<=numK;K++)
+	    {
+	      rhoK[K][nR]+=r*r*int_st1*int_st2*DeltaK[K][nr][nR]*dim->pesos[nr]*
+	        (dim->b-dim->a)/2.;
+	      // rhoK[K][nR]+=r*r*int_st2*int_st1*dim->pesos[nr]*
+	      // 	(dim->b-dim->a)/2.;
+	    }
+	  //misc4<<R<<"  "<<real(rhoK[2][nR])<<"  "<<real(int_st1*int_st2*DeltaK[2][nr][nR])<<endl;
 	}
+    }
+  // cout<<rhoK[2][2]<<endl;
+  //exit(0);
 }
 void IntegralIKll(complejo*** IKll,complejo** rhoK,distorted_wave* f,distorted_wave* g,
 		int numK,parametros_integral* dim,int la,int lb)
@@ -2006,14 +2058,8 @@ void DecayMatrix(complejo*** T,complejo*** rhomm,int dmi,int dmf,int puntos)
 				M=mi-mf;
 				MM=M+dM;
 				mmi=mi+dmi;
-//				cout<<mmf<<"  "<<mmi<<endl;
-//				cout<<mm<<"  "<<MM<<endl;
 				alpha[mmf][mmi][n]=0.;
-
 				alpha[mmf][mmi][n]=T[mm][MM][n];
-
-//				cout<<mf<<"  "<<mi<<endl;
-//				cout<<alpha[mmf][mmi][0]<<"   "<<T[mm][MM][0]<<endl<<endl;
 			}
 		}
 		for(m1=-dm;m1<=dm;m1++)
@@ -2025,9 +2071,7 @@ void DecayMatrix(complejo*** T,complejo*** rhomm,int dmi,int dmf,int puntos)
 				for(mi=-dmi;mi<=dmi;mi++)
 				{
 					mmi=mi+dmi;
-					if(n==0) misc2<<m1<<"   "<<m2<<"   "<<mi<<endl;
-				    Cmm[mm1][mm2][n]+=alpha[mm1][mmi][n]*conj(alpha[mm2][mmi][n]);
-				    if(n==0) misc2<<alpha[mm1][mmi][n]<<"   "<<alpha[mm2][mmi][n]<<"   "<<Cmm[mm1][mm2][n]<<endl<<endl;
+					Cmm[mm1][mm2][n]+=alpha[mm1][mmi][n]*conj(alpha[mm2][mmi][n]);
 				}
 			}
 		}
@@ -2050,4 +2094,72 @@ void DecayMatrix(complejo*** T,complejo*** rhomm,int dmi,int dmf,int puntos)
 	delete[] Cmm;
 	delete[] alpha;
 	delete[] trace;
+}
+void SimpleRho(double li,double lf,double K,int lg,complejo*** rhomm,int puntos,double theta1,double theta2)
+{
+  complejo*** Cmm=tensor_cmpx(int(2.*lf+1.),int(2.*lf+1.),puntos);
+  complejo*** alpha=tensor_cmpx(int(2.*lf+1.),int(2.*lf+1.),puntos);
+  complejo* trace=new complejo[puntos];
+  int mi,mf,n,m1,m2;
+  double theta;
+  double step=abs(theta2-theta1)/double(puntos);
+  for (n=0;n<puntos;n++)
+    {
+      theta=theta1+n*step;
+      for(mi=0;mi<=li;mi++)
+	{
+	  for(mf=0;mf<=lf;mf++)
+	    {
+	      if(mi-mf>=0) alpha[mf][mi][n]=ClebsGordan(li,mi,lf,-mf,K,mi-mf)*
+			     gsl_sf_legendre_sphPlm(lg,mi-mf,cos(PI*theta/180.));
+	      if(mi-mf<0) alpha[mf][mi][n]=pow(-1.,mi-mf)*ClebsGordan(li,mi,lf,-mf,K,mi-mf)*
+			    gsl_sf_legendre_sphPlm(lg,abs(mi-mf),cos(PI*theta/180.));
+	      //misc2<<n<<"  "<<mi<<"  "<<mf<<"  "<<theta<<"  "<<alpha[mf][mi][n]<<endl;
+	    }
+	}
+    }
+  for (n=0;n<puntos;n++)
+    {
+      theta=theta1+n*step;      
+      for(mi=0;mi<=li;mi++)
+	{
+	  for(m1=0;m1<=lf;m1++)
+	    {
+	      for(m2=0;m2<=lf;m2++)
+		{
+		  Cmm[m1][m2][n]+=alpha[m1][mi][n]*conj(alpha[m2][mi][n]);
+		}
+	    }
+	}
+    }
+  for (n=0;n<puntos;n++)
+    {
+      theta=theta1+n*step;
+      trace[n]=Cmm[0][0][n];
+	for(mf=1;mf<=lf;mf++)
+	  {
+	    //cout<<Cmm[mf][mf][n]<<endl;
+	    trace[n]+=2.*Cmm[mf][mf][n];
+	    //misc2<<mf<<"  "<<theta<<"  "<<Cmm[mf][mf][n]<<"  "<<trace[n]<<endl;
+	  }
+      //cout<<n<<endl;
+    }
+  //exit(0);
+  cout<<"quillo!!1"<<endl;
+  for (n=0;n<puntos;n++)
+    {
+      theta=theta1+n*step;      
+      for(m1=0;m1<=lf;m1++)
+	{
+	  for(m2=0;m2<=lf;m2++)
+	    {
+	      rhomm[m1][m2][n]=Cmm[m1][m2][n]/trace[n];
+	      //misc2<<m1<<"  "<<m2<<"  "<<theta<<"  "<<trace[n]<<"  "<<Cmm[m1][m2][n]<<"  "<<rhomm[m1][m2][n]<<endl;
+	    }
+	}
+    }
+  cout<<"quillo!!2"<<endl;
+  delete[] Cmm;
+  delete[] alpha;
+  delete[] trace;
 }

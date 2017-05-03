@@ -1921,9 +1921,7 @@ void TwoTrans(struct parametros* parm)
   PangPotential(dumb_pot_opt,parm->energia_lab,parm->T_N,parm->T_carga,0,-1.,"3He");
   //CH89(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
   //	KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
-  cout<<"quillo1"<<endl;
   KoningDelaroche(parm->energia_lab+parm->Qvalue,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
-  cout<<"quillo2"<<endl;
   InicializaTwoTrans(parm);
   cout<<"Generando potenciales de campo medio"<<endl;
   for(n=0;n<parm->num_cm;n++)
@@ -2599,43 +2597,44 @@ void SuccessiveTipoLi(struct parametros *parm,complejo*** Clalb)
 }
 void GeneraPotencialOptico(struct parametros *parm,struct potencial_optico *potencial,double m1,double m2)
 {
-	int n;
-	double delta_r;
-	delta_r=parm->radio/double(parm->puntos);
-	if(m1<1. || m2<1.) Error("Masa menor de 1");
-	if(m1>3. && m2>3.)
-	{
-		potencial->radioV=potencial->r0V*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
-		potencial->radioW=potencial->r0W*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
-		potencial->radioso=potencial->rso*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
-		potencial->radioWd=potencial->rWd*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
-		potencial->radio_coul=potencial->r0C*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
-	}
-	if(m1>3. && m2<=3.)
-	{
-		potencial->radioV=potencial->r0V*pow(m1,0.33333333333333);
-		potencial->radioW=potencial->r0W*pow(m1,0.33333333333333);
-		potencial->radioso=potencial->rso*pow(m1,0.33333333333333);
-		potencial->radioWd=potencial->rWd*pow(m1,0.33333333333333);
-		potencial->radio_coul=potencial->r0C*pow(m1,0.33333333333333);
-	}
-	if(m1<=3. && m2>3.)
-	{
-		potencial->radioV=potencial->r0V*pow(m2,0.33333333333333);
-		potencial->radioW=potencial->r0W*pow(m2,0.33333333333333);
-		potencial->radioso=potencial->rso*pow(m2,0.33333333333333);
-		potencial->radioWd=potencial->rWd*pow(m2,0.33333333333333);
-		potencial->radio_coul=potencial->r0C*pow(m2,0.33333333333333);
-	}
-	for(n=0;n<parm->puntos;n++)
-	{
-		potencial->r[n]=delta_r*(n+1.);
-		potencial->pot[n]=-potencial->V/(1.+exp((potencial->r[n]-potencial->radioV)/potencial->aV))-I*potencial->W/
-				(1.+exp((potencial->r[n]-potencial->radioW)/potencial->aW))-4.*I*potencial->Wd*
-				exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)/((1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd))
-						*(1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)));
-	}
-	potencial->puntos=parm->puntos;
+  int n;
+  double delta_r;
+  delta_r=parm->radio/double(parm->puntos);
+  if(m1<1. || m2<1.) Error("Masa menor de 1");
+  if(m1>3. && m2>3.)
+    {
+      potencial->radioV=potencial->r0V*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+      potencial->radioW=potencial->r0W*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+      potencial->radioso=potencial->rso*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+      potencial->radioWd=potencial->rWd*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+      potencial->radio_coul=potencial->r0C*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+    }
+  if(m1>3. && m2<=3.)
+    {
+      potencial->radioV=potencial->r0V*pow(m1,0.33333333333333);
+      potencial->radioW=potencial->r0W*pow(m1,0.33333333333333);
+      potencial->radioso=potencial->rso*pow(m1,0.33333333333333);
+      potencial->radioWd=potencial->rWd*pow(m1,0.33333333333333);
+      potencial->radio_coul=potencial->r0C*pow(m1,0.33333333333333);
+    }
+  if(m1<=3. && m2>3.)
+    {
+      potencial->radioV=potencial->r0V*pow(m2,0.33333333333333);
+      potencial->radioW=potencial->r0W*pow(m2,0.33333333333333);
+      potencial->radioso=potencial->rso*pow(m2,0.33333333333333);
+      potencial->radioWd=potencial->rWd*pow(m2,0.33333333333333);
+      potencial->radio_coul=potencial->r0C*pow(m2,0.33333333333333);
+    }
+  for(n=0;n<parm->puntos;n++)
+    {
+      potencial->r[n]=delta_r*(n+1.);
+      potencial->pot[n]=-potencial->V/(1.+exp((potencial->r[n]-potencial->radioV)/potencial->aV))-I*potencial->W/
+	(1.+exp((potencial->r[n]-potencial->radioW)/potencial->aW))-4.*I*potencial->Wd*
+	exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)/
+	((1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd))
+	 *(1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)));
+    }
+  potencial->puntos=parm->puntos;
 }
 void GeneraPotencialOpticoSpinCoulomb(struct parametros *parm,struct potencial_optico *potencial,double m1,double m2, double spin,double j,int l, double q1q2)
 {
@@ -3455,31 +3454,29 @@ void GeneraEstadosContinuo(potencial_optico* pot_optico,estado* st,double radio,
 void GeneraRemnant(potencial_optico *pot,potencial_optico *core,potencial_optico *in_pot,
 		potencial_optico *in_core,double q1q2_pot,double q1q2_core,int l_pot,int l_core,double masa_pot,int masa_core)
 {
-	int i;
-	double hbarx_pot,hbarx_core;
-	hbarx_pot=HC*HC/(2.*AMU*masa_pot);
-	hbarx_core=HC*HC/(2.*AMU*masa_core);
-	l_pot=0;
-	l_core=0;
-//	misc1<<"+++++++++++++++++++++++++++++++++++++++++++"<<endl<<endl;
-	for (i=0;i<in_pot->puntos;i++)
-	{
-		pot->r[i]=in_pot->r[i];
-		core->r[i]=in_core->r[i];
-		if(core->r[i]>=in_core->radio_coul) core->pot[i]=in_core->pot[i]+E_CUADRADO*q1q2_core/core->r[i]+
-				(l_core*(l_core+1.))*hbarx_core /(core->r[i]*core->r[i]);
-		if(core->r[i]<in_core->radio_coul) core->pot[i]=in_core->pot[i]+E_CUADRADO*q1q2_core*(3.-(core->r[i]/in_core->radio_coul)
-				* (core->r[i]/in_core->radio_coul))/(2.*in_core->radio_coul)+
-				(l_core*(l_core+1.))*hbarx_core /(core->r[i]*core->r[i]);
-		if(pot->r[i]>=in_pot->radio_coul) pot->pot[i]=in_pot->pot[i]+E_CUADRADO*q1q2_pot/pot->r[i]+
-				(l_pot*(l_pot+1.))*hbarx_pot /(pot->r[i]*pot->r[i]);
-		if(pot->r[i]<in_pot->radio_coul) pot->pot[i]=in_pot->pot[i]+E_CUADRADO*q1q2_pot*(3.-(pot->r[i]/in_pot->radio_coul)
-				* (pot->r[i]/in_pot->radio_coul))/(2.*in_pot->radio_coul)+
-				(l_pot*(l_pot+1.))*hbarx_pot /(pot->r[i]*pot->r[i]);
-//		misc1<<pot->r[i]<<"  "<<real(core->pot[i])<<"  "<<imag(core->pot[i])<<"  "<<real(pot->pot[i])<<"  "<<imag(pot->pot[i])<<endl;
-	}
-	core->puntos=in_core->puntos;
-	pot->puntos=in_pot->puntos;
+  int i;
+  double hbarx_pot,hbarx_core;
+  hbarx_pot=HC*HC/(2.*AMU*masa_pot);
+  hbarx_core=HC*HC/(2.*AMU*masa_core);
+  l_pot=0;
+  l_core=0;
+  for (i=0;i<in_pot->puntos;i++)
+    {
+      pot->r[i]=in_pot->r[i];
+      core->r[i]=in_core->r[i];
+      if(core->r[i]>=in_core->radio_coul) core->pot[i]=in_core->pot[i]+E_CUADRADO*q1q2_core/core->r[i]+
+					    (l_core*(l_core+1.))*hbarx_core /(core->r[i]*core->r[i]);
+      if(core->r[i]<in_core->radio_coul) core->pot[i]=in_core->pot[i]+E_CUADRADO*q1q2_core*(3.-(core->r[i]/in_core->radio_coul)
+											    * (core->r[i]/in_core->radio_coul))/(2.*in_core->radio_coul)+
+					   (l_core*(l_core+1.))*hbarx_core /(core->r[i]*core->r[i]);
+      if(pot->r[i]>=in_pot->radio_coul) pot->pot[i]=in_pot->pot[i]+E_CUADRADO*q1q2_pot/pot->r[i]+
+					  (l_pot*(l_pot+1.))*hbarx_pot /(pot->r[i]*pot->r[i]);
+      if(pot->r[i]<in_pot->radio_coul) pot->pot[i]=in_pot->pot[i]+E_CUADRADO*q1q2_pot*(3.-(pot->r[i]/in_pot->radio_coul)
+										       * (pot->r[i]/in_pot->radio_coul))/(2.*in_pot->radio_coul)+
+					 (l_pot*(l_pot+1.))*hbarx_pot /(pot->r[i]*pot->r[i]);
+    }
+  core->puntos=in_core->puntos;
+  pot->puntos=in_pot->puntos;
 }
 void Polarization(parametros* parm)
 {
@@ -4498,14 +4495,14 @@ void PangPotential(potencial_optico* pot,double E,int N,int Z,int l,double j,str
     "RealSpinOrbita  "   <<Vso<<endl<<
     "ImaginarioSpinOrbita	"<<0.<<endl<<
     "ImaginarioSuperficie  " <<Ws<<endl<<
-    "RadioRealVolumen  "   <<r0<<endl<<
-    "RadioCoulomb  "            <<RC<<endl<<
-    "RadioImaginarioVolumen  "       <<rw<<endl<<
+    "RadioRealVolumen  "   <<R0/pow(AT,0.3333333333333333)<<endl<<
+    "RadioCoulomb  "            <<RC/pow(AT,0.3333333333333333)<<endl<<
+    "RadioImaginarioVolumen  "       <<Rw/pow(AT,0.3333333333333333)<<endl<<
     "DifusividadRealVolumen  "         <<a0<<endl<<
     "DifusividadImaginarioVolumen  "   <<aw<<endl<<
-    "RadioSpinOrbita    "         	<<rso<<endl<<
+    "RadioSpinOrbita    "         	<<Rso/pow(AT,0.3333333333333333)<<endl<<
     "DifusividadSpinOrbita  "       <<aso<<endl<<
-    "RadioImaginarioSuperficie  "          <<rw<<endl<<
+    "RadioImaginarioSuperficie  "          <<Rw/pow(AT,0.3333333333333333)<<endl<<
     "DifusividadImaginarioSuperficie "    <<aw<<endl;
 
 
