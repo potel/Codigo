@@ -329,6 +329,22 @@ void LeeParametros(const char *fname,struct parametros *x)
     x->angle0=0;
     x->angle1=180;
     x->n1_carga=0.;
+    x->emin=-1000.;
+    x->emax=0.;
+    x->puntos=3000;
+    x->radio=40.;
+    x->remnant=1;
+    x->r_Ccmin=0.;
+    x->r_Ccmax=35.;
+    x->r_A2min=0.;
+    x->r_A2min=35.;
+    x->rCc_puntos=35.;
+    x->rA2_puntos=35.;
+    x->theta_puntos=10;
+    x->cross_puntos=200;
+    x->matching_radio=20.;
+    x->adiabatico=1;
+    x->zerorange=0;
     strcpy(x->flcoef,"nada");
     strcpy(x->file_dens,"\0");
     potopt=0;
@@ -1918,11 +1934,11 @@ void TwoTrans(struct parametros* parm)
   succClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
   simClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
   nonClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
-  HanShiShen(parm->energia_lab+parm->int_Qvalue,parm->T_N,parm->T_carga);
-  PangPotential(dumb_pot_opt,parm->energia_lab,parm->T_N,parm->T_carga,0,-1.,"3He");
+  HanShiShen(parm->energia_lab+parm->int_Qvalue,parm->T_N-1.,parm->T_carga);
+  PangPotential(dumb_pot_opt,parm->energia_lab+parm->int_Qvalue,parm->T_N-2.,parm->T_carga,0,-1.,"3H");
   //CH89(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
   //	KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
-  KoningDelaroche(parm->energia_lab+parm->Qvalue,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+  KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
   InicializaTwoTrans(parm);
   cout<<"Generando potenciales de campo medio"<<endl;
   for(n=0;n<parm->num_cm;n++)

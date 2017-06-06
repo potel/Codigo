@@ -1726,27 +1726,27 @@ void AmplitudeClusterInelastic(struct parametros* parm)
       break;
     }
   //  SimpleRho(st1->l,st2->l,2.,25,rhomm,parm->cross_puntos,0.,180.);
-  SimpleRho(1,1,1.,25,rhomm,parm->cross_puntos,0.,180.);
+  SimpleRho(1,3,2.,25,rhomm,parm->cross_puntos,0.,180.);
   for(mf=0;mf<=dmf;mf++)
     {
       sum_rho[mf]=0.;
     }
-  for(n=0;n<parm->cross_puntos;n++)
-    {
-      theta=PI*double(n)/double(parm->cross_puntos);
-      costheta=cos(theta);
-      if(5.<=(theta*180./PI)&& 16.>=(theta*180./PI))
-	{
-	  misc2<<theta*180./PI;
-	  for(mf=0;mf<=st2->l;mf++)
-	    {
-	      misc2<<"   "<<real(rhomm[mf][mf][n]);
-	      sum_rho[mf]+=real(rhomm[mf][mf][n])*double(n)/double(parm->cross_puntos);
-	    }
-	  misc2<<endl;
-	}
-    }
-  exit(0);
+  // for(n=0;n<parm->cross_puntos;n++)
+  //   {
+  //     theta=PI*double(n)/double(parm->cross_puntos);
+  //     costheta=cos(theta);
+  //     if(0.<=(theta*180./PI)&& 26.>=(theta*180./PI))
+  // 	{
+  // 	  misc2<<theta*180./PI;
+  // 	  for(mf=0;mf<=st2->l;mf++)
+  // 	    {
+  // 	      misc2<<"   "<<real(rhomm[mf][mf][n]);
+  // 	      //sum_rho[mf]+=real(rhomm[mf][mf][n])*double(n)/double(parm->cross_puntos);
+  // 	    }
+  // 	  misc2<<endl;
+  // 	}
+  //   }
+  // exit(0);
   KK=st1->l+st2->l;
   dM=st1->l+st2->l;
   dmf=st2->l;
@@ -1902,7 +1902,7 @@ void AmplitudeClusterInelastic(struct parametros* parm)
       costheta=cos(theta);
       //	    cout<<theta*180./PI<<" "<<parm->angle0<<"  "<<parm->angle1<<endl;
       //	    if(parm->angle0<=(theta*180./PI)&& parm->angle1>=(theta*180./PI))
-      if(5.<=(theta*180./PI)&& 16.>=(theta*180./PI))
+      if(0.<=(theta*180./PI)&& 25.>=(theta*180./PI))
 	{
 	  misc1<<theta*180./PI;
 	  for(mf=0;mf<=dmf;mf++)
@@ -2042,6 +2042,7 @@ void DecayMatrix(complejo*** T,complejo*** rhomm,int dmi,int dmf,int puntos)
 {
 	complejo*** Cmm=tensor_cmpx(2*dmf+1,2*dmf+1,puntos);
 	complejo*** alpha=tensor_cmpx(2*dmf+1,2*dmi+1,puntos);
+	double** alphasum=matriz_dbl(2*dmf+1,2*dmi+1);
 	complejo* trace=new complejo[puntos];
 	int m1,m2,mm1,mm2,n,mf,mi,mmf,mmi,m,mm,M,MM,dm,dM;
 	dm=dmf;
@@ -2060,6 +2061,7 @@ void DecayMatrix(complejo*** T,complejo*** rhomm,int dmi,int dmf,int puntos)
 				mmi=mi+dmi;
 				alpha[mmf][mmi][n]=0.;
 				alpha[mmf][mmi][n]=T[mm][MM][n];
+				if(n<1) alphasum[mmf][mmi]+=abs(alpha[mmf][mmi][n]);
 			}
 		}
 		for(m1=-dm;m1<=dm;m1++)
@@ -2087,10 +2089,16 @@ void DecayMatrix(complejo*** T,complejo*** rhomm,int dmi,int dmf,int puntos)
 			for(m2=-dm;m2<=dm;m2++)
 			{
 				mm2=m2+dm;
-				rhomm[mm1][mm2][n]=Cmm[mm1][mm2][n]/trace[n];
+				//rhomm[mm1][mm2][n]=Cmm[mm1][mm2][n]/trace[n];
+				rhomm[mm1][mm2][n]=Cmm[mm1][mm2][n];
 			}
 		}
 	}
+	for(mf=-dmf;mf<=dmf;mf++)
+	  {
+	    mmf=mf+dmf;
+	    misc4<<mf<<"  "<<abs(alphasum[mmf][1+dmi])<<"  "<<abs(alphasum[mmf][dmi])<<endl;
+	  }	
 	delete[] Cmm;
 	delete[] alpha;
 	delete[] trace;
@@ -2099,9 +2107,10 @@ void SimpleRho(double li,double lf,double K,int lg,complejo*** rhomm,int puntos,
 {
   complejo*** Cmm=tensor_cmpx(int(2.*lf+1.),int(2.*lf+1.),puntos);
   complejo*** alpha=tensor_cmpx(int(2.*lf+1.),int(2.*lf+1.),puntos);
+  double** alphasum=matriz_dbl(int(2.*lf+1.),int(2.*lf+1.));
   complejo* trace=new complejo[puntos];
   int mi,mf,n,m1,m2;
-  double theta;
+  double theta,sum1,sum2;
   double step=abs(theta2-theta1)/double(puntos);
   for (n=0;n<puntos;n++)
     {
@@ -2114,10 +2123,19 @@ void SimpleRho(double li,double lf,double K,int lg,complejo*** rhomm,int puntos,
 			     gsl_sf_legendre_sphPlm(lg,mi-mf,cos(PI*theta/180.));
 	      if(mi-mf<0) alpha[mf][mi][n]=pow(-1.,mi-mf)*ClebsGordan(li,mi,lf,-mf,K,mi-mf)*
 			    gsl_sf_legendre_sphPlm(lg,abs(mi-mf),cos(PI*theta/180.));
-	      //misc2<<n<<"  "<<mi<<"  "<<mf<<"  "<<theta<<"  "<<alpha[mf][mi][n]<<endl;
+	      misc2<<theta<<"  "<<abs(alpha[3][1][n])<<"  "<<abs(alpha[2][1][n])<<"  "<<abs(alpha[1][1][n])
+		   <<"  "<<abs(alpha[0][1][n])<<endl;
+	      misc1<<theta<<"  "<<abs(alpha[3][0][n])<<"  "<<abs(alpha[2][0][n])<<"  "<<abs(alpha[1][0][n])
+		   <<"  "<<abs(alpha[0][0][n])<<endl;
+	      alphasum[mf][mi]+=abs(alpha[mf][mi][n])*step;
 	    }
 	}
     }
+  for(mf=0;mf<=lf;mf++)
+    {  
+      misc3<<mf<<"  "<<abs(alphasum[mf][1])<<"  "<<abs(alphasum[mf][0])<<endl;
+    }
+  //exit(0);
   for (n=0;n<puntos;n++)
     {
       theta=theta1+n*step;      
@@ -2145,7 +2163,6 @@ void SimpleRho(double li,double lf,double K,int lg,complejo*** rhomm,int puntos,
       //cout<<n<<endl;
     }
   //exit(0);
-  cout<<"quillo!!1"<<endl;
   for (n=0;n<puntos;n++)
     {
       theta=theta1+n*step;      
@@ -2154,11 +2171,12 @@ void SimpleRho(double li,double lf,double K,int lg,complejo*** rhomm,int puntos,
 	  for(m2=0;m2<=lf;m2++)
 	    {
 	      rhomm[m1][m2][n]=Cmm[m1][m2][n]/trace[n];
+	      //rhomm[m1][m2][n]=Cmm[m1][m2][n];
 	      //misc2<<m1<<"  "<<m2<<"  "<<theta<<"  "<<trace[n]<<"  "<<Cmm[m1][m2][n]<<"  "<<rhomm[m1][m2][n]<<endl;
 	    }
 	}
     }
-  cout<<"quillo!!2"<<endl;
+  //  exit(0);
   delete[] Cmm;
   delete[] alpha;
   delete[] trace;
