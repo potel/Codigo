@@ -227,3 +227,26 @@ void GeneraPotencialOpticoSpinCoulomb(struct parametros *parm,struct potencial_o
 void DecayMatrix(complejo*** T,complejo*** rhomm,int dmi,int dmf,int puntos);
 void PangPotential(potencial_optico* pot,double E,int N,int Z,int l,double j,string projectile);
 void SimpleRho(double li,double lf,double K,int lg,complejo*** rhomm,int puntos,double theta1,double theta2);
+/* double distorted_wave::absorption(void) { */
+/*   int regla_r,nr; */
+/* 	double ar, br, norma, rp,radio_medio; */
+/* 	double step=radio/double(puntos); */
+/* 	regla_r = 60; */
+/* 	double* wr = new double[regla_r]; */
+/* 	double* absr = new double[regla_r]; */
+/* 	complejo sum = 0.; */
+/*     complejo dwint,potint; */
+/* 	ar = 0.; */
+/* 	br = radio; */
+/* 	GaussLegendre(absr, wr, regla_r); */
+/* 	for (nr = 0; nr < regla_r; nr++) { */
+/* 		rp = ar + (br - ar) * (absr[nr] + 1.) / 2.; */
+/*         dwint=interpola_cmpx(wf,r,rp,puntos); */
+/*         potint=interpola_cmpx(pot->pot,pot->r,rp,puntos); */
+/* 		sum+=abs(dwint)*abs(dwint)*imag(potint)*rp*rp*wr[nr]; */
+/* 	} */
+/* 	norma = abs(sum) * (br - ar) / 2.; */
+/* 	delete[] wr; */
+/* 	delete[] absr; */
+/* 	return norma; */
+/*   } */

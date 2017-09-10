@@ -1,3 +1,4 @@
+
 struct potencial {
 int id;
 char tipo[5];
@@ -57,17 +58,20 @@ double spec;
 char file[100];
 };
 
-struct distorted_wave {
-int id;
-int puntos;
-double radio;
-int l;
-double j;
-int nodos;
-double r[MAX_PTS];
-complejo wf[MAX_PTS];
-double energia;
-float spin;
+class distorted_wave {
+ public:
+  int id;
+  int puntos;
+  double radio;
+  potencial_optico* pot;
+  int l;
+  double j;
+  int nodos;
+  double r[MAX_PTS];
+  complejo wf[MAX_PTS];
+  double energia;
+  float spin;
+  double absorption(void);
 };
 
 struct parametros {

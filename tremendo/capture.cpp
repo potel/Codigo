@@ -11,7 +11,6 @@ extern ofstream misc3;
 extern ofstream misc4;
 
 
-
 void Capture(struct parametros* parm)
 {
   cout<<"********************************************************************************"<<endl;

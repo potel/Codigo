@@ -14,6 +14,33 @@ ofstream misc9("misc9.txt");
 ofstream misc10("misc10.txt");
 ofstream informe("informe.txt");
 
+double distorted_wave::absorption(void) {
+  int regla_r,nr;
+	double ar, br, norma, rp,radio_medio;
+	double step=radio/double(puntos);
+	regla_r = 60;
+	double* wr = new double[regla_r];
+	double* absr = new double[regla_r];
+	complejo sum = 0.;
+    complejo dwint,potint;
+	ar = 0.;
+	br = radio;
+	GaussLegendre(absr, wr, regla_r);
+	for (nr = 0; nr < regla_r; nr++) {
+		rp = ar + (br - ar) * (absr[nr] + 1.) / 2.;
+        dwint=interpola_cmpx(wf,r,rp,puntos);
+        potint=interpola_cmpx(pot->pot,pot->r,rp,puntos);
+		sum+=abs(dwint)*abs(dwint)*imag(potint)*rp*rp*wr[nr];
+	}
+	norma = abs(sum) * (br - ar) / 2.;
+	delete[] wr;
+	delete[] absr;
+	return norma;
+  }
+
+
+
+
 int main(int argc,char* argv[])
 {
 	parametros *parm=new struct parametros;
@@ -1169,7 +1196,9 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 				(funcion[0].l*(funcion[0].l+1.))*hbarx /(v->r[i]*v->r[i])
 				-2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
 		/((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
+        //misc1<<v->r[i]<<"  "<<real(v->pot[i])<<"  "<<real(potencial[i])<<endl;
 	}
+    //exit(0);
 	funcion->wf[0]=1.e-10;
 	funcion->wf[1]=(2.*(1.-0.416666667*dd*(-potencial[0]+funcion->energia))*funcion->wf[0])/
 			(1.+0.083333333*dd*(-potencial[1]+funcion->energia));
@@ -1197,14 +1226,16 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 	GSL_SET_COMPLEX(&deltagsl,x,y);
 	delta=(gsl_complex_arctan(deltagsl).dat[0]+I*gsl_complex_arctan(deltagsl).dat[1]); // desfase
 	factor=exp(I*(delta))*(cos(delta)*F1.val+sin(delta)*G1.val)/fu1;
-//	*fp<<endl<<"& Energia: "<<funcion->energia<<"  Momento angular orbital: "<<funcion->l<<"  Momento angular total: "<<funcion->j<<endl;
+	*fp<<endl<<"& Energia: "<<funcion->energia<<"  Momento angular orbital: "<<funcion->l<<"  Momento angular total: "<<funcion->j<<endl;
 	for (i=0;i<puntos;i++) {
 		funcion->r[i] =delta_r*(i+1.);
 		funcion->wf[i]=factor*funcion->wf[i];
 		if(status1 || status2) funcion->wf[i]=0.;
 		gsl_sf_coulomb_wave_FG_e(etac,q*funcion->r[i],funcion[0].l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
-//		*fp<<funcion->r[i]<<"  "<<real(funcion->wf[i])<<"  "<<imag(funcion->wf[i])<<endl;
+		*fp<<funcion->r[i]<<"  "<<real(funcion->wf[i])<<"  "<<imag(funcion->wf[i])<<"  "<<abs(funcion->wf[i])<<endl;
 	}
+    //cout<<"nos vemos!"<<endl;
+    //exit(0);
 	delete[] potencial;
 	return delta;
 }
@@ -3408,6 +3439,7 @@ void GeneraEstadosPI(potencial* pot,estado* st,double radio,int puntos,double ca
 		pot->V=MAX_ENERGIA;
 		cout<<"energia nivel: "<<energia<<"   l: "<<st->l
 				<<"   nodos: "<<st->nodos<<"   j: "<<st->j<<endl;
+        //exit(0);
 		while(fabs(etrial-energia)>EPSILON)
 		{
 			//				cout<<etrial<<"  "<<energia<<endl;
@@ -3847,7 +3879,7 @@ complejo FuncionBnl(complejo*** Inl,estado* stn,estado* std,potencial* Vp,int nu
 			suma+=sqrt(PI)*std_int*stn_int*Vp_int*Inl_int*rn*rn*sintheta*dim_rn->pesos[n1]*
 					dim_theta->pesos[n2]*(dim_theta->b-dim_theta->a)*(dim_rn->b-dim_rn->a)/(4.);
 			}
-			misc1<<rn<<"  "<<rpn<<"  "<<rdp<<"  "<<real(stn_int)<<"  "<<real(std_int)<<"  "<<Vp_int<<"  "<<abs(Inl_int)<<endl;
+			//misc1<<rn<<"  "<<rpn<<"  "<<rdp<<"  "<<real(stn_int)<<"  "<<real(std_int)<<"  "<<Vp_int<<"  "<<abs(Inl_int)<<endl;
 		}
 	}
 	suma=suma*pow(PI,1.5)/sqrt(2.*lp+1.);
