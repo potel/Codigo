@@ -836,7 +836,7 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 	    
 		S[la]=GeneraDWspin(&(intk->faA[0]),&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,
         parm->radio,parm->puntos,parm->matching_radio,&fp3);
-        //cout<<"Absorption: "<<intk->faA[0].absorption()<<endl;
+        cout<<"Absorption: "<<intk->faA[0].absorption(parm->mu_Aa)<<endl;
         //exit(0);
 		S[la]=exp(2.*I*S[la]);
 

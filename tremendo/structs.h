@@ -71,7 +71,7 @@ class distorted_wave {
   complejo wf[MAX_PTS];
   double energia;
   float spin;
-  double absorption(void);
+  double absorption(double mass);
 };
 
 struct parametros {

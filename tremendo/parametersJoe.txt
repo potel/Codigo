@@ -1,0 +1,262 @@
+
+------ Most important output files --------
+# dsdE.txt -> cross section differential with respect to energy
+# dsdEdO.txt -> cross section differential with respect to angle and energy
+
+
+----------- Some parameters --------------------
+num_st 2	# NU
+lmin 6      # smallest angular momentum transfer
+ltransfer 7 # highest angular momentum transfer
+lmax 20 # number of partial waves
+emin -1000.    # NU
+emax 0. 	   # NU
+puntos 3000    # number of points of radial numerical grid
+radio 60.      # radius of radial numericl grid
+num_cm 2       # number of mean field potentials
+num_opt 3      # number of optical potentials
+a_numst 1	   # number of deuteron states
+B_numst 1       # NU
+a_estados 0   # id of deuteron state
+B_estados 1      # NU
+
+a_potcm 0   # mean field potential for deuteron state
+B_potcm 1    # NU
+pot_transfer 1  # mean field potential used for the breakup matrix element 
+                
+				 
+optico_ingreso 0    # id of incoming optical potential
+optico_salida 1      # id of outgoing optical potential
+optico_intermedio 2  # NU
+prior 1 # NU
+remnant 1 # NU
+core_pot 1 # NU
+capture_angular 1     # if 0, do not calculate angular differential cross section
+enerange_min 14.     # smallest proton energy
+enerange_max 20.     # highest proton energy 
+enerange_step 100.   # proton energy step
+
+
+---------------  Description of the reaction ---------------------
+
+
+# masses 
+m_A    92.906373   
+m_a    2.014101
+m_B	   93.907278
+m_b    1.007825
+n1_masa 1.008664
+T_masa 92.906373
+P_masa 2.014101
+res_masa  93.907278  
+
+# charges
+Z_a    1  
+Z_A     41
+Z_b  1
+Z_B   41
+P_carga 1
+res_carga 41
+T_carga 41
+
+
+P_N 1
+T_N 52
+res_N 53
+
+dompot_n 55 #DOM potential for neutrons: 0-> 40Ca, 2->48Ca, 4->60Ca
+dompot_p 55 #DOM potential for protons: 1-> 40Ca, 3->48Ca, 5->60Ca
+
+
+proyectil a		# NU
+energia_lab  25.5   # deuteron beam energy
+Qvalue   -2.2245 # NU
+
+int_Qvalue   -6.7923  # NU
+
+# ngular momentum of nuclear species
+J_a 0.		
+J_A 4.5  # angular momentum of 93Nb 
+J_b 0.
+J_B  0.
+
+dw_spinA 0.   # NU
+dw_spinB 0.   # NU
+
+lambda  0.	# NU
+n_spin 0.
+a_Sn  -7.66247 # NU
+B_Sn      -7.227 # neutron separation energy of 94Nb
++++++++++++++++++++ Numerical parameters +++++++++++++++++++++++++++++++++++
+
+r_Ccmin 0.     
+r_Ccmax  15.    
+r_A2min   0.    
+r_A2max   15.   # limits for radial integration (fm)
+
+rCc_puntos 15   
+rA2_puntos   15  
+theta_puntos  10    # number of integration points for Gaussian quadrature
+cross_puntos  200 # number of angles for angular differential cross section
+matching_radio 20.  # matching radius for boundary conditions
+
+
++++++++++++++++++++++++ Options ++++++++++++++++++++++++++++
+
+capture 1
+unidades milib				# units for cross section: milib->milibarn, fm2->fermi^2, b->barn, microb->microbarn        
+zerorange 0     # NU
+koning_delaroche 1 # if 1->  use the Koning-Delaroche global optical potential 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+InicioPotencialesOpticos
+
+
+# deueron-Nb optical potential at Ed=25.5 MeV
+
+id 0
+RealVolumen 83.2868
+ImaginarioVolumen  0.667776
+RealSpinOrbita  0.
+ImaginarioSpinOrbita	0.
+ImaginarioSuperficie  13.8102
+RadioRealVolumen  1.174
+RadioCoulomb  1.698
+RadioImaginarioVolumen  1.563
+DifusividadRealVolumen  0.809
+DifusividadImaginarioVolumen  0.903879
+RadioSpinOrbita    1.234
+DifusividadSpinOrbita  0.813
+RadioImaginarioSuperficie  1.328
+DifusividadImaginarioSuperficie 0.668879
+
+**********************************************
+
+# optical potential at Ed=10 MeV
+#id 0
+#RealVolumen 86.0683
+#ImaginarioVolumen  0
+#RealSpinOrbita  0.
+#ImaginarioSpinOrbita	0.
+#ImaginarioSuperficie  15.0409
+#RadioRealVolumen  1.174
+#RadioCoulomb  1.698
+#RadioImaginarioVolumen  1.563
+#DifusividadRealVolumen  0.809
+#DifusividadImaginarioVolumen  0.903879
+#RadioSpinOrbita    1.234
+#DifusividadSpinOrbita  0.813
+#RadioImaginarioSuperficie  1.328
+#DifusividadImaginarioSuperficie 0.668879
+#
+#**************************
+
+id 1
+RealVolumen   160.6
+ImaginarioVolumen   0.
+RealSpinOrbita     	0.
+ImaginarioSpinOrbita   0.                      	
+ImaginarioSuperficie   14.1
+RadioRealVolumen       1.25
+RadioCoulomb          1.25                      
+RadioImaginarioVolumen  1.29                        
+DifusividadRealVolumen 0.678                     
+DifusividadImaginarioVolumen  0.48             	      	
+RadioSpinOrbita 1.25                             	    
+DifusividadSpinOrbita 	0.7                                  
+RadioImaginarioSuperficie   1.25                   
+DifusividadImaginarioSuperficie  0.47 
+
+*******************
+
+
+
+id 2
+RealVolumen   38.146
+ImaginarioVolumen   0.3
+RealSpinOrbita     	0.
+ImaginarioSpinOrbita   0.                      	
+ImaginarioSuperficie   0.
+RadioRealVolumen       1.22
+RadioCoulomb          1.35                      
+RadioImaginarioVolumen  1.25                        
+DifusividadRealVolumen 0.68                     
+DifusividadImaginarioVolumen  0.65             	      	
+RadioSpinOrbita 1.25                             	    
+DifusividadSpinOrbita 	0.7                                  
+RadioImaginarioSuperficie   1.13                    
+DifusividadImaginarioSuperficie  0.48
+
+*******************
+
+
+FinPotencialesOpticos
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+InicioCampoMedio
+
+id 0
+tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
+VV 43.9
+VSO  0.
+aV 0.6
+aSO 0.65
+RV    0.4
+RSO   1.25
+*******
+
+
+id 1
+tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
+VV 38.146
+VSO  0.
+aV 0.68
+aSO 0.65
+RV    5.5274
+RSO   1.25
+*******
+
+
+FinCampoMedio
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+InicioEstados
+
+
+id 0
+l 0
+j 0.
+nodos 0
+spec 1.
+energia -2.2245
+file      
+*************
+
+id 1
+l 3
+j 3.
+nodos 0
+spec 1.
+energia -8.5
+file      
+*************
+
+FinEstados
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
++++++++++++++++++++++++ Ficheros de salida ++++++++++++++++++++++++++++
+
+fl_energias energias.txt   # fichero con las energias y momentos angulares de los niveles
+fl_funondas  funondas.txt         # fichero con las funciones de onda
+fl_formfactor  formfactor.txt #fichero con los factores de forma
+fl_potcm  pot.txt #fichero con los potenciales de campo medio
+fl_cross_succ   cross_succ.txt #fichero con la contribución sucesiva a  la sección eficaz total
+fl_cross_sim	 cross_sim.txt #fichero con la contribución simulatánea  la sección eficaz total
+fl_cross_non	cross_non.txt #fichero con la contribución no ortogonal  la sección eficaz total
+fl_cross_tot	cross.txt #fichero con la sección eficaz total
+fl_amplitudes    amplitudes.txt #fichero con las amplitudes para cada onda parcial
+fl_dw			dw.txt   #fichero con las ondas distorsionadas
+fl_gf			gf.txt   #fichero con las ondas distorsionadas de la función de Green
+
+
+

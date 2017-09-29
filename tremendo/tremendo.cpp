@@ -14,7 +14,7 @@ ofstream misc9("misc9.txt");
 ofstream misc10("misc10.txt");
 ofstream informe("informe.txt");
 
-double distorted_wave::absorption(void) {
+double distorted_wave::absorption(double mass) {
   int regla_r,nr;
 	double ar, br, norma, rp,radio_medio;
 	double step=radio/double(puntos);
@@ -32,7 +32,7 @@ double distorted_wave::absorption(void) {
         potint=interpola_cmpx(pot->pot,pot->r,rp,puntos);
 		sum+=abs(dwint)*abs(dwint)*imag(potint)*rp*rp*wr[nr];
 	}
-	norma = abs(sum) * (br - ar) / 2.;
+	norma=2*(AMU*mass/(HC*HC))*abs(sum)*(br-ar)/2.;
 	delete[] wr;
 	delete[] absr;
 	return norma;
@@ -1966,10 +1966,10 @@ void TwoTrans(struct parametros* parm)
   simClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
   nonClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
   HanShiShen(parm->energia_lab+parm->int_Qvalue,parm->T_N-1.,parm->T_carga);
-  PangPotential(dumb_pot_opt,parm->energia_lab+parm->int_Qvalue,parm->T_N-2.,parm->T_carga,0,-1.,"3H");
+  PangPotential(dumb_pot_opt,parm->energia_lab,parm->T_N,parm->T_carga,0,-1.,"3He");
   //CH89(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
   //	KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
-  KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+  KoningDelaroche(parm->energia_lab+parm->Qvalue,parm->T_N,parm->T_carga+2,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
   InicializaTwoTrans(parm);
   cout<<"Generando potenciales de campo medio"<<endl;
   for(n=0;n<parm->num_cm;n++)

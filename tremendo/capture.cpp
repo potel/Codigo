@@ -292,8 +292,8 @@ void AmplitudeCapture(struct parametros* parm)
     }
 
   if(parm->koning_delaroche==1) cout<<"*****************************************************"<<endl<<
-				  "***** Potencial neutron-blanco Koning-Delaroche *****"<<endl<<
-				  "*****************************************************"<<endl;
+                                  "***** Potencial neutron-blanco Koning-Delaroche *****"<<endl<<
+                                  "*****************************************************"<<endl;
   //	for(energia_trans=0;energia_trans<10.;energia_trans+=0.001)
   //	{
   //	KoningDelaroche(energia_trans,parm->T_N,parm->T_carga,1.,&pot_p,
@@ -316,7 +316,7 @@ void AmplitudeCapture(struct parametros* parm)
       energia_trans=(parm->n1_masa+parm->T_masa)*Ecm/(parm->T_masa);
       cout<<endl<<endl<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
       cout<<"Energy of detected cluster: "<<energia_out<<"  "<<"Energy of absorbed cluster: "
-		<<energia_trans<<endl;
+          <<energia_trans<<endl;
       fp9<<energia_out<<"  "<<Ecm<<"  ";
       k_n=sqrt(2.*parm->n1_masa*AMU*Ecm)/HC;
       k_p=sqrt(2.*parm->m_b*AMU*Ecm_out)/HC;
@@ -326,204 +326,204 @@ void AmplitudeCapture(struct parametros* parm)
       cross_total=0.;
       cross_total_elasticb=0.;
       if(parm->koning_delaroche==1){
-	for(n=0;n<parm->puntos;n++){
-	  rn=step*(n+1.);
-	  KoningDelaroche(energia_trans,parm->T_N,parm->T_carga,rn,&pot_p,
-			  &pot_n,0,0.,pot_dumb,&(parm->pot_opt[indx_neutron_target]));
-	  parm->pot_opt[indx_neutron_target].r[n]=rn;
-	  if(carga_trans<0.1) parm->pot_opt[indx_neutron_target].pot[n]=pot_n;
-	  if(carga_trans>0.1) parm->pot_opt[indx_neutron_target].pot[n]=pot_p;
-	  KoningDelaroche(energia_out,parm->T_N,parm->T_carga,rn,&pot_p,
-			  &pot_n,0,0.,&(parm->pot_opt[indx_salida]),pot_dumb);
-	  parm->pot_opt[indx_salida].r[n]=rn;
-	  if(carga_out>0.1) parm->pot_opt[indx_salida].pot[n]=pot_p;
-	  if(carga_out<0.1) parm->pot_opt[indx_salida].pot[n]=pot_n;
-	}
+        for(n=0;n<parm->puntos;n++){
+          rn=step*(n+1.);
+          KoningDelaroche(energia_trans,parm->T_N,parm->T_carga,rn,&pot_p,
+                          &pot_n,0,0.,pot_dumb,&(parm->pot_opt[indx_neutron_target]));
+          parm->pot_opt[indx_neutron_target].r[n]=rn;
+          if(carga_trans<0.1) parm->pot_opt[indx_neutron_target].pot[n]=pot_n;
+          if(carga_trans>0.1) parm->pot_opt[indx_neutron_target].pot[n]=pot_p;
+          KoningDelaroche(energia_out,parm->T_N,parm->T_carga,rn,&pot_p,
+                          &pot_n,0,0.,&(parm->pot_opt[indx_salida]),pot_dumb);
+          parm->pot_opt[indx_salida].r[n]=rn;
+          if(carga_out>0.1) parm->pot_opt[indx_salida].pot[n]=pot_p;
+          if(carga_out<0.1) parm->pot_opt[indx_salida].pot[n]=pot_n;
+        }
       }
       v=&(parm->pot_opt[indx_neutron_target]);
       if(parm->remnant==1 && parm->prior==1) {
-	GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_salida],parm->T_carga*parm->P_carga,
-		      parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
+        GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_salida],parm->T_carga*parm->P_carga,
+                      parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
       }
       misc1<<"& Proton energy: "<<energia_out<<" MeV. Neutron energy: "<<energia_trans<<" MeV"<<endl;
       for(l=parm->lmin;l<parm->ltransfer;l++)
-	//		for(l=1;l<2;l++)
-	{
-	  cout<<"L: "<<l<<endl;
-	  funcion_regular_up[0].energia=Ecm;
-	  funcion_irregular_up[0].energia=Ecm;
-	  funcion_regular_up[0].l=l;
-	  funcion_irregular_up[0].l=l;
-	  funcion_regular_up[0].j=l+parm->n_spin;
-	  funcion_irregular_up[0].j=l+parm->n_spin;
-	  funcion_regular_up[1].energia=Ecm;
-	  funcion_irregular_up[1].energia=Ecm;
-	  funcion_regular_up[1].l=l;
-	  funcion_irregular_up[1].l=l;
-	  funcion_regular_up[1].j=l+parm->n_spin;
-	  funcion_irregular_up[1].j=l+parm->n_spin;
-	  if (Ecm<=0.) wronskiano_up=GeneraGreenFunctionLigada(&(funcion_regular_up[0]),&(funcion_irregular_up[0]),
-							       &(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
-							       parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),parm->n_spin);
-	  if (Ecm>0.)
-	    {
-	      GeneraGreenFunction(funcion_regular_up,funcion_irregular_up,(v),
-				  carga_trans*(parm->T_carga),parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),
-				  parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
-	      wronskiano_up=k_n;
-	    }
-	  funcion_regular_down[1].energia=Ecm;
-	  funcion_irregular_down[1].energia=Ecm;
-	  funcion_regular_down[1].l=l;
-	  funcion_irregular_down[1].l=l;
-	  funcion_regular_down[1].j=l-parm->n_spin;
-	  funcion_irregular_down[1].j=l-parm->n_spin;
-	  funcion_regular_down[0].energia=Ecm;
-	  funcion_irregular_down[0].energia=Ecm;
-	  funcion_regular_down[0].l=l;
-	  funcion_irregular_down[0].l=l;
-	  funcion_regular_down[0].j=l-parm->n_spin;
-	  funcion_irregular_down[0].j=l-parm->n_spin;
-	  if(l==0) {
-	    funcion_irregular_down[0].j=parm->n_spin; funcion_regular_down[0].j=parm->n_spin;
-	    funcion_irregular_down[1].j=parm->n_spin; funcion_regular_down[1].j=parm->n_spin;
-	  }
-	  if (Ecm<=0.) wronskiano_down=GeneraGreenFunctionLigada
-			 (&(funcion_regular_down[1]),&(funcion_irregular_down[1]),
-			  &(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
-			  parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),parm->n_spin);
-	  if (Ecm>0.)
-	    {
-	      GeneraGreenFunction(funcion_regular_down,funcion_irregular_down,(v),
-				  carga_trans*(parm->T_carga),parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),
-				  parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
-	      wronskiano_down=k_n;
-	    }
-	  for(lp=0;lp<parm->lmax;lp++)
-	    //			for(lp=0;lp<1;lp++)
-	    {
-	      gl->energia=Ecm_out;
-	      gl->l=lp;
-	      gl->spin=0.;
-	      gl->j=lp;
-	      GeneraDWspin(gl,&(parm->pot_opt[indx_salida]),parm->res_carga*carga_out,
-			   parm->m_b*parm->res_masa/(parm->m_b+parm->res_masa),
-			   parm->radio,parm->puntos,parm->matching_radio,&fp2);
-	      for(n=0;n<dim1->num_puntos;n++){
-		for(m=0;m<=lp;m++){
-		  rho[n][l][m][lp]=0.;
-		  non[n][l][m][lp]=0.;
-		}
-	      }
-	      exp_delta_coulomb_f[lp]=exp(I*(deltac(lp,eta_f)));
-	      for(ld=abs(l-lp);(ld<=l+lp)&&(ld<parm->lmax);ld++)
-		{
-		  rhofac=(16.*pow(PI,2.5)*pow(I,ld-lp)*pow(-1.,l)*
-			  exp_delta_coulomb_f[lp]*exp_delta_coulomb_i[ld]*sqrt(2.*ld+1.))/(parm->k_Aa*k_p*sqrt(2.*l+1.));
-		  fl->energia=parm->energia_cm;
-		  fl->l=ld;
-		  fl->spin=0.;
-		  fl->j=ld;
+        //		for(l=1;l<2;l++)
+        {
+          cout<<"L: "<<l<<endl;
+          funcion_regular_up[0].energia=Ecm;
+          funcion_irregular_up[0].energia=Ecm;
+          funcion_regular_up[0].l=l;
+          funcion_irregular_up[0].l=l;
+          funcion_regular_up[0].j=l+parm->n_spin;
+          funcion_irregular_up[0].j=l+parm->n_spin;
+          funcion_regular_up[1].energia=Ecm;
+          funcion_irregular_up[1].energia=Ecm;
+          funcion_regular_up[1].l=l;
+          funcion_irregular_up[1].l=l;
+          funcion_regular_up[1].j=l+parm->n_spin;
+          funcion_irregular_up[1].j=l+parm->n_spin;
+          if (Ecm<=0.) wronskiano_up=GeneraGreenFunctionLigada(&(funcion_regular_up[0]),&(funcion_irregular_up[0]),
+                                                               &(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
+                                                               parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),parm->n_spin);
+          if (Ecm>0.)
+            {
+              GeneraGreenFunction(funcion_regular_up,funcion_irregular_up,(v),
+                                  carga_trans*(parm->T_carga),parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),
+                                  parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
+              wronskiano_up=k_n;
+            }
+          funcion_regular_down[1].energia=Ecm;
+          funcion_irregular_down[1].energia=Ecm;
+          funcion_regular_down[1].l=l;
+          funcion_irregular_down[1].l=l;
+          funcion_regular_down[1].j=l-parm->n_spin;
+          funcion_irregular_down[1].j=l-parm->n_spin;
+          funcion_regular_down[0].energia=Ecm;
+          funcion_irregular_down[0].energia=Ecm;
+          funcion_regular_down[0].l=l;
+          funcion_irregular_down[0].l=l;
+          funcion_regular_down[0].j=l-parm->n_spin;
+          funcion_irregular_down[0].j=l-parm->n_spin;
+          if(l==0) {
+            funcion_irregular_down[0].j=parm->n_spin; funcion_regular_down[0].j=parm->n_spin;
+            funcion_irregular_down[1].j=parm->n_spin; funcion_regular_down[1].j=parm->n_spin;
+          }
+          if (Ecm<=0.) wronskiano_down=GeneraGreenFunctionLigada
+                         (&(funcion_regular_down[1]),&(funcion_irregular_down[1]),
+                          &(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
+                          parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),parm->n_spin);
+          if (Ecm>0.)
+            {
+              GeneraGreenFunction(funcion_regular_down,funcion_irregular_down,(v),
+                                  carga_trans*(parm->T_carga),parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),
+                                  parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
+              wronskiano_down=k_n;
+            }
+          for(lp=0;lp<parm->lmax;lp++)
+            //			for(lp=0;lp<1;lp++)
+            {
+              gl->energia=Ecm_out;
+              gl->l=lp;
+              gl->spin=0.;
+              gl->j=lp;
+              GeneraDWspin(gl,&(parm->pot_opt[indx_salida]),parm->res_carga*carga_out,
+                           parm->m_b*parm->res_masa/(parm->m_b+parm->res_masa),
+                           parm->radio,parm->puntos,parm->matching_radio,&fp2);
+              for(n=0;n<dim1->num_puntos;n++){
+                for(m=0;m<=lp;m++){
+                  rho[n][l][m][lp]=0.;
+                  non[n][l][m][lp]=0.;
+                }
+              }
+              exp_delta_coulomb_f[lp]=exp(I*(deltac(lp,eta_f)));
+              for(ld=abs(l-lp);(ld<=l+lp)&&(ld<parm->lmax);ld++)
+                {
+                  rhofac=(16.*pow(PI,2.5)*pow(I,ld-lp)*pow(-1.,l)*
+                          exp_delta_coulomb_f[lp]*exp_delta_coulomb_i[ld]*sqrt(2.*ld+1.))/(parm->k_Aa*k_p*sqrt(2.*l+1.));
+                  fl->energia=parm->energia_cm;
+                  fl->l=ld;
+                  fl->spin=0.;
+                  fl->j=ld;
 
-		  S[l]=GeneraDWspin(fl,&(parm->pot_opt[indx_ingreso]),parm->T_carga*parm->P_carga,parm->mu_Aa,
-				    parm->radio,parm->puntos,parm->matching_radio,&fp1);
-		  for(n=0;n<dim1->num_puntos;n++){
-		    rn=(dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
-		    for(m=0;m<=lp;m++){
-		      rhom[m]=0.;
-		    }
-		    rAn=km*rn;
-		    dim3->a=rAn-parm->r_A2max;
-		    dim3->b=rAn+parm->r_A2max;
-		    if(dim3->a<0.) dim3->a=0.;
-		    if(dim3->b>parm->radio) dim3->b=parm->radio-1.;
-		    GaussLegendre(dim3->puntos,dim3->pesos,dim3->num_puntos);
-		    SourcePrior2(rhom,nonm,fl,gl,st,v,optico,core,l,rn,parm,dim3,dim2);
-		    for(m=0;m<=lp;m++){
-		      rho[n][l][m][lp]+=(redfac*rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*rhom[0]);
-		      if(parm->prior==1) non[n][l][m][lp]+=(rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*nonm[0]*rn);
-		    }
-		  }
-		}
-	      dim1->a=parm->r_Ccmin;
-	      dim1->b=parm->r_Ccmax;
-	      if(energia_trans>0.) ElasticBreakup(Teb,rho,Ecm,&(parm->pot_opt[indx_neutron_target]),
-						  dim1,parm,l,lp,k_n,parm->n_spin);
-	      for(n=0;n<dim1->num_puntos;n++){
-		rn= (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
-		for(m=0;m<=lp;m++){
-		  phim[m]=0.;
-		}
-		NeutronWave(phim,rho,&(funcion_regular_up[0]),&(funcion_irregular_up[0]),
-			    dim1,parm,rn,l,lp,ld,wronskiano_up);
-		for(m=0;m<=lp;m++){
-		  //phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
-		  phi_up[n][l][m][lp]=phim[m];
-		}
-		// NeutronWave(phim,rho,&(funcion_regular_down[1]),&(funcion_irregular_down[1]),
-		// 	    dim1,parm,rn,l,lp,ld,wronskiano_down);
-		for(m=0;m<=lp;m++){
-		  // phi_down[n][l][m][lp]=(l/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
-		  //						phi_down[n][l][m][lp]=phim[m];
-		}
-	      }
-	    }
-	  inc_break[l]=0.;
-	  elastic_break[l]=0.;
-	  inc_break_lmenos[l]=0.;
-	  inc_break_lmas[l]=rhoE*escala*sigma_const*
-	    AbsorcionPrior(direct,non_orth,cross_term,&(parm->pot_opt[indx_neutron_target]),
-			   phi_up,non,dim1,l,parm->lmax,r_F);
-	  inc_break[l]=inc_break_lmas[l];
-	  // inc_break_lmenos[l]=rhoE*escala*sigma_const*AbsorcionPrior(direct,non_orth,cross_term,&(parm->pot_opt[indx_neutron_target]),
-	  // 							     phi_down,non,dim1,l,parm->lmax,r_F);
+                  S[l]=GeneraDWspin(fl,&(parm->pot_opt[indx_ingreso]),parm->T_carga*parm->P_carga,parm->mu_Aa,
+                                    parm->radio,parm->puntos,parm->matching_radio,&fp1);
+                  for(n=0;n<dim1->num_puntos;n++){
+                    rn=(dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
+                    for(m=0;m<=lp;m++){
+                      rhom[m]=0.;
+                    }
+                    rAn=km*rn;
+                    dim3->a=rAn-parm->r_A2max;
+                    dim3->b=rAn+parm->r_A2max;
+                    if(dim3->a<0.) dim3->a=0.;
+                    if(dim3->b>parm->radio) dim3->b=parm->radio-1.;
+                    GaussLegendre(dim3->puntos,dim3->pesos,dim3->num_puntos);
+                    SourcePrior2(rhom,nonm,fl,gl,st,v,optico,core,l,rn,parm,dim3,dim2);
+                    for(m=0;m<=lp;m++){
+                      rho[n][l][m][lp]+=(redfac*rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*rhom[0]);
+                      if(parm->prior==1) non[n][l][m][lp]+=(rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*nonm[0]*rn);
+                    }
+                  }
+                }
+              dim1->a=parm->r_Ccmin;
+              dim1->b=parm->r_Ccmax;
+              if(energia_trans>0.) ElasticBreakup(Teb,rho,Ecm,&(parm->pot_opt[indx_neutron_target]),
+                                                  dim1,parm,l,lp,k_n,parm->n_spin);
+              for(n=0;n<dim1->num_puntos;n++){
+                rn= (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
+                for(m=0;m<=lp;m++){
+                  phim[m]=0.;
+                }
+                NeutronWave(phim,rho,&(funcion_regular_up[0]),&(funcion_irregular_up[0]),
+                            dim1,parm,rn,l,lp,ld,wronskiano_up);
+                for(m=0;m<=lp;m++){
+                  phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
+                  //phi_up[n][l][m][lp]=phim[m];
+                }
+                NeutronWave(phim,rho,&(funcion_regular_down[1]),&(funcion_irregular_down[1]),
+                            dim1,parm,rn,l,lp,ld,wronskiano_down);
+                for(m=0;m<=lp;m++){
+                  phi_down[n][l][m][lp]=(l/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
+                  //						phi_down[n][l][m][lp]=phim[m];
+                }
+              }
+            }
+          inc_break[l]=0.;
+          elastic_break[l]=0.;
+          inc_break_lmenos[l]=0.;
+          inc_break_lmas[l]=rhoE*escala*sigma_const*
+            AbsorcionPrior(direct,non_orth,cross_term,&(parm->pot_opt[indx_neutron_target]),
+                           phi_up,non,dim1,l,parm->lmax,r_F);
+          inc_break[l]=inc_break_lmas[l];
+          inc_break_lmenos[l]=rhoE*escala*sigma_const*AbsorcionPrior(direct,non_orth,cross_term,&(parm->pot_opt[indx_neutron_target]),
+                                                                     phi_down,non,dim1,l,parm->lmax,r_F);
 
-	  // inc_break[l]+=inc_break_lmenos[l];
-	  if(energia_trans>0.) elastic_break[l]=rhoE*rhoE_n*escala*sigma_const*PI*ElasticBreakupCross(Teb,l,parm->lmax);
-	  cross_total+=inc_break[l];
-	  cross_total_elasticb+=elastic_break[l];
-	  cross_total_breakup+=total_break[l];
-	  cout<<" NEB cross section: "<<inc_break[l]<<endl<<endl;
-	  cout<<" EB cross section: "<<elastic_break[l]<<endl<<endl;
-	  fp9<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<"  ";
-	  misc1<<l<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<endl;
-	}
+          inc_break[l]+=inc_break_lmenos[l];
+          if(energia_trans>0.) elastic_break[l]=rhoE*rhoE_n*escala*sigma_const*PI*ElasticBreakupCross(Teb,l,parm->lmax);
+          cross_total+=inc_break[l];
+          cross_total_elasticb+=elastic_break[l];
+          cross_total_breakup+=total_break[l];
+          cout<<" NEB cross section: "<<inc_break[l]<<endl<<endl;
+          cout<<" EB cross section: "<<elastic_break[l]<<endl<<endl;
+          fp9<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<"  ";
+          misc1<<l<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<endl;
+        }
       TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp3,&fp4,&fp7,parm->J_A);
       cout<<"NEB cross section:  "<<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
       fp9<<cross_total<<"  "<<cross_total_elasticb<<
-	"  "<<cross_total+cross_total_elasticb<<endl;
+        "  "<<cross_total+cross_total_elasticb<<endl;
       cross_total=0.;
       cross_total_elasticb=0.;
       for(l=0;l<parm->lmax;l++)
-	{
-	  inc_break_lmenos[l]=0.;
-	  inc_break_lmas[l]=0.;
-	}
+        {
+          inc_break_lmenos[l]=0.;
+          inc_break_lmas[l]=0.;
+        }
       if(parm->capture_angular==1)
-	{
-	  cout<<"computing angular differential cross section"<<endl;
-	  for(n=0;n<parm->cross_puntos;n++)
-	    {
-	      theta=PI*double(n)/double(parm->cross_puntos);
-	      direct[0]=0.;
-	      non_orth[0]=0.;
-	      cross_term[0]=0.;
-	      if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
-		{
-		  cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
-					 direct,non_orth,cross_term,cross_up);
-		  // cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
-		  // 			  direct,non_orth,cross_term,cross_down);
-		  elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
-		  cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-		  cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*
-		    elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-		  fp10<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
-		    "  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
-		    sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
-		}
-	    }
-	}
+        {
+          cout<<"computing angular differential cross section"<<endl;
+          for(n=0;n<parm->cross_puntos;n++)
+            {
+              theta=PI*double(n)/double(parm->cross_puntos);
+              direct[0]=0.;
+              non_orth[0]=0.;
+              cross_term[0]=0.;
+              if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
+                {
+                  cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
+                                         direct,non_orth,cross_term,cross_up);
+                  cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
+                  			  direct,non_orth,cross_term,cross_down);
+                  elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
+                  cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+                  cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*
+                    elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+                  fp10<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
+                    "  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
+                    sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
+                }
+            }
+        }
       ////		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A);
       cout<<"NEB cross section:  "<<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
     }
