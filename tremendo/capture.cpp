@@ -138,13 +138,13 @@ void AmplitudeCapture(struct parametros* parm)
   ofstream fp1("dw_out1trans.txt");
   ofstream fp2("dw_in1trans.txt");
   ofstream fp3;
-  fp3.open("talys1.txt");
+  fp3.open("talys_negative.txt");
   ofstream fp4;
-  fp4.open("talys2.txt");
+  fp4.open("talys_positive.txt");
   ofstream fp5;
-  fp5.open("talys_angular1.txt");
+  fp5.open("talys_angular_negative.txt");
   ofstream fp6;
-  fp6.open("talys_angular2.txt");
+  fp6.open("talys_angular_positive.txt");
   ofstream fp7;
   fp7.open("Jutta.txt");
   ofstream fp8;
@@ -153,7 +153,11 @@ void AmplitudeCapture(struct parametros* parm)
   fp9.open("dsdE.txt");
   ofstream fp10;
   fp10.open("dsdEdO.txt");
-    
+  ofstream fp11;
+  fp11.open("dsdE_angular.txt");
+  
+  fp7<<"Positive parity populations listed in first column"<<endl; 
+  fp8<<"Positive parity populations listed in first column"<<endl;
   complejo* S=new complejo[parm->lmax];
   complejo**** rho=tensor4_cmpx(parm->rCc_puntos,parm->lmax,parm->lmax+1,parm->lmax);
   complejo* rho_test=new complejo [parm->puntos];
@@ -176,8 +180,8 @@ void AmplitudeCapture(struct parametros* parm)
   double* inc_break=new double[parm->lmax+1];
   double* inc_break_lmas=new double[parm->lmax+1];
   double* inc_break_lmenos=new double[parm->lmax+1];
-  double* cross_up=new double[parm->lmax+1];
-  double* cross_down=new double[parm->lmax+1];
+  double* cross_up=new double[parm->ltransfer+1];
+  double* cross_down=new double[parm->ltransfer+1];
   double* elastic_break=new double[parm->lmax+1];
   double* direct=new double[1];
   double* non_orth=new double[1];
@@ -406,9 +410,13 @@ void AmplitudeCapture(struct parametros* parm)
               gl->l=lp;
               gl->spin=0.;
               gl->j=lp;
+              gl->pot=&(parm->pot_opt[indx_salida]);
               GeneraDWspin(gl,&(parm->pot_opt[indx_salida]),parm->res_carga*carga_out,
                            parm->m_b*parm->res_masa/(parm->m_b+parm->res_masa),
                            parm->radio,parm->puntos,parm->matching_radio,&fp2);
+              //cout<<"computing absorption"<<endl;
+              //cout<<"Absorption: "<<gl->absorption(parm->m_b*parm->res_masa/(parm->m_b+parm->res_masa))<<endl;
+              //exit(0);
               for(n=0;n<dim1->num_puntos;n++){
                 for(m=0;m<=lp;m++){
                   rho[n][l][m][lp]=0.;
@@ -488,13 +496,13 @@ void AmplitudeCapture(struct parametros* parm)
           fp9<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<"  ";
           misc1<<l<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<endl;
         }
-      TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp3,&fp4,&fp7,parm->J_A);
+      TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp3,&fp4,&fp7,parm->J_A,parm->parity_A);
       cout<<"NEB cross section:  "<<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
       fp9<<cross_total<<"  "<<cross_total_elasticb<<
         "  "<<cross_total+cross_total_elasticb<<endl;
       cross_total=0.;
       cross_total_elasticb=0.;
-      for(l=0;l<parm->lmax;l++)
+      for(l=0;l<parm->ltransfer;l++)
         {
           inc_break_lmenos[l]=0.;
           inc_break_lmas[l]=0.;
@@ -512,8 +520,10 @@ void AmplitudeCapture(struct parametros* parm)
                 {
                   cross=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_up,non,dim1,parm,theta,
                                          direct,non_orth,cross_term,cross_up);
+                  //cout<<"  "<<cross_up[0]<<endl;
+                  //exit(0);
                   cross+=AbsorcionAngular(&(parm->pot_opt[indx_neutron_target]),phi_down,non,dim1,parm,theta,
-                  			  direct,non_orth,cross_term,cross_down);
+                                          direct,non_orth,cross_term,cross_down);
                   elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
                   cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
                   cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*
@@ -521,11 +531,24 @@ void AmplitudeCapture(struct parametros* parm)
                   fp10<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
                     "  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
                     sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
+                  for(l=0;l<parm->ltransfer;l++)
+                    {
+                      inc_break_lmas[l]+=sigma_const*escala*rhoE*cross_up[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+                      inc_break_lmenos[l]+=sigma_const*escala*rhoE*cross_down[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
+                      
+                    }
                 }
             }
+          fp11<<energia_out<<"  "<<Ecm;
+          for(l=0;l<parm->ltransfer;l++)
+            {
+              misc2<<l<<"  "<<inc_break_lmas[l]<<"  "<<inc_break_lmenos[l]<<"  "<<inc_break_lmas[l]+inc_break_lmenos[l]<<endl;
+              fp11<<"  "<<inc_break_lmas[l]+inc_break_lmenos[l];
+            }
+          fp11<<"  "<<cross_total<<"  "<<cross_total_elasticb<<"  "<<cross_total+cross_total_elasticb<<endl;
+          TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A,parm->parity_A);
+          cout<<"NEB cross section:  "<<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
         }
-      ////		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A);
-      cout<<"NEB cross section:  "<<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
     }
   delete[] funcion_regular_up;
   delete[] funcion_irregular_up;
@@ -547,7 +570,6 @@ void AmplitudeCapture(struct parametros* parm)
   delete[] cross_up;
   delete[] cross_down;
   delete[] total_break;
-
 }
 void Source(complejo* rho,distorted_wave* f,distorted_wave* g,estado* u,potencial* v,int l,
 		double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2)
@@ -745,19 +767,10 @@ void SourcePrior2(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* 
 			ud=interpola_cmpx(u->wf,u->r,rpn,u->puntos);
 			coupling=FuncionAngular2(lp,ld,l,coseno,coseno_d);
 			if (parm->remnant==1) remnant=inpot-corepot;
-//			fl=1.;
-//			gl=1.;
-//			vpn=1.;
-//			remnant=0.;
-//			ud=1.;
 			suma+=rBp*seno*fl*gl*ud*(vpn-remnant)*coupling*
 					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
 			sumanon+=rBp*seno*fl*gl*ud*coupling*
 					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
-//			suma+=rAp*seno*fl*gl*ud*(vpn-remnant)*coupling*
-//					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
-//			sumanon+=rAp*seno*fl*gl*ud*coupling*
-//					dim1->pesos[n1]*dim2->pesos[n2]/(rd);
 //			misc2<<rd<<"  "<<rBp<<"  "<<rAp<<"  "<<abs(inpot)<<"  "<<abs(corepot)<<"  "<<abs(fl)<<"  "<<abs(gl)<<endl;
 		}
 //		if(lp==0) misc1<<abs(rAp-rAn)<<"  "<<abs(suma)<<endl;
@@ -765,7 +778,6 @@ void SourcePrior2(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* 
 //	exit(0);
 	rho[0]=suma*((dim1->b)-(dim1->a))*((dim2->b)-(dim2->a))/4.;
 	non[0]=sumanon*((dim1->b)-(dim1->a))*((dim2->b)-(dim2->a))/4.;
-//	cout<<rBn<<"  "<<abs(rho[0])<<"  "<<abs(non[0])<<endl;
 }
 void TestIntegral(distorted_wave* f,distorted_wave* g,estado* u,potencial* v,int l,int m,int K,int M,
 		double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2)
@@ -1244,6 +1256,10 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 	complejo pot_int,UT,HM,phase2;
 	costheta=cos(theta);
 	suma=0.;
+    for(l=0;l<parm->ltransfer;l++)
+      {
+        cross_j[l]=0.;
+      }
 	for(n=0;n<dim->num_puntos;n++)
 	{
 		R=(dim->a)+((dim->b)-(dim->a))*((dim->puntos[n])+1.)/2.;
@@ -1259,6 +1275,7 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 				HM+=non[n][l][0][lp]*armonico;
 			}
 			suma+=-imag(pot_int)*abs(UT-HM)*abs(UT-HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+            cross_j[l]+=-imag(pot_int)*abs(UT-HM)*abs(UT-HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 //			suma+=-imag(pot_int)*abs(UT)*abs(UT)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 			for(m=1;m<parm->lmax;m++)
 			{
@@ -1271,6 +1288,7 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 					HM+=non[n][l][m][lp]*armonico;
 				}
 				suma+=-2.*imag(pot_int)*abs(UT-HM)*abs(UT-HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+                cross_j[l]+=-2.*imag(pot_int)*abs(UT-HM)*abs(UT-HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 //				suma+=-2.*imag(pot_int)*abs(UT)*abs(UT)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 			}
 		}
@@ -1507,15 +1525,14 @@ void HulthenWf(estado *st,double radio_max,int puntos)
 	//  Normalizacion
 //	Normaliza(st,st,radio_max,puntos,'s');
 }
-void TalysInput(double* lmenos,double* lmas,double energia_trans,parametros* parm,ofstream* fp,ofstream* fp2,ofstream* fp3,double s)
+void TalysInput(double* lmenos,double* lmas,double energia_trans,parametros* parm,ofstream* fp,ofstream* fp2,ofstream* fp3,double s,int parity)
 {
-	int l,parity;
+	int l;
 	double Ex,factor,J,Jp,j_menos,j_mas,norma;
 	double* parity1=new double[parm->ltransfer+int(ceil(s))+2];
 	double* parity2=new double[parm->ltransfer+int(ceil(s))+2];
 	Ex=energia_trans-parm->B_Sn;
 	*fp3<<"NEnergy= "<<Ex<<"   Entries "<<parm->ltransfer+int(ceil(s))+2<<endl;
-	parity=1;
 	for(l=0;l<parm->ltransfer+int(ceil(s))+2;l++){
 		parity1[l]=0.;
 		parity2[l]=0.;
@@ -1558,9 +1575,15 @@ void TalysInput(double* lmenos,double* lmas,double energia_trans,parametros* par
 		*fp2<<parity2[int(Jp)]<<"    ";
 	}
 	*fp2<<endl;
-
 	for(Jp=0;Jp<parm->ltransfer+int(ceil(s))+2;Jp++){
-		*fp3<<left<<setw(5)<<Jp<<setw(12)<<left<<parity1[int(Jp)]/norma<<left<<setw(12)<<parity2[int(Jp)]/norma<<endl;
+      if(parity>0) {
+        fp3->unsetf(ios_base::floatfield);
+        *fp3<<left<<setw(5)<<Jp;
+        *fp3<<std::fixed;
+        fp3->precision(7);
+        *fp3<<setw(12)<<left<<parity2[int(Jp)]/norma<<left<<setw(12)<<parity1[int(Jp)]/norma<<endl;        
+      }
+      if(parity<0) *fp3<<left<<setw(5)<<Jp<<setw(12)<<left<<parity1[int(Jp)]/norma<<left<<setw(12)<<parity2[int(Jp)]/norma<<endl;
 	}
 }
 void ClusterInelastic(struct parametros* parm)

@@ -1,7 +1,7 @@
 num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
 lmin 0      # momento angular mínimo. En una reacción tiene que ser 0.
 lmax 10  # momento angular máximo. En una reacción, número de ondas parciales.
-ltransfer 8 #momento angular transferido maximo. Usado para la captura neutronica.
+ltransfer 10 #momento angular transferido maximo. Usado para la captura neutronica.
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
 puntos 2000    # número de puntos en los que se definen las funciones.
@@ -25,9 +25,9 @@ optico_intermedio 2
 prior 1
 remnant 1
 core_pot 1
-enerange_min 10.
-enerange_max 10.001
-enerange_step 0.1	
+enerange_min 5.
+enerange_max 15.
+enerange_step 0.1
 capture_angular 1
 
 ++++++++++++++ Descripción de la reacción +++++++++++++++++++++++++++++++++++++
@@ -67,6 +67,9 @@ J_a 1.			# momentos angulares de las especies nucleares
 J_A 2.5
 J_b 0.5
 J_B  0.
+parity_A  1 # parity of nucleus A  
+
+
 
 dw_spinA 0.5   #spin de las ondas distorsionadas entrantes
 dw_spinB 1.   #spin de las ondas distorsionadas salientes
@@ -78,15 +81,15 @@ B_Sn   -9.15432 # energía de extracción de un neutrón para el núcleo B-1 (de
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
 
 r_Ccmin 1.     # valor mínimo de r_Cc
-r_Ccmax  40.    # valor máximo de r_Cc
+r_Ccmax  30.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
-r_A2max   40.    # valor máximo de r_A2
-rCc_puntos  45   # número de puntos de integración gaussiana para r_Cc
-rA2_puntos   15  # número de puntos de integración gaussiana para r_A2
+r_A2max   30.    # valor máximo de r_A2
+rCc_puntos  30   # número de puntos de integración gaussiana para r_Cc
+rA2_puntos   30  # número de puntos de integración gaussiana para r_A2
 theta_puntos  10    # número de puntos de integrción gaussiana para theta
 cross_puntos  200 # número de puntos en los que se evalúa la sección eficaz
-angle0 0.     # límite inferior de integración para la sección eficaz diferencial, en grados (defecto=0)
-angle1 180.     # límite superior de integración para la sección eficaz diferencial, en grados (defecto=180)
+angle0 29.04     # límite inferior de integración para la sección eficaz diferencial, en grados (defecto=0)
+angle1 59.3     # límite superior de integración para la sección eficaz diferencial, en grados (defecto=180)
 matching_radio 20.  #radio de matching para implementar las condiciones de contorno
 
 ++++++++++++ Parametros para la densidad ++++++++++++++++++
@@ -140,21 +143,21 @@ DifusividadImaginarioSuperficie  0.64
 
 
 ### Han-Shi-Shan potential
-#d 0
-#ealVolumen 85.8994
-#maginarioVolumen  0
-#ealSpinOrbita  3.703
-#maginarioSpinOrbita	-0.206
-#maginarioSuperficie  14.9505
-#adioRealVolumen  1.174
-#adioCoulomb  1.698
-#adioImaginarioVolumen  1.563
-#ifusividadRealVolumen  0.809
-#ifusividadImaginarioVolumen  0.905331
-#adioSpinOrbita    1.234
-#ifusividadSpinOrbita  0.813
-#adioImaginarioSuperficie  1.328
-#ifusividadImaginarioSuperficie 0.670331
+#id 0
+#RealVolumen 85.8994
+#ImaginarioVolumen  0
+#RealSpinOrbita  3.703
+#ImaginarioSpinOrbita	-0.206
+#ImaginarioSuperficie  14.9505
+#RadioRealVolumen  1.174
+#RadioCoulomb  1.698
+#RadioImaginarioVolumen  1.563
+#DifusividadRealVolumen  0.809
+#DifusividadImaginarioVolumen  0.905331
+#RadioSpinOrbita    1.234
+#DifusividadSpinOrbita  0.813
+#RadioImaginarioSuperficie  1.328
+#DifusividadImaginarioSuperficie 0.670331
 #
 #********************
 

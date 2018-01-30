@@ -51,7 +51,7 @@ res_N 42
 proyectil a		# define cual es el proyectil
 energia_lab  15
 
-Qvalue  8.689	# Q-value ground state
+#Qvalue  8.689	# Q-value ground state
 Qvalue  7.567	# Q-value first excited 0+
 int_Qvalue  1.407  # Q-value to ntermediate state
 
@@ -175,7 +175,7 @@ VV 43.9
 VSO  0.
 aV 0.65
 aSO 0.65
-RV    5.
+RV    5.2
 RSO   5.
 *******
 
@@ -251,48 +251,11 @@ InicioEstados
 
 
 ### First excited 0+  #####################
-#id 0
-#l 3
-#j 2.5
-#nodos 0
-#spec 0.27878
-#energia -9.927
-#file      
-#*************
-#
-#id 1
-#l 1
-#j 1.5
-#nodos 1
-#spec 0.16497
-#energia -9.927
-#file      
-#*************
-#
-#id 2
-#l 1
-#j 0.5
-#nodos 1
-#spec -0.07514
-#energia -9.927
-#file      
-#*************
-#
-#id 3
-#l 4
-#j 4.5
-#nodos 0
-#spec 0.05545
-#energia -9.927
-#file      
-#*************
-
-## Test zone  #####################
 id 0
 l 3
 j 2.5
 nodos 0
-spec 0.
+spec 0.27878
 energia -9.927
 file      
 *************
@@ -301,7 +264,7 @@ id 1
 l 1
 j 1.5
 nodos 1
-spec 0.
+spec 0.16497
 energia -9.927
 file      
 *************
@@ -310,7 +273,7 @@ id 2
 l 1
 j 0.5
 nodos 1
-spec 0.
+spec -0.07514
 energia -9.927
 file      
 *************
@@ -319,10 +282,47 @@ id 3
 l 4
 j 4.5
 nodos 0
-spec 0.41525
+spec 0.05545
 energia -9.927
 file      
 *************
+
+## Test zone  #####################
+#id 0
+#l 3
+#j 2.5
+#nodos 0
+#spec 0.
+#energia -9.927
+#file      
+#*************
+#
+#id 1
+#l 1
+#j 1.5
+#nodos 1
+#spec 0.
+#energia -9.927
+#file      
+#*************
+#
+#id 2
+#l 1
+#j 0.5
+#nodos 1
+#spec 0.
+#energia -9.927
+#file      
+#*************
+#
+#id 3
+#l 4
+#j 4.5
+#nodos 0
+#spec 0.41525
+#energia -9.927
+#file      
+#*************
 
 
 

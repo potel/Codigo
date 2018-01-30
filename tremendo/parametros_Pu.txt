@@ -1,7 +1,7 @@
 num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
-lmin 0      # momento angular mínimo. En una reacción tiene que ser 0.
+lmin 6      # momento angular mínimo. En una reacción tiene que ser 0.
 lmax 15 # momento angular máximo. En una reacción, número de ondas parciales.
-ltransfer 8 #momento angular transferido maximo. Usado para la captura neutronica.
+ltransfer 7 #momento angular transferido maximo. Usado para la captura neutronica.
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
 puntos 1000    # número de puntos en los que se definen las funciones.
@@ -25,7 +25,7 @@ optico_intermedio 2
 prior 1
 remnant 1
 core_pot 1
-enerange_min 5.
+enerange_min 9.7
 enerange_max 50.
 enerange_step 100.	
 capture_angular 1

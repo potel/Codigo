@@ -181,7 +181,7 @@ void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* o
 double ElasticBreakupCross(complejo*** Teb,int l,int lmax);
 void Polarization(parametros* parm);
 double ElasticBreakupAngular(complejo*** Teb,int lmax,double theta);
-void  TalysInput(double* lmenos,double* lmas,double energia_trans,parametros* parm,ofstream* fp,ofstream* fp2,ofstream* fp3,double s);
+void TalysInput(double* lmenos,double* lmas,double energia_trans,parametros* parm,ofstream* fp,ofstream* fp2,ofstream* fp3,double s,int parity);
 void FormFactor1D(potencial* v,estado* st1,estado* st2,complejo* ff,double radio,int puntos);
 void PotencialPolarizado(complejo* Up,complejo* ff1,complejo* ff2,double radio, int puntos,
 		parametros* parm,potencial_optico* U,int lp,distorted_wave* f,distorted_wave* g);

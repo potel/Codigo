@@ -47,13 +47,11 @@ void OneTrans(struct parametros* parm)
 		if(parm->scatt_pot==parm->pot_opt[n].id) indx_scatt=n;
 	}
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_ingreso]),parm->m_A,parm->m_a);
+    //exit(0);
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_salida]),parm->m_B,parm->m_b);
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_core]),parm->m_A,parm->m_b);
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_A,parm->m_b);
 	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_scatt]),parm->m_A,parm->m_b);
-//	GeneraPotencialOpticoSpinCoulomb(parm,&(parm->pot_opt[indx_ingreso]),parm->m_A,parm->m_a,0,0,0, parm->Z_A*parm->Z_a);
-//	elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,parm->eta,0.5);
-//	exit(0);
 	cout<<"Generando el estado del nucleo a"<<endl;
 	/* Genera niveles del n�cleo 'a' */
 	for (n=0;n<parm->a_numst;n++)
@@ -63,18 +61,11 @@ void OneTrans(struct parametros* parm)
 			if(parm->a_estados[n]==parm->st[m].id) indx_st=m;
 		}
 		cout<<"masa reducida: "<<parm->m_b/parm->m_a<<endl;
-//		if(parm->st[indx_st].energia<0.)
-//			GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,50.,parm,0,parm->m_b/parm->m_a,D0,rms);
 		GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,parm->m_b/parm->m_a,D0,rms);
-        //		else
-//		{
-//			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->m_b/parm->m_a);
-//		}
 		cout<<"D0: "<<*D0<<"  rms: "<<*rms<<endl;
 		cout<<"Profundidad pozo: "<<parm->pot[indx_pot_a].V<<endl;
 		GeneraPotencialCM(parm,&(parm->pot[indx_pot_a]));
 	}
-	//exit(0);
 	cout<<"Generando niveles nucleo B"<<endl;
 	//File2Pot(&(parm->pot[indx_pot_B]),parm);
 	/* Genera niveles del nucleo 'B' */
@@ -85,33 +76,20 @@ void OneTrans(struct parametros* parm)
 			if(parm->B_estados[n]==parm->st[m].id) indx_st=m;
 		}
 		cout<<"masa reducida: "<<parm->m_A/parm->m_B<<endl;
-//		if(parm->st[indx_st].energia<0.)
-			GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,parm->m_A/parm->m_B,D0,rms);
-//		else
-//		{
-//			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->m_A/parm->m_B);
-//		}
+        GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,parm->m_A/parm->m_B,D0,rms);
 		absorcion=Absorcion2(&(parm->pot_opt[indx_intermedio]),&(parm->st[indx_st]));
 		cout<<"D0: "<<*D0<<"  rms: "<<*rms<<endl;
 		cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
-//		GeneraPotencialCM(parm,&(parm->pot[indx_pot_B]));
 
 	}
 	//File2Pot(&(parm->pot[indx_pot_B]),parm);
-//	exit(0);
 	delta_r=parm->radio/double(parm->puntos);
-//	for(n=0;n<parm->puntos;n++){
-//		r=delta_r*(n+1);
-//		misc1<<r<<"  "<<abs(parm->pot[indx_pot_B].pot[n])<<"  "<<abs(parm->st[0].wf[n])<<
-//				"  "<<abs(parm->pot[indx_pot_B].pot[n]*parm->st[0].wf[n])<<endl;
-//	}
-//	exit(0);
 	cout<<"Absorcion: "<<absorcion<<" MeV"<<endl;
 	/*Genera los potenciales opticos (sin t�rminos coulombiano y spin-�rbita) */
 	EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
 	EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
 	EscribePotencialOptico(parm->puntos,parm->pot_opt,parm->num_opt,parm);
-//	exit(0);
+	//exit(0);
 //	AmplitudOneTrans(parm,Tlalb);
 //	CrossSectionOneTrans(Tlalb,parm,parm->st[indx_st].l);
 	AmplitudOneTransSpinless(parm,TSpinless);
@@ -124,6 +102,7 @@ void InicializaOneTrans(struct parametros* parm)
 //	if (parm->m_b<1.) Error("m_b menor que 1");
 	if (!strcmp(parm->proyectil,"a")) {masa_proyectil=parm->m_a; masa_blanco=parm->m_A;}
 	if (!strcmp(parm->proyectil,"A")) {masa_proyectil=parm->m_A; masa_blanco=parm->m_a;}
+    cout<<"projectile: "<<parm->proyectil<<endl;
 	if ((strcmp(parm->proyectil,"A")!=0) && ((strcmp(parm->proyectil,"a")!=0))) Error("Proyectil debe ser 'a' o 'A' ");
 	parm->energia_cm=(masa_blanco/(parm->m_a+parm->m_A))*parm->energia_lab;
 	if(-parm->Qvalue>parm->energia_cm) Error("Energ�a de reacci�n insuficiente");
@@ -452,6 +431,10 @@ void CrossSectionOneTransSpinless(complejo ***Tlalb,complejo* Sel,struct paramet
 		S[la]=pow(I,2.*la)*const_smat*Tlalb[la][la][0]*fase_coulomb_i[0]*fase_coulomb_f[0]/
 				(sqrt(2.*la+1.)*fase_coulomb_i[la]*fase_coulomb_f[la]);
 		fp7<<la<<"  "<<real(S[la])<<"  "<<imag(S[la])<<"  "<<abs(S[la])<<endl;
+        // misc2<<la<<"  "<<abs(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))*
+        //   abs(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<endl;
+        // misc2<<la<<"  "<<abs(Tlalb[la][la][0])*
+        //   abs(Tlalb[la][la][0])<<endl; 
 	}
 	cout<<"constante de matriz S: "<<const_smat<<endl;
 
@@ -521,9 +504,14 @@ void CrossSectionOneTransSpinless(complejo ***Tlalb,complejo* Sel,struct paramet
 		{
 			for(mm=0;mm<=long(2*ji+1);mm++)
 			{
-				cross+=abs(amp[M][mm])*abs(amp[M][mm])*constante*escala;
+              cross+=abs(amp[M][mm])*abs(amp[M][mm])*constante*escala;
 			}
 		}
+        // for(la=0;la<parm->lmax;la++)
+        //   {
+        //     if(n==0) misc2<<la<<"  "<<real(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<"  "<<imag(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))
+        //                   <<"  "<<abs(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<endl;
+        //   }
 		fp<<theta*180./PI<<"  "<<cross<<endl;
 		if(((theta*180./PI)>=thetamin) && ((theta*180./PI)<=thetamax)) totalcross+=cross*sin(theta)*2.*PI*delta_theta;
 		less=((thetacross-delta_theta*180./PI)<theta*180./PI);
@@ -746,8 +734,9 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 	ofstream fp(parm->fl_amplitudes);
 	ofstream fp1("some_dw.txt");
 	ofstream fp2(parm->fl_dw);
-	ofstream fp4("dw_out1trans.txt");
-	ofstream fp3("dw_in1trans.txt");
+    //cout<<"Quilloooo!!!!"<<endl;
+	ofstream fp4("dw_out.txt");
+	ofstream fp3("dw_in.txt");
 	int la,lb,ln,lnp,m,n,indx_st,indx_ingreso,indx_salida,indx_core,indx_transfer;
 	int mb,mbp,st_a,st_B,Kmax,Kmin,K;
 	double energia_aA,energia_bB,cos_b,factor,q,absorcion;
@@ -813,7 +802,6 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 
 	Kmax=(intk->final_st->l+intk->inicial_st->l);
 	Kmin=abs(intk->final_st->l-intk->inicial_st->l);
-//	c2=Wigner9j(intk->final_st->l,0.,intk->final_st->l,0.5,0.5,1.,intk->final_st->j,0.5,1);
 	c2=1.;
 	if(parm->remnant==1 && parm->prior==1) {
 		GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_core],parm->Z_A*parm->Z_a,parm->Z_A*parm->Z_a
@@ -824,7 +812,6 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 				,0.,0.,parm->mu_Bb,1.);
 	}
 	for(la=0;la<parm->lmax;la++)
-//	for(la=1;la<2;la++)
 	{
 		cout<<"la: "<<la<<endl;
 		intk->la=la;
@@ -836,15 +823,12 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 	    
 		S[la]=GeneraDWspin(&(intk->faA[0]),&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,
         parm->radio,parm->puntos,parm->matching_radio,&fp3);
-        cout<<"Absorption: "<<intk->faA[0].absorption(parm->mu_Aa)<<endl;
-        //exit(0);
 		S[la]=exp(2.*I*S[la]);
 
 		for(K=Kmin;K<=Kmax;K++)
 		{
 			c1=Wigner9j(intk->final_st->l,parm->n_spin,intk->final_st->j,intk->inicial_st->l,parm->n_spin,intk->inicial_st->j,K,0,K)/
 					(2.*K+1.);
-//			c1=1.;
 			for(lb=abs(la-K);lb<=la+K && lb<parm->lmax;lb++)
 			{
 				intk->lb=lb;
@@ -856,27 +840,29 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 				if(lb==0) intk->fbB[0].j=intk->fbB[0].spin;
 				GeneraDWspin(&(intk->fbB[0]),&(parm->pot_opt[indx_salida]),parm->Z_A*parm->Z_a,parm->mu_Bb,
 						parm->radio,parm->puntos,parm->matching_radio,&fp4);
-//				if(la==0 && lb==0 && K==Kmin) EscribeIntegrandoOneTrans(intk);
 				if((intk->final_st->spec)!=0. && (intk->inicial_st->spec)!=0.)
 				{
 					fase=pow(I,la-lb);
 					IntegralOneTransSpinless(intk,Ij,K);
-//					exit(0);
-//					IntegralOneTransSpinlessZR(intk,Ij,K);
 					T[la][lb][K]+=c2*c1*sqrt(2.*lb+1.)*sqrt(2.*la+1.)*fase*intk->inicial_st->spec*intk->final_st->spec*
 							exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb]*factor*(*Ij);
-                    //cout<<c1<<"  "<<c2<<"  "<<K<<"  "<<(*Ij)<<endl;
 				}
 			}
 		}
 	}
+    //    cout<<"Quillo!"<<endl;
 	for(K=Kmin;K<=Kmax;K++)
 	{
 		for(la=0;la<parm->lmax;la++)
 		{
-			for(lb=0;lb<parm->lmax;lb++)
+          //cout<<la<<"  "
+          misc4<<la<<"  "<<real(T[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<"  "<<imag(T[la][la][0]*ClebsGordan(la,0,la,0,0,0))
+              <<"  "<<abs(T[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<endl;
+          // misc4<<la<<"  "<<real(T[la][la][0])<<"  "<<imag(T[la][la][0])
+          //      <<"  "<<abs(T[la][la][0])<<endl;
+          for(lb=0;lb<parm->lmax;lb++)
 			{
-				misc4<<la<<"  "<<lb<<"  "<<K<<"  "<<abs(T[la][lb][K])<<endl;
+              //misc4<<la<<"  "<<lb<<"  "<<K<<"  "<<abs(T[la][lb][K])<<endl;
 			}
 		}
 	}
@@ -929,67 +915,116 @@ void GeneraCoordenadasOneTrans(parametros *parm_rec, coordenadas_onept* coords,
 }
 void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
 {
-	int n1,n2,n3;
-	double r_bB,r_An,theta,potencial,angsum,coseno,seno;
-	complejo fr_aA;
-	complejo fr_bB,estado_inicial,estado_final,remnant,optico,core;
-	complejo kernel;
-	complejo *parcial=new complejo[integrando->dim2->num_puntos];
-	for (n2 = 0; n2 < integrando->dim2->num_puntos; n2++) {
-		parcial[n2]=0.;
-	}
-	*Ij=0.;
-	for (n1 = 0; n1 < integrando->dim1->num_puntos; n1++) {
-		r_bB = (integrando->dim1->a)+((integrando->dim1->b)-(integrando->dim1->a))*((integrando->dim1->puntos[n1])+1.)/2.;
-		fr_bB=interpola_cmpx(integrando->fbB[0].wf,integrando->fbB[0].r,r_bB,
-				integrando->fbB[0].puntos);
-		if(integrando->prior==0) optico=interpola_cmpx(integrando->opt->pot,integrando->opt->r,r_bB,
-				integrando->opt->puntos);
-		for (n2 = 0; n2 < integrando->dim2->num_puntos; n2++) {
-			r_An = (integrando->dim2->a)+((integrando->dim2->b)-(integrando->dim2->a))*((integrando->dim2->puntos[n2])+1.)/2.;
-			estado_final=interpola_cmpx(integrando->final_st->wf,integrando->final_st->r,
-					r_An,integrando->final_st->puntos);
-			if(integrando->prior==1)
-				potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,
-						r_An,integrando->pot->puntos);
-			for (n3=0;n3<integrando->dim3->num_puntos; n3++) {
-				theta = (integrando->dim3->a)+((integrando->dim3->b)-(integrando->dim3->a))*((integrando->dim3->puntos[n3])+1.)/2.;
-				coseno=cos(theta);
-				seno=sin(theta);
-				if(integrando->prior==1) optico=interpola_cmpx(integrando->opt->pot,integrando->opt->r,integrando->coords->r_aA[n1][n2][n3],
-						integrando->opt->puntos);
-				core=interpola_cmpx(integrando->core->pot,integrando->core->r,integrando->coords->r_bA[n1][n2][n3],
-						integrando->core->puntos);
-				remnant=optico-core;
+  int n1,n2,n3;
+  double r_bB,r_An,theta,potencial,angsum,coseno,seno;
+  complejo fr_aA;
+  complejo fr_bB,estado_inicial,estado_final,remnant,optico,core;
+  complejo kernel,partial_sum;
+  complejo *parcial=new complejo[integrando->dim2->num_puntos];
+  for (n2 = 0; n2 < integrando->dim2->num_puntos; n2++) {
+    parcial[n2]=0.;
+  }
+  partial_sum=0.;
+  *Ij=0.;
+  //cout<<"angular momenta: "<<integrando->la<<", "<<integrando->lb<<", "<<integrando->final_st->l<<endl;
+  for (n2 = 0; n2 < integrando->dim2->num_puntos; n2++) {
+    r_An = (integrando->dim2->a)+((integrando->dim2->b)-(integrando->dim2->a))*((integrando->dim2->puntos[n2])+1.)/2.;
+    estado_final=interpola_cmpx(integrando->final_st->wf,integrando->final_st->r,r_An,integrando->final_st->puntos);
+    //misc2<<r_An<<"  "<<real(estado_final)<<"  "<<imag(estado_final)<<"  "<<abs(estado_final)<<endl;
+    if(integrando->prior==1) potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,r_An,integrando->pot->puntos);
+    for (n1 = 0; n1 < integrando->dim1->num_puntos; n1++) {
+      r_bB = (integrando->dim1->a)+((integrando->dim1->b)-(integrando->dim1->a))*((integrando->dim1->puntos[n1])+1.)/2.;
+      fr_bB=interpola_cmpx(integrando->fbB[0].wf,integrando->fbB[0].r,r_bB,
+                           integrando->fbB[0].puntos);
+      if(integrando->prior==0) optico=interpola_cmpx(integrando->opt->pot,integrando->opt->r,r_bB,
+                                                     integrando->opt->puntos);
+      for (n3=0;n3<integrando->dim3->num_puntos; n3++) {
+        theta = (integrando->dim3->a)+((integrando->dim3->b)-(integrando->dim3->a))*((integrando->dim3->puntos[n3])+1.)/2.;
+        coseno=cos(theta);
+        seno=sin(theta);
+        if(integrando->prior==1) optico=interpola_cmpx(integrando->opt->pot,integrando->opt->r,integrando->coords->r_aA[n1][n2][n3],
+                                                       integrando->opt->puntos);
+        core=interpola_cmpx(integrando->core->pot,integrando->core->r,integrando->coords->r_bA[n1][n2][n3],
+                            integrando->core->puntos);
+        remnant=optico-core;
 
-				if(integrando->remnant==0) remnant=0.;
-				angsum=-AcoplamientoAngular(integrando->lb,integrando->la,integrando->final_st->l
-						,integrando->inicial_st->l,K,coseno,integrando->coords->coseno_r_bn[n1][n2][n3],
-						integrando->coords->coseno_r_aA[n1][n2][n3]);
+        if(integrando->remnant==0) remnant=0.;
+        angsum=-AcoplamientoAngular(integrando->lb,integrando->la,integrando->final_st->l
+                                    ,integrando->inicial_st->l,K,coseno,integrando->coords->coseno_r_bn[n1][n2][n3],
+                                    integrando->coords->coseno_r_aA[n1][n2][n3]);
 
-				if(integrando->prior==0)
-					potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,integrando->coords->r_bn[n1][n2][n3],
-							integrando->pot->puntos);
-				estado_inicial=interpola_cmpx(integrando->inicial_st->wf,integrando->inicial_st->r,
-						integrando->coords->r_bn[n1][n2][n3],integrando->inicial_st->puntos);
-				fr_aA=interpola_cmpx(integrando->faA[0].wf,integrando->faA[0].r,integrando->coords->r_aA[n1][n2][n3],
-						integrando->faA[0].puntos);
+        if(integrando->prior==0)
+          potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,integrando->coords->r_bn[n1][n2][n3],
+                                  integrando->pot->puntos);
+        estado_inicial=interpola_cmpx(integrando->inicial_st->wf,integrando->inicial_st->r,
+                                      integrando->coords->r_bn[n1][n2][n3],integrando->inicial_st->puntos);
+        fr_aA=interpola_cmpx(integrando->faA[0].wf,integrando->faA[0].r,integrando->coords->r_aA[n1][n2][n3],
+                             integrando->faA[0].puntos);
+        //angsum=1.;
+        //if(integrando->la==0) cout<<angsum<<endl;
+        kernel=((r_bB*r_An*r_An*seno*(potencial-remnant)*estado_inicial*estado_final*angsum*fr_aA*fr_bB)/
+                integrando->coords->r_aA[n1][n2][n3])*
+          (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+        parcial[n2]+=((r_bB*seno*(potencial-remnant)*estado_inicial*angsum*fr_aA*fr_bB)/
+                      integrando->coords->r_aA[n1][n2][n3])*(integrando->dim1)->pesos[n1]*(integrando->dim3)->pesos[n3]*
+          ((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim3)->b-(integrando->dim3)->a)/4.;
+         // parcial[n2]+=((potencial)*angsum)*(integrando->dim1)->pesos[n1]*(integrando->dim3)->pesos[n3]*
+         //   ((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim3)->b-(integrando->dim3)->a)/4.;
+        // if(integrando->la==0)    misc2<<integrando->coords->r_bn[n1][n2][n3]<<"   "<<real(estado_inicial)<<endl;
+        
+        //   ((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim3)->b-(integrando->dim3)->a)/4.;
+        //if(n2==0) partial_sum+=parcial[n2];
+        //if (n3==0 && n1==0) cout<<" n2:"<<n2<<" r:"<<r_An<<endl; 
+        *Ij+=kernel;
+         // if (n3==0 && n1==0 && integrando->la==6) misc2<<r_An<<"  "<<real((r_bB*seno*(potencial-remnant)*estado_inicial*angsum*fr_aA*fr_bB)/
+         //              integrando->coords->r_aA[n1][n2][n3])<<"  "<<imag((r_bB*seno*(potencial-remnant)*estado_inicial*angsum*fr_aA*fr_bB)/
+         //              integrando->coords->r_aA[n1][n2][n3])<<endl;
+        // if (n3==0 && n1==0 && integrando->la==6) misc2<<r_An<<"  "<<real(fr_bB)<<"  "
+        //                                                   <<real(fr_aA)<<endl;
+        // if (integrando->la==6 && n2==5) misc2<<r_bB<<"  "<<real(parcial[n2]/ClebsGordan(integrando->la,0,integrando->la,0,0,0))
+        //                                      <<"  "<<imag(parcial[n2]/ClebsGordan(integrando->la,0,integrando->la,0,0,0))<<endl;
+        //misc2<<r_An<<"  "<<real((potencial-remnant))<<"  "<<imag((potencial-remnant))<<endl;
 
-				 kernel=((r_bB*r_An*r_An*seno*(potencial-remnant)*estado_inicial*estado_final*angsum*fr_aA*fr_bB)/
-						integrando->coords->r_aA[n1][n2][n3])*
-								(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
-				*Ij+=kernel;
-				//misc2<<r_An<<" "<<kernel<<"  "<<abs(potencial-remnant)<<" "<<abs(estado_final)<<" "<<abs(potencial-remnant)*abs(estado_final)<<endl;
-//				misc1<<r_bB<<" "<<r_An
-//						<<"  "<<abs(estado_inicial)<<
-//								"  "<<abs(r_An*r_An*estado_final*estado_inicial)<<endl;
-			}
-		}
-	}
+        //misc2<<r_An<<"  "<<(integrando->coords->r_aA[n1][n2][n3])<<
+        //  "   "<<(angsum)<<endl;
+        // if (n3==0) misc2<<r_bB<<"  "<<real((potencial-remnant)*estado_inicial*fr_aA*fr_bB/
+        //                                         integrando->coords->r_aA[n1][n2][n3])<<"   "<<angsum<<endl;
+      }
+    }
+    // if(integrando->la==6) misc2<<r_An<<"   "<<-real(parcial[n2]*sqrt(2.*integrando->la+1.))
+    //                            <<"   "<<-imag(parcial[n2]*sqrt(2.*integrando->la+1.))
+    //                            <<"   "<<abs(parcial[n2]*sqrt(2.*integrando->la+1.))<<endl;
     //exit(0);
-	*Ij*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
-			((integrando->dim3)->b-(integrando->dim3)->a)/8.;
-	delete[] parcial;
+   
+    // if(integrando->la==6)    misc2<<r_An<<"   "<<real(parcial[n2]/ClebsGordan(integrando->la,0,integrando->la,0,0,0))
+    //                                   <<"   "<<imag(parcial[n2]/ClebsGordan(integrando->la,0,integrando->la,0,0,0))
+    //                               <<"   "<<abs(parcial[n2]/ClebsGordan(integrando->la,0,integrando->la,0,0,0))<<endl;
+    //cout<<integrando->la<<endl;
+    // if(integrando->la==6)    misc2<<r_An<<"   "
+    //                                <<real(parcial[n2]*sqrt(2.*integrando->la+1.))
+    //                               <<"   "<<imag(parcial[n2]*sqrt(2.*integrando->la+1.))
+    //                               <<"   "<<abs(parcial[n2]*sqrt(2.*integrando->la+1.))<<endl;
+
+    // if(integrando->la==0)    misc2<<r_An<<"   "
+    //                               <<(potencial)<<endl;
+
+
+    //if(n2==5) misc2<<integrando->la<<"   "<<real(parcial[n2]/ClebsGordan(integrando->la,0,integrando->la,0,0,0))
+    //                  <<"   "<<imag(parcial[n2]/ClebsGordan(integrando->la,0,integrando->la,0,0,0))
+    //               <<"   "<<abs(parcial[n2]/ClebsGordan(integrando->la,0,integrando->la,0,0,0))<<endl;
+
+    if(integrando->la==6) misc2<<r_An<<"   "<<abs(*Ij*((integrando->dim1)->b-(integrando->dim1)->a)*
+                              ((integrando->dim3)->b-(integrando->dim3)->a))*sqrt(2.*integrando->la+1.)*0.25
+                               <<"   "<<abs(estado_final*r_An*r_An)<<"   "<<abs(parcial[n2])<<endl;
+  }
+  //exit(0);
+  // misc2<<integrando->la<<"  "<<-real(parcial[10]*sqrt(2.*integrando->la+1.))<<"  "
+  //  <<-imag(parcial[10]*sqrt(2.*integrando->la+1.))<<"  "<<abs(parcial[10]*sqrt(2.*integrando->la+1.))<<endl;
+  *Ij*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
+    ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
+  misc3<<integrando->la<<"   "<<-real((*Ij)*sqrt(2.*integrando->la+1.))<<"   "
+    <<-imag((*Ij)*sqrt(2.*integrando->la+1.))<<"   "<<abs((*Ij)*sqrt(2.*integrando->la+1.))<<endl;
+  delete[] parcial;
 }
 
 
@@ -1004,7 +1039,7 @@ void IntegralOneTransSpinlessZR(integrando_onept *integrando,complejo *Ij,int K)
 	complejo sum1,sum2,estado_inicial,estado_final;
 	*Ij=0.;
 	sum1=0.;
-	for (n1 = 0; n1 < integrando->dim1->num_puntos; n1++) {
+	for (n1 = 0; n1 < integrando->dim1->num_puntos; n1++) { 
 		r_bB = (integrando->dim1->a)+((integrando->dim1->b)-(integrando->dim1->a))*((integrando->dim1->puntos[n1])+1.)/2.;
 		fr_bB=interpola_cmpx(integrando->fbB[0].wf,integrando->fbB[0].r,r_bB,
 				integrando->fbB[0].puntos);

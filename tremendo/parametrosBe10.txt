@@ -1,11 +1,11 @@
 num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
 lmin 0      # momento angular mínimo. En una reacción tiene que ser 0.
-lmax 20   # momento angular máximo. En una reacción, número de ondas parciales.
+lmax 15   # momento angular máximo. En una reacción, número de ondas parciales.
 ltransfer 1 #momento angular transferido maximo. Usado para la captura neutronica.
 
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
-puntos 1000    # número de puntos en los que se definen las funciones.
+puntos 2000    # número de puntos en los que se definen las funciones.
 radio 30.      #radio máximo.
 num_cm 2       # número de potenciales de campo medio.
 num_opt 3      # número de potenciales ópticos.
@@ -17,7 +17,7 @@ flcoef  matrizcoeficientes.dat   # fichero o ficheros con los coeficientes de la
                                    # de partícula independiente (usado si tipo_fun=li)
 a_potcm 0   # potencial de campo medio usado para definir los estados del núcleo a.
 B_potcm 1    # potencial de campo medio usado para definir los estados del núcleo B.
-pot_transfer 0  # potencial de campo medio utilizado para calcular la transferencia (Si es igual a a_potcm, la representación es post,
+pot_transfer 1  # potencial de campo medio utilizado para calcular la transferencia (Si es igual a a_potcm, la representación es post,
                  # si es igual a B_potcm, prior).
 				 
 optico_ingreso 0    # potencial optico en el canal de ingreso
@@ -27,6 +27,11 @@ core_pot 1
 scatt_pot 2
 prior 1
 remnant 1
+enerange_min 17.
+enerange_max 18.
+enerange_step 0.1
+capture_angular 1
+
 ++++++++++++++ Descripción de la reacción +++++++++++++++++++++++++++++++++++++
 
 base1  20   # tamaños de la base usada para describir los estados de partícula independiente
@@ -114,7 +119,7 @@ r_A2min   0.    # valor mínimo de r_A2
 r_A2max   30.    # valor máximo de r_A2
 rCc_puntos  30    # número de puntos de integración gaussiana para r_Cc
 rA2_puntos   30  # número de puntos de integración gaussiana para r_A2
-theta_puntos  15   # número de puntos de integrción gaussiana para theta
+theta_puntos  10   # número de puntos de integrción gaussiana para theta
 cross_puntos  200 # número de puntos en los que se evalúa la sección eficaz
 matching_radio 20.  #radio de matching para implementar las condiciones de contorno
 
@@ -186,7 +191,7 @@ DifusividadImaginarioSuperficie 0.56195
 
 id 2
 RealVolumen    68.0707	
-ImaginarioVolumen    0.
+ImaginarioVolumen    10.
 RealSpinOrbita      0.
 ImaginarioSpinOrbita	0.
 ImaginarioSuperficie   0.
@@ -207,7 +212,7 @@ FinPotencialesOpticos
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 InicioCampoMedio
-
+    
 id 1
 tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
 VV 100.
@@ -216,6 +221,7 @@ aV 0.65
 aSO 0.65
 RV    2.58
 RSO   2.58
+#potfile  /home/gregory/projects/Be10/nocoupling/read_vcent_sporb_l0.dat
 #potfile /home/gregory/projects/Be10/Be/11Be/NFTpotential.dat
 #potfile /home/gpotel/Desktop/Gregory/CodigoTremendo/tremendo/BMpotential.txt
 #potfile C:\Gregory\Be\11Be\pot_bare_07_reso.txt
@@ -256,10 +262,10 @@ id 1
 l 0
 j 0.5
 nodos 1
-spec 0.9
+spec 0.9 
 energia -0.6249
 #file /home/gregory/projects/Be10/Be/11Be/s1_2.txt
-file /home/gregory/projects/Be10/fortcut100.110
+#file /home/gregory/projects/Be10/fortcut100.110
 *********************
 
 #id 1                                                        

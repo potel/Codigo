@@ -16,27 +16,28 @@ ofstream informe("informe.txt");
 
 double distorted_wave::absorption(double mass) {
   int regla_r,nr;
-	double ar, br, norma, rp,radio_medio;
-	double step=radio/double(puntos);
-	regla_r = 60;
-	double* wr = new double[regla_r];
-	double* absr = new double[regla_r];
-	complejo sum = 0.;
-    complejo dwint,potint;
-	ar = 0.;
-	br = radio;
-	GaussLegendre(absr, wr, regla_r);
-	for (nr = 0; nr < regla_r; nr++) {
-		rp = ar + (br - ar) * (absr[nr] + 1.) / 2.;
-        dwint=interpola_cmpx(wf,r,rp,puntos);
-        potint=interpola_cmpx(pot->pot,pot->r,rp,puntos);
-		sum+=abs(dwint)*abs(dwint)*imag(potint)*rp*rp*wr[nr];
-	}
-	norma=2*(AMU*mass/(HC*HC))*abs(sum)*(br-ar)/2.;
-	delete[] wr;
-	delete[] absr;
-	return norma;
+  double ar, br, norma, rp,radio_medio,k;
+  double step=radio/double(puntos);
+  regla_r = 60;
+  double* wr = new double[regla_r];
+  double* absr = new double[regla_r];
+  complejo sum = 0.;
+  complejo dwint,potint;
+  k=sqrt(2.*mass*AMU*energia)/(HC*HC);
+  ar = 0.;
+  br = radio;
+  GaussLegendre(absr, wr, regla_r);
+  for (nr = 0; nr < regla_r; nr++) {
+    rp = ar + (br - ar) * (absr[nr] + 1.) / 2.;
+    dwint=interpola_cmpx(wf,r,rp,puntos);
+    potint=interpola_cmpx(pot->pot,pot->r,rp,puntos);
+    sum+=abs(dwint)*abs(dwint)*imag(potint)*wr[nr];
   }
+  norma=(2.*l+1.)*(16.*PI*PI*k/(energia))*abs(sum)*(br-ar)/2.;
+  delete[] wr;
+  delete[] absr;
+  return norma;
+}
 
 
 
@@ -402,6 +403,7 @@ void LeeParametros(const char *fname,struct parametros *x)
 		ReadParS(aux,"a_tipo_fun",x->a_tipo_fun);
 		ReadParS(aux,"B_tipo_fun",x->B_tipo_fun);
 		ReadParD(aux,"a_potcm",&(x->a_potcm));
+        ReadParD(aux,"parity_A",&(x->parity_A));
 		ReadParS(aux,"proyectil",x->proyectil);
 		ReadParS(aux,"unidades",x->unidades);
 		ReadParD(aux,"num_st",&(x->num_st));
@@ -588,7 +590,7 @@ void ReadParS(char *s,const char key[20], char *par)
 	if (!strncmp(s,key,l))
 	{
 		r = sscanf(s,"%*s %s",par);
-		if (r<1) { fprintf(stderr," ",key); par='\0'; }
+		if (r<1) { fprintf(stderr,"%s ",key); par='\0'; }
 		informe<<key<<"="<<par<<endl;
 	}
 	fflush(stderr);
@@ -1187,6 +1189,8 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 	funcion->radio=radio_max;
 	spinorbit =(funcion->j)*((funcion->j)+1.)-funcion->l*(funcion->l+1.)-(funcion->spin)*((funcion->spin)+1.); //T�rmino de spin-�rbita
 	/* actualizacion del potencial con los t�rminos de Coulomb, centr�fugo y de spin-�rbita*/
+	misc1<<endl<<"& Energy: "<<funcion->energia<<"   Orbital angular momentum: "<<funcion->l<<"  Total angular momentum: "<<funcion->j
+       <<"  Mass: "<<masa<<endl;
 	for (i=0;i<puntos-1;i++) {
 		if(v->r[i]>=v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
 				(funcion[0].l*(funcion[0].l+1.))*hbarx /(v->r[i]*v->r[i])
@@ -1196,7 +1200,7 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 				(funcion[0].l*(funcion[0].l+1.))*hbarx /(v->r[i]*v->r[i])
 				-2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
 		/((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
-        //misc1<<v->r[i]<<"  "<<real(v->pot[i])<<"  "<<real(potencial[i])<<endl;
+        misc1<<v->r[i]<<"  "<<real(v->pot[i])<<"  "<<real(potencial[i])<<endl;
 	}
     //exit(0);
 	funcion->wf[0]=1.e-10;
@@ -1226,7 +1230,8 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 	GSL_SET_COMPLEX(&deltagsl,x,y);
 	delta=(gsl_complex_arctan(deltagsl).dat[0]+I*gsl_complex_arctan(deltagsl).dat[1]); // desfase
 	factor=exp(I*(delta))*(cos(delta)*F1.val+sin(delta)*G1.val)/fu1;
-	*fp<<endl<<"& Energia: "<<funcion->energia<<"  Momento angular orbital: "<<funcion->l<<"  Momento angular total: "<<funcion->j<<endl;
+	*fp<<endl<<"& Energy: "<<funcion->energia<<"   Orbital angular momentum: "<<funcion->l<<"  Total angular momentum: "<<funcion->j
+       <<"  Mass: "<<masa<<endl;
 	for (i=0;i<puntos;i++) {
 		funcion->r[i] =delta_r*(i+1.);
 		funcion->wf[i]=factor*funcion->wf[i];
@@ -2681,6 +2686,7 @@ void GeneraPotencialOptico(struct parametros *parm,struct potencial_optico *pote
 	exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)/
 	((1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd))
 	 *(1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)));
+      //misc4<<potencial->r[n]<<"  "<<real(potencial->pot[n])<<"  "<<imag(potencial->pot[n])<<endl;
     }
   potencial->puntos=parm->puntos;
 }
