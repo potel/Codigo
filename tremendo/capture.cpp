@@ -347,7 +347,7 @@ void AmplitudeCapture(struct parametros* parm)
       v=&(parm->pot_opt[indx_neutron_target]);
       if(parm->remnant==1 && parm->prior==1) {
         GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_salida],parm->T_carga*parm->P_carga,
-                      parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
+                    parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
       }
       misc1<<"& Proton energy: "<<energia_out<<" MeV. Neutron energy: "<<energia_trans<<" MeV"<<endl;
       for(l=parm->lmin;l<parm->ltransfer;l++)

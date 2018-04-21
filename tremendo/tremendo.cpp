@@ -287,7 +287,7 @@ void EscribeEstados(int puntos,estado* st,int numero_estados,struct parametros *
 		fpst<<st[0].r[i]<<"  ";
 		for(n=0;n<numero_estados;n++){
 //			fpst<<real(st[n].wf[i])<<"  ";
-			fpst<<real(st[n].wf[i]*st[0].r[i])<<"  "<<real(st[n].wf[i])<<"  ";
+			fpst<<real(st[n].wf[i]*st[0].r[i])<<"  "<<real(st[n].wf[i])<<"  "<<abs(st[n].wf[i])<<"  ";
 		}
 		fpst<<endl;
 	}
@@ -3292,6 +3292,7 @@ void File2State(estado *st,parametros *parm)
 	ifstream fp;
 	fp.open(st->file);
 	if(!fp.is_open()) {cout<<"No se pudo abrir "<<st->file<<endl; exit(0);}
+    cout<<"Reading wavefunction from "<<st->file<<endl;
 	int puntos,n;
 	double pos,delta_r;
 	double *r=new double[MAX_PTS];
@@ -3435,40 +3436,42 @@ double Multipole(estado* inicial,estado* final,int l)
 void GeneraEstadosPI(potencial* pot,estado* st,double radio,int puntos,double cargas,parametros* parm,int ajuste,double masa
 		,double* D0,double* rms)
 {
-	double energia,etrial,vmax,vmin;
-	if(ajuste==1)
+  double energia,etrial,vmax,vmin;
+  if(ajuste==1)
 	{
-		energia=st->energia;
-		etrial=MAX_ENERGIA;
-		vmax=MAX_ENERGIA;
-		vmin=-MAX_ENERGIA;
-		pot->V=MAX_ENERGIA;
-		cout<<"energia nivel: "<<energia<<"   l: "<<st->l
-				<<"   nodos: "<<st->nodos<<"   j: "<<st->j<<endl;
-        //exit(0);
-		while(fabs(etrial-energia)>EPSILON)
+      //cout<<"misc1"<<endl;      
+      energia=st->energia;
+      etrial=MAX_ENERGIA;
+      vmax=MAX_ENERGIA;
+      vmin=-MAX_ENERGIA;
+      pot->V=MAX_ENERGIA;
+      cout<<"energia nivel: "<<energia<<"   l: "<<st->l
+          <<"   nodos: "<<st->nodos<<"   j: "<<st->j<<endl;
+      //exit(0);
+      while(fabs(etrial-energia)>EPSILON)
 		{
-			//				cout<<etrial<<"  "<<energia<<endl;
-			pot->V=-(vmax+vmin)/2.;
-			//				cout<<pot->V<<endl;
-			GeneraPotencialCM(parm,pot);
-			GeneraEstado(st,pot,radio,puntos,cargas,masa,D0,rms);
-			etrial=st->energia;
-			//				cout<<etrial<<"  "<<pot->V<<endl;
-			if(etrial>energia) vmax=-pot->V;
-			if(etrial<=energia) vmin=-pot->V;
+          //				cout<<etrial<<"  "<<energia<<endl;
+          pot->V=-(vmax+vmin)/2.;
+          //				cout<<pot->V<<endl;
+          GeneraPotencialCM(parm,pot);
+          GeneraEstado(st,pot,radio,puntos,cargas,masa,D0,rms);
+          etrial=st->energia;
+          //				cout<<etrial<<"  "<<pot->V<<endl;
+          if(etrial>energia) vmax=-pot->V;
+          if(etrial<=energia) vmin=-pot->V;
 		}
-		if(*(st->file)!='\0') File2State(st,parm);
+      if(*(st->file)!='\0') File2State(st,parm);
 	}
-	if(ajuste==0)
+  if(ajuste==0)
 	{
-		if(*(st->file)=='\0')
+      //cout<<"misc2"<<endl;
+      if(*(st->file)=='\0')
 		{
-			GeneraEstado(st,pot,radio,puntos,cargas,masa,D0,rms);
-			cout<<"energia nivel: "<<st->energia<<"   l: "<<st->l
-					<<"   nodos: "<<st->nodos<<"   j: "<<st->j<<endl;
+          GeneraEstado(st,pot,radio,puntos,cargas,masa,D0,rms);
+          cout<<"energia nivel: "<<st->energia<<"   l: "<<st->l
+              <<"   nodos: "<<st->nodos<<"   j: "<<st->j<<endl;
 		}
-		else File2State(st,parm);
+      else File2State(st,parm);
 	}
 }
 /////////////////////////////////////////////////////////////////////////
@@ -3507,7 +3510,7 @@ void GeneraEstadosContinuo(potencial_optico* pot_optico,estado* st,double radio,
 	else File2State(st,parm);
 }
 void GeneraRemnant(potencial_optico *pot,potencial_optico *core,potencial_optico *in_pot,
-		potencial_optico *in_core,double q1q2_pot,double q1q2_core,int l_pot,int l_core,double masa_pot,int masa_core)
+		potencial_optico *in_core,double q1q2_pot,double q1q2_core,int l_pot,int l_core,double masa_pot,double masa_core)
 {
   int i;
   double hbarx_pot,hbarx_core;
@@ -3529,6 +3532,7 @@ void GeneraRemnant(potencial_optico *pot,potencial_optico *core,potencial_optico
       if(pot->r[i]<in_pot->radio_coul) pot->pot[i]=in_pot->pot[i]+E_CUADRADO*q1q2_pot*(3.-(pot->r[i]/in_pot->radio_coul)
 										       * (pot->r[i]/in_pot->radio_coul))/(2.*in_pot->radio_coul)+
 					 (l_pot*(l_pot+1.))*hbarx_pot /(pot->r[i]*pot->r[i]);
+      //      misc4<<pot->r[i]<<"  "<<real(in_core->pot[i])<<"  "<<real(core->pot[i])<<"  "<<real(in_pot->pot[i])<<"  "<<real(pot->pot[i])<<endl;
     }
   core->puntos=in_core->puntos;
   pot->puntos=in_pot->puntos;

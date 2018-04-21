@@ -129,7 +129,7 @@ void MatrixElement(parametros *parm,estado *st1,estado *st2,potencial* v);
 void IntegralOneTransSpinlessZR(integrando_onept *integrando,complejo *Ij,int K);
 void GeneraEstadosContinuo(potencial_optico* pot,estado* st,double radio,int puntos,double cargas,parametros* parm,double masa);
 void GeneraRemnant(potencial_optico *pot,potencial_optico *core,potencial_optico *in_pot,
-		potencial_optico *in_core,double q1q2_pot,double q1q2_core,int l_pot,int ,double masa_pot,int masa_core);
+		potencial_optico *in_core,double q1q2_pot,double q1q2_core,int l_pot,int ,double masa_pot,double masa_core);
 double lege_diff(int n, double x);
 void LegendreRoots(int regla, double* absi, double* w);
 void EscribePotencialOptico(int puntos,potencial_optico* pot,int numero_potenciales,struct parametros *parm);
