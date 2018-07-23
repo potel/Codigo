@@ -24,8 +24,12 @@ void Capture(struct parametros* parm)
   InicializaOneTrans(parm);
   double* D0=new double[1];
   double* rms=new double[1];
+  complejo* dumb_pot=new complejo[1];
+  potencial_optico*  dumb_pot_opt=new potencial_optico[1];
   cout<<"Generando potenciales de campo medio"<<endl;
   HanShiShen(parm->energia_lab,parm->T_N,parm->T_carga);
+  KoningDelaroche(0.1,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+  //exit(0);
   for(n=0;n<parm->num_cm;n++)
     {
       GeneraPotencialCM(parm,&(parm->pot[n]));
@@ -549,6 +553,7 @@ void AmplitudeCapture(struct parametros* parm)
           TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A,parm->parity_A);
           cout<<"NEB cross section:  "<<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
         }
+      exit(0);
     }
   delete[] funcion_regular_up;
   delete[] funcion_irregular_up;

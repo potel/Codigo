@@ -27,10 +27,13 @@ void OneTrans(struct parametros* parm)
   TSpinless=tensor_cmpx(parm->lmax,parm->lmax,20);
   Tlalb=tensor5_cmpx(10,parm->lmax,parm->lmax,3,3);
   InicializaOneTrans(parm);
-  HanShiShen(parm->energia_lab,parm->T_N,parm->T_carga);
+  HanShiShen(parm->energia_lab+parm->Qvalue,parm->T_N-1,parm->T_carga);
   CH89(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
-  //	KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
-  KoningDelaroche(parm->energia_lab+parm->Qvalue,7.,4.,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+  KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+  // KoningDelaroche(parm->energia_lab+parm->Qvalue,7.,4.,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+  //KoningDelaroche(2.1,20.,20.,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+  //elastic(dumb_pot_opt,0.,40./41.,2.049,parm,0.,0.5);
+  //exit(0);
   cout<<"Generando potenciales de campo medio"<<endl;
   for(n=0;n<parm->num_cm;n++)
 	{
@@ -38,6 +41,7 @@ void OneTrans(struct parametros* parm)
       if(parm->a_potcm==parm->pot[n].id) indx_pot_a=n;
       if(parm->B_potcm==parm->pot[n].id) indx_pot_B=n;
 	}
+  cout<<"quillo!"<<endl;
   for (n=0;n<parm->num_opt;n++)
 	{
       if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;

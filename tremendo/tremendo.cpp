@@ -1189,9 +1189,10 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 	funcion->radio=radio_max;
 	spinorbit =(funcion->j)*((funcion->j)+1.)-funcion->l*(funcion->l+1.)-(funcion->spin)*((funcion->spin)+1.); //T�rmino de spin-�rbita
 	/* actualizacion del potencial con los t�rminos de Coulomb, centr�fugo y de spin-�rbita*/
-	misc1<<endl<<"& Energy: "<<funcion->energia<<"   Orbital angular momentum: "<<funcion->l<<"  Total angular momentum: "<<funcion->j
-       <<"  Mass: "<<masa<<endl;
+	//misc1<<endl<<"& Energy: "<<funcion->energia<<"   Orbital angular momentum: "<<funcion->l<<"  Total angular momentum: "<<funcion->j
+      //<<"  Mass: "<<masa<<endl;
 	for (i=0;i<puntos-1;i++) {
+      //cout<<" hey: "<<i<<endl;
 		if(v->r[i]>=v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
 				(funcion[0].l*(funcion[0].l+1.))*hbarx /(v->r[i]*v->r[i])
 				-2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
@@ -1200,7 +1201,7 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 				(funcion[0].l*(funcion[0].l+1.))*hbarx /(v->r[i]*v->r[i])
 				-2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
 		/((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
-        misc1<<v->r[i]<<"  "<<real(v->pot[i])<<"  "<<real(potencial[i])<<endl;
+        // misc1<<v->r[i]<<"  "<<real(v->pot[i])<<"  "<<real(potencial[i])<<endl;
 	}
     //exit(0);
 	funcion->wf[0]=1.e-10;
@@ -4372,7 +4373,7 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 	ofstream cross("elastic.txt");
 	cout<< "+++ Computing elastic cross section, spin-orbit version +++"<< endl << endl;
 	k=sqrt(2.*mass*AMU*energy)/HC;
-
+    cout<<"hey1"<<endl;
 	for (l = 0; l < parm->lmax; l++) {
 		f_up->energia=energy;
 		f_up->l=l;
@@ -4390,10 +4391,12 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 		delta_up[l]=GeneraDWspin(f_up,opt_up,q1q2,mass,radio,puntos,parm->matching_radio,&fp1);
 		delta_down[l]=GeneraDWspin(f_down,opt_up,q1q2,mass,radio,puntos,parm->matching_radio,&fp2);
 	}
+    cout<<"hey2"<<endl;
 	for (l = 0; l < parm->lmax; l++) {
 		fp3<< l << "  " << real(delta_up[l])<< "  " << imag(delta_up[l])
 		<< "  " << abs(exp(2.*I*delta_up[l]))<< "  " << abs(exp(2.*I*delta_up[l])*real(delta_up[l]))<< endl;
 	}
+    cout<<"hey3"<<endl;
 	len=strlen(parm->unidades);
 	if(!strncmp(parm->unidades,"milib",len)) flag=1;
 	if(!strncmp(parm->unidades,"fm2",len)) flag=2;
@@ -4430,6 +4433,7 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 	}
 	sum=0.;
 	sum2=0.;
+    cout<<"hey4"<<endl;
 	for (n = 1; n < parm->cross_puntos; n++) {
 		costheta = cos(theta[n]);
 		dif_mas = 0.;
@@ -4441,8 +4445,9 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 			dif_menos+=(exp(2.*I*delta_down[l])-1.)*exp(2.*I
 					*deltac(l,eta))*(2.*l+1.)*gsl_sf_legendre_Pl(l,costheta)
 					/(2.*I*k);
-//			cout<<delta_up[l]<<"  "<<delta_down[l]<<"  "<<deltac(l, eta)<<endl;
+            cout<<delta_up[l]<<"  "<<delta_down[l]<<"  "<<deltac(l, eta)<<endl;
 		}
+        cout<<"hey5"<<endl;
 //		exit(0);
 		scattering_amplitude_total_mas[n] = fasecoul[n] + dif_mas;
 		scattering_amplitude_nuclear_mas[n] = dif_mas;
