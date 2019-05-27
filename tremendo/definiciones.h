@@ -9,9 +9,12 @@ void ReadParMultD(char *s,const char key[20],int num, int *par);
 void ReadParMultF(char *s,const char key[20],int num, double *par);
 void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,double q1q2,double masa
 		,double* D0,double* rms);
+void GeneraEstado(estado *st,potencial *potencial,double q1q2,double masa, double* D0
+                  ,double* rms);
 struct estado* ColocaEstado(parametros parm);
 void GaussLegendre(double* abs,double* w,int regla);
 double Normaliza(estado* st1,estado* st2, double radio, int pts, char s);
+double Normaliza(distorted_wave* st1,estado* st2, double radio, int pts);
 struct estado12* ColocaEstado12(parametros parm);
 void GeneraEstado12(estado12 *st12,potencial *potencial, double radio_max,int puntos,double** anm,int base);
 double** matriz_dbl(int dim1,int dim2);
@@ -25,6 +28,7 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 		double masa, double radio_max,int puntos,double radio_match,double spin);
 void SChica(integrando_schica *integrando,int P,int la,int lc,complejo* schica_mas,complejo* schica_menos);
 complejo interpola_cmpx(complejo* funcion,double* r,double posicion,int puntos);
+double interpola(vec funcion,vec r,double posicion);
 double interpola_dbl(double* funcion,double* r,double posicion,int puntos);
 double AcoplamientoAngular(int l1,int l2,int l3,int l4,int K,double coseno1,double coseno2,double coseno3);
 void SGrande(integrando_sgrande *integrando,int K,int P,int la,int lb,int lc,complejo* sgrande_mas,complejo* sgrande_menos);
@@ -38,6 +42,7 @@ int LeeEstados(char *s,const char key[100],estado* st,FILE* fp);
 void TwoTrans(struct parametros* parm);
 void InicializaTwoTrans(struct parametros* parm);
 void Successive(struct parametros *parm,complejo*** Clalb);
+void Successive(struct parametros *parm,complejo*** Clalb,phonon* Gamma);
 void GeneraPotencialOptico(struct parametros *parm,struct potencial_optico *potencial,double m1,double m2);
 double ClebsGordan(float l1,float m1,float l2,float m2,float J,float M);
 void GeneraFormFactor(struct parametros *parm);
@@ -121,6 +126,8 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 void AmplitudOneTransSpinless(parametros *parm,complejo ***T);
 void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K);
 void CrossSectionOneTransSpinless(complejo ***Tlalb,complejo* Sel,struct parametros *parm,
+		struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f);
+double CrossSectionOneTransSpinless(complejo ***Tlalb,struct parametros *parm,
 		struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f);
 void FileDens(double* densidad,double* thick,double radio_max,int puntos,double A,char* file_dens);
 void  fcoul(double* theta,complejo* fc,double etac,int pts,double k);
@@ -227,26 +234,13 @@ void GeneraPotencialOpticoSpinCoulomb(struct parametros *parm,struct potencial_o
 void DecayMatrix(complejo*** T,complejo*** rhomm,int dmi,int dmf,int puntos);
 void PangPotential(potencial_optico* pot,double E,int N,int Z,int l,double j,string projectile);
 void SimpleRho(double li,double lf,double K,int lg,complejo*** rhomm,int puntos,double theta1,double theta2);
-/* double distorted_wave::absorption(void) { */
-/*   int regla_r,nr; */
-/* 	double ar, br, norma, rp,radio_medio; */
-/* 	double step=radio/double(puntos); */
-/* 	regla_r = 60; */
-/* 	double* wr = new double[regla_r]; */
-/* 	double* absr = new double[regla_r]; */
-/* 	complejo sum = 0.; */
-/*     complejo dwint,potint; */
-/* 	ar = 0.; */
-/* 	br = radio; */
-/* 	GaussLegendre(absr, wr, regla_r); */
-/* 	for (nr = 0; nr < regla_r; nr++) { */
-/* 		rp = ar + (br - ar) * (absr[nr] + 1.) / 2.; */
-/*         dwint=interpola_cmpx(wf,r,rp,puntos); */
-/*         potint=interpola_cmpx(pot->pot,pot->r,rp,puntos); */
-/* 		sum+=abs(dwint)*abs(dwint)*imag(potint)*rp*rp*wr[nr]; */
-/* 	} */
-/* 	norma = abs(sum) * (br - ar) / 2.; */
-/* 	delete[] wr; */
-/* 	delete[] absr; */
-/* 	return norma; */
-/*   } */
+int ReadRIPL(ifstream* fl_RIPL,double* V,double* RV,double* AV,double* DWV,double* W,double* RW,double* AW,double* VD,
+              double* RVD,double* AVD,double* WD,double* RWD,double* AWD,double* VSO,double* RVSO,double* AVSO,double*
+             WSO,double* RWSO,double* AWSO,double* energies);
+void Overlaps(struct parametros* parm);
+void RadTrans(struct parametros* parm);
+void DirectRadTrans(parametros *parm,complejo ***T);
+void IntegralRadTrans(integrando_onept *integrando,complejo *Ij,int K,double mA);
+complejo FuncionAngular2(int lp,int ld,int l,double costheta, double costheta_d);
+void CrossSectionRadTrans(complejo ***Tlalb,complejo* Sel,struct parametros *parm,
+                          struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f,double Egamma,double Ep);

@@ -1,5 +1,6 @@
 
-struct potencial {
+class potencial {
+ public:
   int id;
   char tipo[5];
   int puntos;
@@ -17,7 +18,10 @@ struct potencial {
   char file[100];
 };
 
-struct potencial_optico {
+
+
+class potencial_optico {
+ public:
   int id;
   int puntos;
   double radio;
@@ -42,9 +46,110 @@ struct potencial_optico {
   double rWd;
   double aWd;
   double radioWd;
+  potencial_optico() {};
 };
 
-struct estado {
+
+
+class RIPL_potential {
+ public:
+  potencial_optico* pot;
+  ifstream* fl_RIPL;
+  int N;
+  int Z;
+  vec V;
+  vec RV;
+  vec AV;
+  vec DWV;
+  vec W;
+  vec RW;
+  vec AW;
+  vec VD;
+  vec RVD;
+  vec AVD;
+  vec WD;
+  vec RWD;
+  vec AWD;
+  vec VSO;
+  vec RVSO;
+  vec AVSO;
+  vec WSO;
+  vec RWSO;
+  vec AWSO;
+  vec energies;
+  RIPL_potential() {};
+  RIPL_potential(int points,ifstream* fl_RIPL1, potencial_optico* pot1)
+    {
+      V=zeros(points);
+      RV=zeros(points);
+      AV=zeros(points);
+      DWV=zeros(points);
+      W=zeros(points);
+      RW=zeros(points);
+      AW=zeros(points);
+      VD=zeros(points);
+      RVD=zeros(points);
+      AVD=zeros(points);
+      WD=zeros(points);
+      RWD=zeros(points);
+      AWD=zeros(points);
+      VSO=zeros(points);
+      RVSO=zeros(points);
+      AVSO=zeros(points);
+      WSO=zeros(points);
+      RWSO=zeros(points);
+      AWSO=zeros(points);
+      energies=zeros(points);
+      fl_RIPL=fl_RIPL1;
+      pot=pot1;
+    }
+  int ReadRIPL()
+  {
+    int count;
+    bool flag;
+    string line;
+    streampos pos;
+    float ene,val1,val2,val3,val4,val5,val6,val7,val8,val9,val10,
+      val11,val12,val13,val14,val15,val16,val17,val18,val19;
+    count=0;
+    flag=getline(*fl_RIPL,line);
+    sscanf(line.c_str(),"%d %d",&Z,&N);
+    flag=getline(*fl_RIPL,line);
+    while(flag)
+      {          
+        sscanf(line.c_str(),"%g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g"
+               ,&ene,&val1,&val2,&val3,&val4,&val5,&val6,&val7,&val8,&val9,&val10,&val11,
+               &val12,&val13,&val14,&val15,&val16,&val17,&val18,&val19);
+        energies(count)=ene;
+        V(count)=val1;
+        RV(count)=val2;
+        AV(count)=val3;
+        DWV(count)=val4;
+        W(count)=val5;
+        RW(count)=val6;
+        AW(count)=val7;
+        VD(count)=val8;
+        RVD(count)=val9;
+        AVD(count)=val10;
+        WD(count)=val11;
+        RWD(count)=val12;
+        AWD(count)=val13;
+        VSO(count)=val14;
+        RVSO(count)=val15;
+        AVSO(count)=val16;
+        WSO(count)=val17;
+        RWSO(count)=val18;
+        AWSO(count)=val19;
+        count++;
+        flag=getline(*fl_RIPL,line);
+      }
+    return count+1;
+  }
+  void Get(double energy);
+};
+
+class estado {
+ public:
   int id;
   int puntos;
   double radio;
@@ -58,9 +163,16 @@ struct estado {
   char file[100];
 };
 
+
+
+
+
+
+
+
 class distorted_wave {
  public:
-  int id;
+  int id; 
   int puntos;
   double radio;
   potencial_optico* pot;
@@ -178,6 +290,7 @@ struct parametros {
   int folding;
   int fermi_dens;
   int gauss_dens;
+  int phonon;
   double P_sigma_dens;
   double T_sigma_dens;
   double P_radio_dens;
@@ -210,6 +323,7 @@ struct parametros {
   char fl_dw[100];
   char fl_gf[100];
   char file_dens[100];
+  char fl_phonon[100];
   char unidades[10];
   int debug;
   int lmin;
@@ -222,6 +336,7 @@ struct parametros {
   int capture;
   int cluster_inelastic;
   int one_trans;
+  int radtrans;
   int knockout;
   int dumb;
   int form_factor;
@@ -352,3 +467,18 @@ struct tablas{
 
 
 
+class phonon {
+ public:
+  int n_states;
+  int n_transitions;
+  vector<estado> st;
+  vector<double> X;
+  vector<double> Y;
+  vector<double> hole;
+  vector<double> particle;
+  vector<int> st_index;
+  ifstream* file;
+  int L;
+  double energy;
+  phonon(const char fp[100],double mass,double charge,potencial* pot,double rmax,int points,parametros* parm);
+};

@@ -65,8 +65,9 @@ typedef complex<double> complejo;
 #define EPSILON  1.e-7
 // Constantes fisicas
 #define PI 3.14159265358979323846264338327
-#define E_CUADRADO 1.44
-#define AMU 931.49432
+#define E_CUADRADO 1.4399764
+//#define AMU 931.49432
+#define AMU 938.2720813
 #define HC  197.3270533 // MeV*fm
 #define HBAR  6.582119e-22 // MeV*s
 #define E2HC	0.00729927

@@ -1,6 +1,8 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include <armadillo>
+using namespace arma;
 using namespace std;
 #include "tremendo.h"
 #include "structs.h"

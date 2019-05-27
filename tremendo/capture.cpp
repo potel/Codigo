@@ -1,6 +1,8 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include <armadillo>
+using namespace arma;  
 using namespace std;
 #include "tremendo.h"
 #include "structs.h"
@@ -48,9 +50,13 @@ void Capture(struct parametros* parm)
   A_T=parm->T_N+parm->T_carga;
   cout<<"Generando potenciales opticos"<<endl;
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_ingreso]),A_T,A_P);
+  //cout<<"quillo 1"<<endl;
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_salida]),parm->m_B,parm->m_b);
+  //cout<<"quillo 2"<<endl;
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_a-1.,parm->m_A);
+  //cout<<"quillo 3"<<endl;
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_core]),parm->m_a-1.,parm->m_A);
+  //cout<<"quillo 4"<<endl;
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_transfer]),1.,parm->m_A);
 
 
@@ -137,6 +143,7 @@ void AmplitudeCapture(struct parametros* parm)
   potencial_optico *core=new potencial_optico;
   potencial_optico* v=new potencial_optico;
   potencial_optico* pot_dumb=new potencial_optico;
+  double* cross_integrated=new double[parm->cross_puntos+1];
   estado* st=new estado;
   estado* st_fin=new estado;
   ofstream fp1("dw_out1trans.txt");
@@ -159,9 +166,13 @@ void AmplitudeCapture(struct parametros* parm)
   fp10.open("dsdEdO.txt");
   ofstream fp11;
   fp11.open("dsdE_angular.txt");
+   ofstream fp12;
+  fp12.open("dsdO.txt");
   
   fp7<<"Positive parity populations listed in first column"<<endl; 
   fp8<<"Positive parity populations listed in first column"<<endl;
+  
+
   complejo* S=new complejo[parm->lmax];
   complejo**** rho=tensor4_cmpx(parm->rCc_puntos,parm->lmax,parm->lmax+1,parm->lmax);
   complejo* rho_test=new complejo [parm->puntos];
@@ -232,6 +243,11 @@ void AmplitudeCapture(struct parametros* parm)
       if(parm->core_pot==parm->pot_opt[n].id) indx_core=n;
       if(parm->pot_transfer==parm->pot_opt[n].id) v=&(parm->pot_opt[n]);
     }
+
+  ifstream RIPL_fl;
+  RIPL_fl.open("RIPL_potential.dat");
+  RIPL_potential* RIPL_pot=new RIPL_potential(300,&RIPL_fl,&(parm->pot_opt[indx_neutron_target]));
+  RIPL_pot->ReadRIPL();
   //	if(parm->remnant==1 && parm->prior==1) {
   //		GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_core],parm->T_carga*parm->P_carga,
   //				parm->T_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
@@ -300,7 +316,11 @@ void AmplitudeCapture(struct parametros* parm)
     }
 
   if(parm->koning_delaroche==1) cout<<"*****************************************************"<<endl<<
-                                  "***** Potencial neutron-blanco Koning-Delaroche *****"<<endl<<
+                                  "***** Koning-Delaroche potential for neutron-target interaction*****"<<endl<<
+                                  "*****************************************************"<<endl;
+
+    if(parm->koning_delaroche==10) cout<<"*****************************************************"<<endl<<
+                                     "***** Using dispersive optical potential from RIPL3  *****"<<endl<<
                                   "*****************************************************"<<endl;
   //	for(energia_trans=0;energia_trans<10.;energia_trans+=0.001)
   //	{
@@ -310,17 +330,36 @@ void AmplitudeCapture(struct parametros* parm)
   //	exit(0);
 
 
+    // cout<<"Testing RIPL potential"<<endl;
+    // for(Ecm=-3;Ecm<2;Ecm+=0.05)
+    //   {
+    //     misc3<<"& energy: "<<Ecm<<endl;
+    //     RIPL_pot->Get(Ecm);
+    //     v=&(parm->pot_opt[indx_neutron_target]);
+    //     for(n=0;n<v->puntos;n++)
+    //       {
+    //         misc3<<v->r[n]<<"  "<<real(v->pot[n])<<"  "<<imag(v->pot[n])<<endl;
+    //       }
+    //   }
+    // cout<<"OK"<<endl;
+    // exit(0);
 
 
-
+    double Ecm_old=1000.;
+    double deltaE=0.;
 
   r_F=1000.;
   cout<<"Radio de fusi�n: "<<r_F<<" fm"<<endl;
   e_res=st_fin->energia;
+  for(n=0;n<parm->cross_puntos;n++)
+    {
+      cross_integrated[n]=0.;
+    }
   for(energia_out=parm->enerange_min;energia_out<parm->enerange_max;energia_out+=parm->enerange_step)
     {
       Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
       Ecm=parm->energia_cm-Ecm_out-2.2245;
+      if(Ecm_old<999.) {deltaE=abs(Ecm-Ecm_old); cout<<"deltaE: "<<deltaE<<"    Ecm: "<<Ecm<<"     Ecm_old: "<<Ecm_old<<endl;}
       energia_trans=(parm->n1_masa+parm->T_masa)*Ecm/(parm->T_masa);
       cout<<endl<<endl<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
       cout<<"Energy of detected cluster: "<<energia_out<<"  "<<"Energy of absorbed cluster: "
@@ -348,7 +387,15 @@ void AmplitudeCapture(struct parametros* parm)
           if(carga_out<0.1) parm->pot_opt[indx_salida].pot[n]=pot_n;
         }
       }
+      if(parm->koning_delaroche==10){
+        RIPL_pot->Get(Ecm);
+      }
       v=&(parm->pot_opt[indx_neutron_target]);
+      // for(n=0;n<v->puntos;n++)
+      //   {
+      //     misc3<<v->r[n]<<"  "<<real(v->pot[n])<<"  "<<imag(v->pot[n])<<endl;
+      //   }
+      // exit(0);
       if(parm->remnant==1 && parm->prior==1) {
         GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_salida],parm->T_carga*parm->P_carga,
                     parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
@@ -535,6 +582,9 @@ void AmplitudeCapture(struct parametros* parm)
                   fp10<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
                     "  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
                     sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
+                  //                  cross_integrated[n]+=(sigma_const*escala*rhoE*cross+rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)*deltaE;
+                  cross_integrated[n]+=(sigma_const*escala*rhoE*cross)*deltaE;
+                  fp12<<theta*180./PI<<"  "<<cross_integrated[n]<<endl;
                   for(l=0;l<parm->ltransfer;l++)
                     {
                       inc_break_lmas[l]+=sigma_const*escala*rhoE*cross_up[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
@@ -553,7 +603,8 @@ void AmplitudeCapture(struct parametros* parm)
           TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A,parm->parity_A);
           cout<<"NEB cross section:  "<<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
         }
-      exit(0);
+      Ecm_old=Ecm;
+      //exit(0);
     }
   delete[] funcion_regular_up;
   delete[] funcion_irregular_up;
@@ -2208,3 +2259,65 @@ void SimpleRho(double li,double lf,double K,int lg,complejo*** rhomm,int puntos,
   delete[] alpha;
   delete[] trace;
 }
+void RIPL_potential::Get(double energy)
+  {
+    double V1,RV1,AV1,DWV1,W1,RW1,AW1,VD1,RVD1,AVD1,WD1,RWD1,
+      AWD1,VSO1,RVSO1,AVSO1,WSO1,RWSO1,AWSO1;
+    double rhf,fhf;
+    double rs,gs,fs;
+    double rv,fv;
+    double rso,fso,gso;
+    int n,A;
+    A=N+Z;
+    V1=interpola(V,energies,energy);
+    RV1=interpola(RV,energies,energy);
+    AV1=interpola(AV,energies,energy);
+    
+    DWV1=interpola(DWV,energies,energy);
+    
+    W1=interpola(W,energies,energy);
+    RW1=interpola(RW,energies,energy);
+    AW1=interpola(AW,energies,energy);
+    
+    VD1=interpola(VD,energies,energy);
+    RVD1=interpola(RVD,energies,energy);
+    AVD1=interpola(AVD,energies,energy);
+    
+    WD1=interpola(WD,energies,energy);
+    
+    VSO1=interpola(VSO,energies,energy);
+    RVSO1=interpola(RVSO,energies,energy);
+    AVSO1=interpola(AVSO,energies,energy);
+    
+    WSO1=interpola(WSO,energies,energy);
+
+
+    RWD1=interpola(RWD,energies,energy);
+    AWD1=interpola(AWD,energies,energy);
+    RWSO1=interpola(RWSO,energies,energy);
+    AWSO1=interpola(AWSO,energies,energy);
+    misc2<<energy<<"  "<<V1<<"  "<<W1<<"  "<<VD1<<"  "<<WD1<<"  "<<VSO1<<"  "<<RV1<<"  "<<RW1<<"  "<<RVD1<<"  "<<AV1<<endl;
+
+    for (n=0;n<pot->puntos;n++)
+      {
+        rhf=RV1*pow(A,0.33333333333333333);
+        fhf=1./(1.+exp((pot->r[n]-rhf)/AV1));
+        
+        rs=RVD1*pow(A,0.33333333333333333);
+        fs=1./(1.+exp((pot->r[n]-rs)/AVD1));
+        gs=4.*fs*fs*exp((pot->r[n]-rs)/AVD1);
+        
+        rv=RW1*pow(A,0.33333333333333333);
+        fv=1./(1.+exp((pot->r[n]-rv)/AW1));
+        
+        rso=RW1*pow(A,0.33333333333333333);
+        fso=1./(1.+exp((pot->r[n]-rv)/AVSO1));
+        gso=-fso*fso/(AVSO1*pot->r[n]);
+        
+        pot->pot[n]=-V1*fhf-(DWV1+I*W1)*fv-(VD1+I*WD1)*gs;
+        pot->Vso=VSO1;
+        pot->rso=RVSO1;
+        pot->aso=AWSO1;
+      }
+    
+  }
