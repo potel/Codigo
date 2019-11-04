@@ -1,0 +1,25 @@
+OBJECTS = scat.o potPara.o merson.o legendre.o waves.o minimize1D.o minimizeND.o fit.o imaginaryForm.o\
+whit.o coul.o compound.o level.o channel.o expInt.o reaction.o volume.o surface.o hartreeFock.o spinOrbit.o\
+ asy.o gaussInteg.o  gauss16.o sphericalB.o fitOM.o disperse.o twoFermi.o surfaceTF.o surVolume.o  levelD.o\
+  compoundException.o standard.o surfaceSTD.o potplus.o 
+OBJMINE= calli.o  hole.o
+DEPS = structs.h definiciones.h tremendo.h
+HOLEDIR=./dom/ca48/gregory
+
+CC=g++
+LIBDIR=/usr/local/lib
+CFLAGS=-I.:/usr/local/include -L$(LIBDIR) -lgsl -lgslcblas -larmadillo -pg
+dpdom: irreducible.o $(OBJECTS) $(OBJMINE)
+	g++ -o dpdom  $(OBJECTS) $(OBJMINE) $(CPPFLAGS) $(CFLAGS) 
+#%.o: %.cpp $(DEPS)
+#	$(CC) -c -o $@ $< $(CFLAGS)
+
+calli.o: calli.cpp $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+hole.o: hole.cpp $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
+clean:
+	rm -f *.o dpdom
+
+

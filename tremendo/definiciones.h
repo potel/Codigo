@@ -244,3 +244,4 @@ void IntegralRadTrans(integrando_onept *integrando,complejo *Ij,int K,double mA)
 complejo FuncionAngular2(int lp,int ld,int l,double costheta, double costheta_d);
 void CrossSectionRadTrans(complejo ***Tlalb,complejo* Sel,struct parametros *parm,
                           struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f,double Egamma,double Ep);
+void DecayRate();

@@ -1,0 +1,35 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage{xcolor,graphicx,calc,mathtools,amsmath}
+\usepackage[margin=1.0in]{geometry}
+\begin{document}
+
+\pagenumbering{gobble}
+\pagestyle{empty}
+
+\begin{minipage}{\linewidth}
+   \makebox[\linewidth]{
+      \input{prop_pos_local}
+   }
+\end{minipage}
+
+\begin{minipage}{\linewidth}
+   \makebox[\linewidth]{
+      \input{prop_pos_nonlocal}
+   }
+\end{minipage}
+
+\newpage
+
+\begin{minipage}{\linewidth}
+   \makebox[\linewidth]{
+      \input{prop_neg_local}
+   }
+\end{minipage}
+
+\begin{minipage}{\linewidth}
+   \makebox[\linewidth]{
+      \input{prop_neg_nonlocal}
+   }
+\end{minipage}
+
+\end{document}

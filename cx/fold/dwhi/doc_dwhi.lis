@@ -1,0 +1,134 @@
+
+  Documentation for August 1989 version of DWHI at MSU NSCL
+  ---------------------------------------------------------
+
+  This program performs the DWBA calculation using the double-folded
+  scattering potentials produced by FOLD.  It is patterned after DWUCK 
+  with the addition of better coulomb routines for the heavy ion case
+  by Julian Cook.  It produces plot files suitable for PLOTIT.
+
+ ---------------------------------------------------------------------- 
+
+  Input structure:
+
+     Most everything is read in I3 and F7 formats, see example below. 
+     Definitions generally follow the DWUCK code this was originally 
+     based upon, with a few variations.  Check code when in doubt.
+
+  1) ICON(1), ..., ICON(20), TITLE
+
+     ICON(1)=1  to use the kind of ANGLE input shown for card 2
+
+     ICON(2)=2  to use a microscopic form factor
+
+     ICON(3)=1  to use incoherent sum of the different LTR cases
+    
+     ICON(4)=0  to print form factor used, non-zero to suppress this
+
+     ICON(5)=2  to print complex T-L, complex S-L, and S-L magnitude
+            =1  to print no elastic scattering info
+            =0  to print complex T-L only
+
+     ICON(9)=4  to always produce a 4-cycle semi-log graph
+
+     ICON(10)=0  to use non-relativistic kinematics
+
+  1a) FILNAM(char*8)   --  read if ICON(2) is not 1, contains form factor
+
+  2) ANGLE(1), ANGLE(2), ANGLE(3)
+
+     ANGLE(1) = number of angles
+  
+     ANGLE(2) = initial angle
+ 
+     ANGLE(3) = angle step size
+
+  3) L, NFF, ISA, ISB, JA, JB
+
+     L = number of partial waves for elastic
+
+     NFF = number of form factors to expect  --  must match number 
+           produced by FOLD; must also be used in correct order.
+
+     ISA,ISB = 2 * projectile spin in initial (A) and final (B) channel
+
+     JA,JB = 2 * target spin in initial (A) and final (B) channel
+
+  4) DR, NNR   --   must match corresponding card in FOLD
+
+  5a) E, FM, Z, FMA, ZA, RY, FS, QCD    ---  incoming channel
+
+     E = lab energy
+
+     FM,Z = projectile mass and Z
+
+     FMA,ZA = target mass and Z
+
+     RY = coulomb radius (multiplies TARGET mass to 1/3)
+
+     FS = 0
+
+     QCD = 0
+
+  5b) FZ, VR, RY, AR, VSOR, VI, RZ, AI, VSOI, PWR  (until FZ=0)
+
+     FZ = potential option (1=WS, 2=surface WS, 3=second derivative)
+
+     VR,RY,AR,VSOR = real volume, radius, diffuseness, and LS values
+
+     VI,RZ,AI,VSOI = imaginary volume, radius, diffuseness, and LS
+
+     PWR = 0 for cases we use
+
+  6a) E, FM, Z, FMA, ZA, RY, FS, QCD    ---  outgoing channel
+
+     E = Q-value here
+
+  6b) FZ, VR, RY, AR, VSOR, VI, RZ, AI, VSOI, PWR  (until FZ=0)
+
+  7) LTRT, ISTRT, JTRT          (there are NFF pairs of 7 and 8)
+
+     LTRT = JR, ISTRT = 2*JP, JTRT = 2*JT
+
+  8) BETAR=0, BETAI=0, BETAC=0, FNORM=1
+
+  9) PLOTFILE(char*16)
+
+
+ ---------------------------------------------------------------------- 
+
+  The following is from a standard reference run for MG-26(C-12,N-12)AL-26
+  at 840 MeV in the laboratory using the Roussel-Chomaz optical potential
+  and the potentials produced by the standard case in the documentation for
+  FOLD.  The SET VERIFY and SET DEF are redundant if this input follows 
+  a FOLD run in a single batch file, as is normally done.
+
+
+$ SET VERIFY=(PROC,NOIMAGE)
+$!
+$!  this is the standard reference case with corrected M3Y
+$!
+$ SET DEF [WINFIELD.CHEX.WORK]
+$!
+$ RUN NSCL_LIBRARY:[DWBA.SCRI.BIN]DWHI
+1210000040000000    MG26(C,B) STATE 1 ROUSSEL-CHOMAZ (O+SI) POTL
+FOLDMG26
+  61.    0.     0.2
+160  2  0  2  0  2
+ 0.03    600
+ 840.   12.    6.     26.    12.    2.300  0.     0.  
+ 1.     -100.  1.581  0.905  0.     -50.5  1.759  0.78   0.     0.
+ 0.
+ -18.43 12.    5.     26.    13.    2.300  2.     0.
+ 1.     -100.  1.581  0.905  0.     -50.5  1.759  0.78   0.     0.
+ 0. 
+  0  2  2
+ 0.     0.     0.     1.
+  2  2  2
+ 0.     0.     0.     1.
+MG26S1_STD.PLOT 
+$!
+$! \eof2
+$!
+
+ ---------------------------------------------------------------------- 

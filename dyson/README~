@@ -1,0 +1,16 @@
+Hey, I put the combined (d,p) + dom code on github. I can make private
+repositories now, so I need to know your github account so I can give
+you access to it.
+
+I added a clearly blocked out section in calli.cpp showing how to use
+the DOM code for what you need. I included comments to help you
+understand what each function returns. The code compiles, but when I run it I get a message that I can't read. I assume you'll know how to go from here though.
+
+Run "make calli" for the combined code. Run "make green" to use the
+purely DOM code that outputs various aspects of the Green's functions to
+view in plots.
+
+The regular/irregular function method is still not complete for the
+nonlocal case. I've indicated the different functions you need to use in
+the mean time (inverting the dyson equation at negative energies, and
+going through k-space for positive energies).

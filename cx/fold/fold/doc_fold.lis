@@ -1,0 +1,138 @@
+
+  Documentation for August 1989 version of FOLD at MSU NSCL
+  ---------------------------------------------------------
+
+  This program produces direct and exchange double-folded potentials 
+  based on the Petrovich, Philpott, Carpenter and Carr formalism with
+  central and tensor forces only.  [see NP A425 (1984) 609]
+
+  The original model for the program is the Petrovich and Stanley 
+  folding code which was also a model for ALLWRLD, but they have 
+  diverged in general structure and detail.  This version handles 
+  complex t-matrices and the simple Golin Fermi-motion correction 
+  to SNKE in the AEA.  The option to use EXCHNG to actually execute 
+  this correction exactly via Moshinsky transforms and the like is 
+  untested and has not been converted to use the complex t-matrices;
+  it should not be used.
+
+  May 2005 - updates by R.G.T. Zegers NSCL
+  The correction factors for the strengths were taken out (still listed in
+  output but not used in calculation. The Z coefficients should be input
+  like in DW81, i.e. the OBTD's from OXBASH multiplied by the common scale
+  factors
+  The SKNE approximation was updated: the kA parameter (see Love and Franey
+  1985) is input as FNRM2. The difference is large for light target nuclei.
+  FNRM2 is a common scale factor for the transformation of tNN to tNA. At 420
+  MeV the correction is about 10% in cross section.
+ ----------------------------------------------------------------------
+
+  Input structure:
+
+     Most everything is read in I5 or F10 formats.
+
+  1) KEXCHG, KPUNCH=1, FILNAM(char*8)
+
+     KEXCHG =0(direct), =1(ZREA for C), =2(EXCHNG -- do not use!) 
+
+  2) NR, H, ELAB, APROJ, IPRTR, IPRTQ, IPRTF
+
+  3a) FJF, PARF, FJI, PARI    ---    for the PROJECTILE    ----
+
+  3b) TF, TFM, TI, TIM
+
+  3c) NTYPF, KOPTN, ALPHA
+
+     NTYPF =1(static), =2(inelastic), =3(charge exchange)
+
+     KOPTN =1(S[T]), =2(S[pn]), =3(Z[T]), =4(Z[pn]) =5(Wildenthal trans amp)
+
+  3d) IDF, IDI, JX, Z1, Z2     (terminated by -1,-1)
+
+      the Z's are the Raynal/ALLWRLD definition for MT=0
+      conversion to actual MT can be wrong for special cases
+      IDI corresponds to OXBASH's "created", IDF to "destroyed"
+
+  3e) FILEN                    (read and used if ALPHA=0)
+
+  4a) FJF, PARF, FJI, PARI    ---    for the TARGET    ----
+
+  4b) TF, TFM, TI, TIM
+
+  4c) NTYPF, KOPTN, ALPHA
+
+  4d) IDF, IDI, JX, Z1, Z2     (terminated by -1,-1)
+
+  4e) FILEN                    (read and used if ALPHA=0)
+
+  5) FNRM1, FNRM2, FNRM3, FRCEFILE(char*48)
+
+  6) NFORM                     (number of SETS of cards 7 and 8)
+
+  7) JR, JP, JT, KFORCE
+        KFORCE = -1  for Central + Tensor
+	          0  for Central only
+		  1  for LS (spin-orbit)
+		  2  for Tensor only
+
+  8) DNORM(1), ..., DNORM(7)   ---  card for each T, proj and targ
+
+     these scale rho-m; rho-s for L=J-1,J,J+1; rho-l for L=J-1,J,J+1 
+
+ ---------------------------------------------------------------------- 
+
+  The following is from a standard reference run for MG-26(C-12,N-12)AL-26 at
+  840 MeV in the laboratory using a corrected M3Y interaction.  The Woods-Saxon
+  radial wavefunction files must be in the directory pointed to by the SET DEF
+  command.  The radial functions are produced by WSAW.  The force files are in
+  the directory NSCL_LIBRARY:[DWBA.SCRI.FORCEFILES] which should be logically
+  assigned to FOLD_LIBRARY:  The SET VERIFY forces echo of the VMS DCL commands
+  and comments but not of the input data read by the program.
+
+
+$ SET VERIFY=(PROC,NOIMAGE)
+$!
+$!  run the following MG26(C12,B12) test case
+$!
+$!  this is the standard reference case with corrected M3Y
+$!
+$ SET DEF [WINFIELD.CHEX.WORK]
+$ ASSIGN NSCL_LIBRARY:[DWBA.SCRI.FORCEFILES] FOLD_LIBRARY:
+$!
+$ RUN NSCL_LIBRARY:[DWBA.SCRI.BIN]FOLD
+    1    1FOLDMG26
+  600 0.03      840.      12.          1    1    0
+       1.0+      0.0+
+  1.0      +1.0       0.0       0.0
+    3    3  0.000
+    2    2    1  0.0       0.05797
+    3    2    1  0.0       0.33968
+    2    3    1  0.0       0.69032
+    3    3    1  0.0       0.07651
+   -1   -1
+C12B12 
+       1.0+      0.0+
+  0.0      -0.0       1.0       1.0
+    3    3  0.000
+    6    6    1  0.0       0.44326
+    6    5    1  0.0       0.07954
+    4    4    1  0.0       0.10097
+    4    5    1  0.0       0.04468
+    5    6    1  0.0       0.01643
+    5    4    1  0.0       -0.03803
+    5    5    1  0.0       -0.02952  
+  -1   -1
+MG26AL26
+ 0.922     0.829     0.340    M3Y_REEO_COR.
+    2
+    0    1    1   -1
+ 1.00      1.00      1.00      1.00      1.00      1.00      1.00
+ 1.00      1.00      1.00      1.00      1.00      1.00      1.00
+    2    1    1   -1
+ 1.00      1.00      1.00      1.00      1.00      1.00      1.00
+ 1.00      1.00      1.00      1.00      1.00      1.00      1.00
+$!
+$! \eof1
+$!
+
+ ---------------------------------------------------------------------- 
+

@@ -29,9 +29,9 @@ void OneTrans(struct parametros* parm)
   TSpinless=tensor_cmpx(parm->lmax,parm->lmax,20);
   Tlalb=tensor5_cmpx(10,parm->lmax,parm->lmax,3,3);
   InicializaOneTrans(parm);
-  HanShiShen(parm->energia_lab+parm->Qvalue,parm->T_N-1,parm->T_carga);
+  HanShiShen(parm->energia_lab,parm->T_N,parm->T_carga);
   CH89(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
-  KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+  KoningDelaroche(parm->energia_lab+parm->Qvalue,parm->T_N+1,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
   cout<<"Generando potenciales de campo medio"<<endl;
   for(n=0;n<parm->num_cm;n++)
 	{
@@ -1133,7 +1133,7 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
   for (n2 = 0; n2 < integrando->dim2->num_puntos; n2++) {
     r_An = (integrando->dim2->a)+((integrando->dim2->b)-(integrando->dim2->a))*((integrando->dim2->puntos[n2])+1.)/2.;
     estado_final=interpola_cmpx(integrando->final_st->wf,integrando->final_st->r,r_An,integrando->final_st->puntos);
-    
+    if(integrando->lb==0) misc4<<r_An;
     if(integrando->prior==1) potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,r_An,integrando->pot->puntos);
     for (n1 = 0; n1 < integrando->dim1->num_puntos; n1++) {
       r_bB = (integrando->dim1->a)+((integrando->dim1->b)-(integrando->dim1->a))*((integrando->dim1->puntos[n1])+1.)/2.;
@@ -1171,6 +1171,7 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
         *Ij+=kernel;
       }
     }
+    if(integrando->lb==0) misc4<<"  "<<abs(*Ij)*abs(*Ij)<<"\n";
   }
   *Ij*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
@@ -1525,15 +1526,16 @@ void Overlaps(struct parametros* parm)
   potencial* v=new potencial[1];
   ofstream fp_dw("distorted_wave.txt");
   ofstream fp_st("bound_state,txt");
+  DecayRate();
   cout<<"Generando potenciales de campo medio"<<endl;
   e_start=0.25;
   e_end=0.5;
   e_step=100;
   v=&(parm->pot[0]);
-  p_start=32.5;
-  p_end=32.6;
-  p_step=0.001;
-  e_res=0.18;
+  p_start=32.26;
+  p_end=32.32;
+  p_step=0.0001;
+  e_res=0.1958;
   pot=&(parm->pot_opt[0]);
   GeneraPotencialCM(parm,v);
   GeneraPotencialOptico(parm,pot,10,1);
@@ -1567,7 +1569,7 @@ void Overlaps(struct parametros* parm)
       misc1<<energy<<"  "<<abs(delta)<<"  "<<abs(norm)<<endl;
     }
   cout<<"Resonance energy for depth="<<depth<<" MeV: "<<max<<"  overlap: "<<maxold<<endl;
-  exit(0);
+  //exit(0);
   dw->energia=e_res;
   max=-1000.;
   maxold=-1000.;
@@ -1587,4 +1589,64 @@ void Overlaps(struct parametros* parm)
       misc2<<depth<<"  "<<real(delta)<<"  "<<abs(norm)<<endl;
     }
     cout<<"Potemtial depth for resonance at "<< e_res<<" MeV: "<<max<<"  overlap: "<<maxold<<endl;
+}
+void DecayRate()
+{
+  	int regla_r, np, indice;
+	double ar, br, norma,energy,F,g,p,Z,max_ptilde,
+      sommerfeld,e_resonance,ptilde,f,mn,me,mp,Q,Qtilde,
+      etilde,t12,bp,overlap,Qini,Qend,gamma,lorentz,lorentz_sum,bpsum,
+      spectroscopic;
+	double step;
+	regla_r = 60;
+	double* wr = new double[regla_r];
+	double* absr = new double[regla_r];
+    overlap=0.53;
+    spectroscopic=0.34;
+    mn=939.565;
+    mp=938.272;
+    me=0.511;
+    Z=-5.;
+    e_resonance=0.196;
+    GaussLegendre(absr, wr, regla_r);
+    Qini=0.+(mn-mp-me);
+    Qend=0.2807+(mn-mp-me);
+    step=0.0001;
+    gamma=0.015;
+    lorentz_sum=0.;
+    bpsum=0.;
+    for (Q=Qini;Q<Qend;Q+=step)
+      {
+        energy=Q-Qini;
+        Qtilde=Q/me;
+        max_ptilde=sqrt(Qtilde*Qtilde-1.);
+        ar=0.;
+        br=max_ptilde;
+        f=0.;
+        lorentz=(1./(2.*PI))*gamma/((e_resonance-energy)*(e_resonance-energy)+(gamma*gamma/4.));
+        lorentz_sum+=lorentz*step;
+        //cout<<"Decay energy: "<<Q<<"  E tilde:"<<Qtilde<<"\n";
+        //cout<<" Max p:"<<max_ptilde<<"\n";
+        //exit(0);
+        for (np = 0; np < regla_r; np++) {
+          ptilde = ar + (br - ar) * (absr[np] + 1.) / 2.;
+          p=ptilde*me;
+          g=(Qtilde-sqrt(ptilde*ptilde+1.))*(Qtilde-sqrt(ptilde*ptilde+1.))*ptilde*ptilde;
+          sommerfeld=Z*E2HC/ptilde;
+          F=2.*PI*sommerfeld/(exp(2.*PI*sommerfeld)-1.);
+          //cout<<ptilde<<"  "<<E2HC<<"  "<<ptilde*HC<<"  "<<sommerfeld<<"  "<<F<<"\n";
+          f+=F*g*wr[np]*(br-ar)/2.;
+          //misc1<<ptilde<<"  "<<g*F<<"  "<<g<<"  "<<sommerfeld<<"\n";
+        }
+        //cout<<"f="<<f<<"\n";
+        t12=6141./(0.15*f);
+        //        bp=spectroscopic*overlap*overlap*13.8/t12;
+        bp=13.8/t12;
+        bpsum+=lorentz*bp*step;
+        misc1<<energy<<"  "<<bp<<"  "<<bp*lorentz<<"  "<<bpsum<<"\n";
+        //cout<<"  Mean life="<<t12<<"s, bp:"<<bp<<"\n";
+      }
+    cout<<"Lorentz sum:"<<lorentz_sum<<"\n";
+    cout<<"Integrated bp:"<<spectroscopic*overlap*overlap*bpsum<<"   integrated lifetime:"<<13.8/(spectroscopic*overlap*overlap*bpsum)<<"\n";
+    exit(0);
 }

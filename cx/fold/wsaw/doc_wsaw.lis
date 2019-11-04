@@ -1,0 +1,89 @@
+  
+  Documentation for August 1989 version of WSAW at MSU NSCL
+  ---------------------------------------------------------
+
+  This program produces a file containing Woods-Saxon radial functions 
+  where each is prefaced by a header that can be interpreted by FOLD.
+  Based on a program written by Petrovich in the good old days.
+
+ ---------------------------------------------------------------------- 
+
+  Input structure:
+
+     Most input formats are I5 and F10
+
+  1) RMESH=0.1, RMAX=20., NPUNCH=1, NBPUNCH=150, IDBUG=0
+
+  2) FILENAM
+
+  3) TMC, TIZC, V0, A, R0, RC, VSO
+
+     TMC = core mass
+
+     TIZC = core charge
+ 
+     V0 = starting value for volume potential depth (will be fit)
+ 
+     A = diffuseness for this potential
+
+     R0 = radius parameter for this potential
+ 
+     RC = coulomb radius parameter
+
+     VSO = spin-orbit potential strength to us
+
+  4) EBIND, TMP, TL, TNODE, TIZP, XJ, XS
+
+     EBIND = binding energy of particle
+
+     TMP = mass of particle
+
+     TL = orbital angular momentum (L) of particle orbit
+
+     TNODE = number of interior nodes (starts at zero)
+
+     TIZP = charge of particle
+
+     XJ = total angular momentum (J) of particle orbit
+  
+     XS = spin (S) of particle
+
+
+  arbitrary number of card 3+4 sets terminated by TMC = -1
+
+ ---------------------------------------------------------------------- 
+
+  The following is from a standard reference run for C-12(C-12,N-12)B-12
+  at 840 MeV using Woods-Saxon radial wavefunctions.  SET VERIFY echoes 
+  the VMS DCL commands and comments but not the input to the code.  The 
+  SET DEF is required to put the result file in the place FOLD expects 
+  to find it for a later run.  Note that a second run is needed to get 
+  C12N12 file that is also required; it uses 18.722 for neutron energy 
+  and 0.601 for proton energy instead of the 15.957 proton and 3.370 
+  neutron energy used below.
+
+
+$ SET VERIFY=(PROC,NOIMAGE)
+$!
+$!  obtain the Woods-Saxon w-fcns for (C-12,B-12) and (C-12,N-12)
+$!
+$ SET DEF [JAC.WORK]
+$!
+$ RUN [JAC.BIN]WSAW
+0.1       20.           1  150    0
+C12B12
+11.       5.        60.       .65       1.25      1.25      7.0 
+15.957    1.        1.        0.        1.        0.5       .5  
+11.       5.        60.       .65       1.25      1.25      7.0 
+15.957    1.        1.        0.        1.        1.5       .5  
+11.       5.        60.       .65       1.25      1.25      7.0 
+3.370     1.        1.        0.        0.        0.5       .5  
+11.       5.        60.       .65       1.25      1.25      7.0 
+3.370     1.        1.        0.        0.        1.5       .5  
+-1.  
+$!
+$! \eof1
+$!
+
+ ---------------------------------------------------------------------- 
+

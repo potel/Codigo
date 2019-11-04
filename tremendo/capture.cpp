@@ -30,7 +30,7 @@ void Capture(struct parametros* parm)
   potencial_optico*  dumb_pot_opt=new potencial_optico[1];
   cout<<"Generando potenciales de campo medio"<<endl;
   HanShiShen(parm->energia_lab,parm->T_N,parm->T_carga);
-  KoningDelaroche(0.1,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+  KoningDelaroche(parm->enerange_min,parm->res_N,parm->res_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
   //exit(0);
   for(n=0;n<parm->num_cm;n++)
     {
@@ -50,13 +50,9 @@ void Capture(struct parametros* parm)
   A_T=parm->T_N+parm->T_carga;
   cout<<"Generando potenciales opticos"<<endl;
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_ingreso]),A_T,A_P);
-  //cout<<"quillo 1"<<endl;
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_salida]),parm->m_B,parm->m_b);
-  //cout<<"quillo 2"<<endl;
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_a-1.,parm->m_A);
-  //cout<<"quillo 3"<<endl;
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_core]),parm->m_a-1.,parm->m_A);
-  //cout<<"quillo 4"<<endl;
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_transfer]),1.,parm->m_A);
 
 
@@ -68,7 +64,7 @@ void Capture(struct parametros* parm)
   cout<<"Masa  de la particula transferida: "<<parm->n1_masa<<endl;
   cout<<"Masa  de la particula emitida: "<<parm->m_b<<endl;
   cout<<"Generando el estado del nucleo a"<<endl;
-  /* Genera niveles del n�cleo 'a' */
+  /* Genera niveles del nucleo 'a' */
   for (n=0;n<parm->a_numst;n++)
     {
       for(m=0;m<parm->num_st;m++)
@@ -88,8 +84,8 @@ void Capture(struct parametros* parm)
       cout<<"D0: "<<*D0<<"   rms: "<<*rms<<endl;
     }
   cout<<"Generando niveles nucleo B"<<endl;
-  //	File2Pot(&(parm->pot[indx_pot_B]),parm);
-  /* Genera niveles del n�cleo 'B' */
+  //File2Pot(&(parm->pot[indx_pot_B]),parm);
+  /* Genera niveles del nucleo 'B' */
   for (n=0;n<parm->B_numst;n++)
     {
       for(m=0;m<parm->num_st;m++)
@@ -98,8 +94,8 @@ void Capture(struct parametros* parm)
 	}
       cout<<"Masa reducida: "<<parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa)<<" indx_st:"<<indx_st<<endl;
       //		if(parm->st[indx_st].energia<0.)
-      GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,
-		      carga_trans*parm->T_carga,parm,0,parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa),D0,rms);
+       GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,
+	           carga_trans*parm->T_carga,parm,0,parm->m_B*parm->n1_masa/(parm->m_B+parm->n1_masa),D0,rms);
       //		else
       //		{
       //			GeneraEstadosContinuo(&(parm->pot_opt[indx_scatt]),&(parm->st[indx_st]),parm->radio,parm->puntos,
@@ -109,6 +105,7 @@ void Capture(struct parametros* parm)
       cout<<"Depth of mean field potential: "<<parm->pot[indx_pot_B].V<<endl;
       cout<<"D0: "<<*D0<<"   rms: "<<*rms<<endl;
     }
+  //exit(0);
   cout<<"Energy: "<<parm->st[indx_st].energia<<endl;
   //	File2Pot(&(parm->pot[indx_pot_B]),parm);
   cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
@@ -601,7 +598,7 @@ void AmplitudeCapture(struct parametros* parm)
             }
           fp11<<"  "<<cross_total<<"  "<<cross_total_elasticb<<"  "<<cross_total+cross_total_elasticb<<endl;
           TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A,parm->parity_A);
-          cout<<"NEB cross section:  "<<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
+          cout<<"Cross sections integrated between "<<parm->angle0<<" and "<<parm->angle1<<" degrees. NEB:  "<<cross_total<<"   EB:  "<<cross_total_elasticb<<endl;
         }
       Ecm_old=Ecm;
       //exit(0);
@@ -1047,6 +1044,7 @@ complejo NeutronWave(complejo* phi,complejo**** rho,distorted_wave* fl,distorted
 	}
 	delete[] suma;
 	delete[] suma2;
+    return 1.;
 }
 complejo NeutronWaveTest(complejo* phi,complejo* rho,distorted_wave* fl,distorted_wave* Pl,
 		parametros_integral* dim,parametros* parm,double rBn,int l,int lp,int ld,complejo wronskiano)
@@ -1076,6 +1074,7 @@ complejo NeutronWaveTest(complejo* phi,complejo* rho,distorted_wave* fl,distorte
 //		misc3<<rBnp<<"  "<<real(Pl_rBnp*fl_rBn/(wronskiano))<<"  "<<imag(Pl_rBnp*fl_rBn/(wronskiano))<<endl;
 	}
 	phi[0]=(suma*(rBn-(dim->a))*0.5+suma2*((dim->b)-rBn)*0.5)*(1./(wronskiano));
+    return 1.;
 }
 complejo NeutronWaveResonant(complejo* phi,complejo**** rho, estado* st,double En, double E, double absorcion,
 		parametros_integral* dim,parametros* parm,double rBn,int l,int lp)
@@ -1104,6 +1103,7 @@ complejo NeutronWaveResonant(complejo* phi,complejo**** rho, estado* st,double E
 		phi[m]=(suma[m]*((dim->b)-(dim->a))*0.5)*stp*rBn*lorentz;
 	}
 	delete[] suma;
+    return 1.;
 }
 void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* optico,
 		parametros_integral* dim,parametros* parm,int l,int lp,double kn,double spin)
@@ -1180,6 +1180,7 @@ complejo NeutronWaveResonantTest(complejo* phi,complejo* rho, estado* st,double 
 //		misc3<<rBnp<<"  "<<real(Pl_rBn*fl_rBnp/(wronskiano))<<"  "<<imag(Pl_rBn*fl_rBnp/(wronskiano))<<endl;
 	}
 	phi[0]=(suma*((dim->b)-(dim->a))*0.5)*stp*lorentz;
+    return 1.;
 }
 double Absorcion(potencial_optico* pot,complejo**** wf,parametros_integral* dim,int l,int lmax)
 {

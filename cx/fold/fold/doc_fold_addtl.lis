@@ -1,0 +1,90 @@
+Some additional notes on the MSU NSCL version of FOLD
+-----------------------------------------------------
+
+Explanation of those input parameters which are not explained in 
+DOC_FOLD.LIS and are obvious:
+
+Card 2) NR    : number of integration steps
+	H     : step size (fm)
+	ELAB  : bombarding energy in MeV  } These two parameters only used
+	APROJ : projectile mass		  } for SNKE wavenumber determination
+	IPRTR : set to 1 for printout of r-space densities
+	IPRTQ : set to 1 for printout of q-space densities
+	IPRTF : set to 1 for printout of formfactors
+
+Card 3a) For the projectile...
+	FJF   : spin of final particle
+	PARF  : parity of final particle (+, -)
+	FJI   : spin of initial particle
+	PARI  : parity of initial particle (+, -)
+
+Card 3b) Projectile (contd.)
+	TF    : Isospin of the final particle
+	TFM   : Isospin projection of the final particle (+ve = neutron excess)
+	TI    : Isospin of the initial particle
+	TIM   : Isospin projection of the initial particle
+
+Card 3c) Projectile (contd.)
+	NTYPF : see DOC_FOLD
+	KOPTN : see DOC_FOLD.  The Z-coeff definition used by FOLD is
+
+
+		 dJ,DT   CG(Ti Tim dT dTm | Tf Tfm) HAT(dT)
+		Z      = ---------------------------------- * BHW
+		 j,j'            HAT(Ji) * HAT(Tf)
+
+
+		where,
+			HAT(j) = SQRT (2j + 1)
+
+		and BHW is the Wildenthal transition amplitude (as output
+		by OXBASH, for example):
+
+			                  +  ~   dJ,dT         
+			      < Wf ||| (aj x aj')      ||| Wi>
+			BHW = --------------------------------
+			            HAT(dJ) * HAT (dT)
+
+
+Card 3d) Projectile (contd.)
+	IDF   : sub-orbital ID number for the final (destroyed) particle or hole
+	IDI   : sub-orbital ID number for the initial (created) particle or hole
+
+       1 = 0s1/2       16 = 2p1/2       31 = 2f5/2 
+       2 = 0p1/2       17 = 2p3/2       32 = 2f7/2 
+       3 = 0p3/2       18 = 1f5/2       33 = 1h9/2 
+       4 = 1s1/2       19 = 1f7/2       34 = 1h11/2
+       5 = 0d3/2       20 = 0h9/2       35 = 0j13/2
+       6 = 0d5/2       21 = 0h11/2      36 = 0j15/2
+       7 = 1p1/2       22 = 3s1/2       37 = 4s1/2 
+       8 = 1p3/2       23 = 2d3/2       38 = 3d3/2 
+       9 = 0f5/2       24 = 2d5/2       39 = 3d5/2 
+      10 = 0f7/2       25 = 1g7/2       40 = 2g7/2 
+      11 = 2s1/2       26 = 1g9/2       41 = 2g9/2 
+      12 = 1d3/2       27 = 0i11/2      42 = 1i11/2
+      13 = 1d5/2       28 = 0i13/2      43 = 1i13/2
+      14 = 0g7/2       29 = 3p1/2       44 = 0k15/2
+      15 = 0g9/2       30 = 3p3/2       45 = 0k17/2
+
+Cards 4a-d) As per cards 3a-d, but for target system.
+
+OLD CARD 5
+----------
+Card 5) FNRM1 : Normalization of SNKE Yukawa of 1st range given in force file
+	FNRM2 :      "        "   "     "    "    "   2    "    "    "    "
+	FNRM2 :      "        "   "     "    "    "   3    "    "    "    "
+	FRCEFILE : name of file containing n-n force parameters
+	For a list of available force files, see [DWBA.SCRI.FORCEFILES]
+NEW CARD 5
+----------
+R.G.T. Zegers Card 5) has been replaced:
+       FNRM1 : normalization of SNKE Yukawas (all ranges) for transformation
+               from tNN to tNA 
+       FNRM2 : kA (momentum of projectile in NA frame) instead of lab momentum
+               Especially important for very light (A<10) target nuclei.
+       FNRM3:  not used
+
+
+Card 7) JR    : "relative" spin transfer (known in DWHI as LTRT)
+	JP    : spin transfer in the projectile system (2*JP = ISTRT in DWHI)
+        JT    : spin transfer in the target system (2*JT = JTRT in DWHI)

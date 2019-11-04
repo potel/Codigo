@@ -645,7 +645,7 @@ void ReadParS(char *s,const char key[20], char *par)
 	if (!strncmp(s,key,l))
 	{
 		r = sscanf(s,"%*s %s",par);
-		if (r<1) { fprintf(stderr,"%s ",key); par='\0'; }
+		if (r<1) { fprintf(stderr,"%s ",key); *par='\0'; }
 		informe<<key<<"="<<par<<endl;
 	}
 	fflush(stderr);
