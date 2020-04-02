@@ -195,7 +195,7 @@ void DirectRadTrans(parametros *parm,complejo ***T)
     Epinitial=0.3;
     for(Ep=Epinitial;Ep<parm->energia_cm+parm->Qvalue;Ep+=deltaEp)
       {
-        Egamma=parm->energia_cm-Ep+parm->Qvalue;      
+        Egamma=parm->energia_cm-Ep+parm->Qvalue;
         cout<<"Proton energy: "<<Ep<<"   Photon energy: "<<Egamma<<"\n";
         for(la=0;la<parm->lmax;la++)
           {

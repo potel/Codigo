@@ -324,6 +324,7 @@ struct parametros {
   char fl_gf[100];
   char file_dens[100];
   char fl_phonon[100];
+  char fl_output[100];
   char unidades[10];
   int debug;
   int lmin;

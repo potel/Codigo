@@ -26,12 +26,15 @@ complejo GeneraDW(distorted_wave* funcion,potencial_optico *v, double q1q2, doub
 		int puntos,double radio_match,ofstream* fp);
 complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* funcion_irregular,potencial_optico *v, double q1q2,
 		double masa, double radio_max,int puntos,double radio_match,double spin);
-void SChica(integrando_schica *integrando,int P,int la,int lc,complejo* schica_mas,complejo* schica_menos);
+void SChica(integrando_schica *integrando,int P,int la,int lc,complejo* schica_mas,complejo* schica_menos,
+                 complejo* nonort_mas,complejo* nonort_menos);
 complejo interpola_cmpx(complejo* funcion,double* r,double posicion,int puntos);
 double interpola(vec funcion,vec r,double posicion);
 double interpola_dbl(double* funcion,double* r,double posicion,int puntos);
 double AcoplamientoAngular(int l1,int l2,int l3,int l4,int K,double coseno1,double coseno2,double coseno3);
-void SGrande(integrando_sgrande *integrando,int K,int P,int la,int lb,int lc,complejo* sgrande_mas,complejo* sgrande_menos);
+void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* sgrande_mas,
+             complejo* sgrande_menos,complejo* nonort_menos,complejo* nonort_mas
+             ,complejo* nonort_chica_menos,complejo* nonort_chica_mas);
 int LeeMatrizCoeficientes(const char *fname,double** anm,int dimension);
 void ReadParS(char *s,const char key[20], char *par);
 int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,FILE* fp);
@@ -41,8 +44,8 @@ void PotencialEfectivo(struct parametros* parm,double* dnsty,double* poteff);
 int LeeEstados(char *s,const char key[100],estado* st,FILE* fp);
 void TwoTrans(struct parametros* parm);
 void InicializaTwoTrans(struct parametros* parm);
-void Successive(struct parametros *parm,complejo*** Clalb);
-void Successive(struct parametros *parm,complejo*** Clalb,phonon* Gamma);
+void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb);
+void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,phonon* Gamma);
 void GeneraPotencialOptico(struct parametros *parm,struct potencial_optico *potencial,double m1,double m2);
 double ClebsGordan(float l1,float m1,float l2,float m2,float J,float M);
 void GeneraFormFactor(struct parametros *parm);
@@ -100,7 +103,7 @@ void MatrizSFolding(complejo* S,parametros *parm,double* thick1,double* thick2,d
 		double N1,double N2,double Z1,double Z2,ofstream* fp);
 void MatrizSFoldingNucleon(complejo* Sn,parametros *parm,double radio
 		,double dif,double N1,double N2,double Z1,double Z2,ofstream* fp);
-void SuccessiveTipoLi(struct parametros *parm,complejo*** Clalb);
+void SuccessiveTipoLi(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb);
 int LeeDiagrama(const char *fname,double** anm,estado* st,int numero_estados);
 complejo FuncionF(complejo* Sn,double b,estado* st1,estado* st2,int k,int q,parametros *parm);
 double WRacah(float j1,float j2,float j5,float j4,float j3,float j6);
@@ -124,6 +127,7 @@ void GeneraCoordenadasOneTrans(parametros *parm_rec, coordenadas_onept* coords,
 complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, double masa,double radio_max,
 		int puntos,double radio_match,ofstream* fp);
 void AmplitudOneTransSpinless(parametros *parm,complejo ***T);
+void AmplitudOneTransSpinless(parametros *parm,complejo ***T,phonon* Gamma);
 void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K);
 void CrossSectionOneTransSpinless(complejo ***Tlalb,complejo* Sel,struct parametros *parm,
 		struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f);
@@ -245,3 +249,7 @@ complejo FuncionAngular2(int lp,int ld,int l,double costheta, double costheta_d)
 void CrossSectionRadTrans(complejo ***Tlalb,complejo* Sel,struct parametros *parm,
                           struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f,double Egamma,double Ep);
 void DecayRate();
+double wig9j(double a,double b,double c, double d, double e, double f, double g, double h, double z);
+double wig6j(double a,double b,double c, double d, double e, double f);
+double fact(int n);
+int fail3(double x,double y,double z);

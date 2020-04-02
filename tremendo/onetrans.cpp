@@ -26,6 +26,7 @@ void OneTrans(struct parametros* parm)
   complejo*** TSpinless;
   complejo* dumb_pot=new complejo[1];
   potencial_optico*  dumb_pot_opt=new potencial_optico[1];
+  phonon* Gamma;
   TSpinless=tensor_cmpx(parm->lmax,parm->lmax,20);
   Tlalb=tensor5_cmpx(10,parm->lmax,parm->lmax,3,3);
   InicializaOneTrans(parm);
@@ -53,6 +54,7 @@ void OneTrans(struct parametros* parm)
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_core]),parm->m_A,parm->m_b);
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_A,parm->m_b);
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_scatt]),parm->m_A,parm->m_b);
+  if(parm->phonon) Gamma=new phonon(parm->fl_phonon,parm->m_B/(1.+parm->m_B),parm->Z_B,&(parm->pot[indx_pot_B]),parm->radio,parm->puntos,parm);
   cout<<"Generando el estado del nucleo a"<<endl;
   /* Genera niveles del n�cleo 'a' */
   for (n=0;n<parm->a_numst;n++)
@@ -93,7 +95,8 @@ void OneTrans(struct parametros* parm)
   //exit(0);
   //	AmplitudOneTrans(parm,Tlalb);
   //	CrossSectionOneTrans(Tlalb,parm,parm->st[indx_st].l);
-  AmplitudOneTransSpinless(parm,TSpinless);
+  if (parm->phonon==0) AmplitudOneTransSpinless(parm,TSpinless);
+  if (parm->phonon==1) AmplitudOneTransSpinless(parm,TSpinless,Gamma);
 }
 void InicializaOneTrans(struct parametros* parm)
 {
@@ -1048,6 +1051,9 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
                   T[la][lb][K]+=c1*sqrt(2.*lb+1.)*sqrt(2.*la+1.)*fase*intk->inicial_st->spec*intk->final_st->spec*
                     exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb]*factor*(*Ij);
                   // if(la==lb) misc3<<la<<"   "<<abs(*Ij)<<endl;
+                  //cout<<c1<<"  "<<sqrt(2.*lb+1.)*sqrt(2.*la+1.)*fase*intk->inicial_st->spec*intk->final_st->spec*
+                  //exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb]<<"  "<<factor<<"  "<<(*Ij);
+                    //exit(0);
 				}
 			}
 		}
@@ -1056,16 +1062,10 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 	{
 		for(la=0;la<parm->lmax;la++)
 		{
-          //cout<<la<<"  "
-          //misc4<<la<<"  "<<real(T[la][la][K])<<"  "<<imag(T[la][la][K])
-          //  <<"  "<<abs(T[la][la][K])<<endl;
-          // misc4<<la<<"  "<<real(T[la][la][0])<<"  "<<imag(T[la][la][0])
-          //      <<"  "<<abs(T[la][la][0])<<endl;
           for(lb=0;lb<parm->lmax;lb++)
 			{
-              //misc4<<la<<"  "<<lb<<"  "<<K<<"  "<<abs(T[la][lb][K])<<endl;
+              fp<<la<<"  "<<lb<<"  "<<K<<"  "<<real(T[la][lb][K])<<"  "<<imag(T[la][lb][K])<<endl;
 			}
-          //T[la][la][0]=sqrt(2.*la+1.);
 		}
 	}
 	//CrossSectionOneTransSpinless(T,S,parm,intk->inicial_st,intk->final_st,exp_delta_coulomb_i,exp_delta_coulomb_f);
@@ -1078,6 +1078,240 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 	delete[] dim2;
 	delete[] coords;
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+  One-particle transfer amplitude to a collective state (phonon version)
+*/
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void AmplitudOneTransSpinless(parametros *parm,complejo ***T,phonon* Gamma)
+{
+  complejo* Ij=new complejo[1];
+  double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
+  double eta_i=parm->eta;
+  complejo c1,c1p,c1h,fase,c2;
+  integrando_onept *intk=new integrando_onept;
+  distorted_wave *dumbdw=new distorted_wave[1];
+  parametros_integral *dim1=new parametros_integral;
+  parametros_integral *dim2=new parametros_integral;
+  parametros_integral *dim3=new parametros_integral;
+  coordenadas_onept *coords=new coordenadas_onept;
+  potencial_optico *optico=new potencial_optico;
+  potencial_optico *core=new potencial_optico;
+  estado* particle=new estado;
+  estado* hole=new estado;
+  complejo* S=new complejo[parm->lmax];
+  complejo* exp_delta_coulomb_i=new complejo[parm->lmax];
+  complejo* exp_delta_coulomb_f=new complejo[parm->lmax];
+  complejo* trial=new complejo[parm->puntos];
+  double* r=new double[parm->puntos];
+  if (!intk) Error("No se pudo reservar memoria para intk");
+  if (!coords) Error("No se pudo reservar memoria para coords");
+  ofstream fp(parm->fl_amplitudes);
+  ofstream fp_output(parm->fl_output);
+  ofstream fp1("some_dw.txt");
+  ofstream fp2(parm->fl_dw);
+  ofstream fp4("dw_out.txt");
+  ofstream fp3("dw_in.txt");
+  int la,lb,ln,lnp,m,n,indx_st,indx_ingreso,indx_salida,indx_core,indx_transfer;
+  int mb,mbp,st_a,st_B,Kmax1,Kmin1,Kmax,Kmin,K,sptrans;
+  double energia_aA,energia_bB,cos_b,factor,q,absorcion;
+  complejo integral,suma;
+  complejo* fourier=new complejo[1];
+  ofstream fp9;
+  fp9.open("dsdE.txt", std::ios_base::app);
+  double epsilon_i,epsilon_k,Gamma_lambda,homega_lambda,Omega_lambda,tau,Phi,damping,L,modalpha,totalcross;
+  epsilon_i=0.07;  
+  epsilon_k=-0.5;
+  Gamma_lambda=0.5;
+  homega_lambda=3.5;
+  L=10.;
+  Omega_lambda=abs(epsilon_i-homega_lambda-epsilon_k);
+  //for (parm->energia_lab=0.001;parm->energia_lab<50;parm->energia_lab+=0.0005)
+  //{
+  tau=(L/HC)*sqrt(AMU/(parm->energia_lab));
+  Phi=Omega_lambda*tau;
+  damping=Gamma_lambda*tau;
+  //        modalpha=(1.+exp(-2.*damping)-2.*exp(-2.*damping)*cos(Phi))/(Omega_lambda*Omega_lambda+Gamma_lambda*Gamma_lambda);
+  modalpha=(1.+exp(-2.*damping)-2.*exp(-2.*damping)*cos(Phi));
+  misc1<<parm->energia_lab<<"  "<<modalpha<<"  "<<(damping)<<"  "<<Phi<<"  "<<tau<<"  "<<cos(Phi)<<endl;
+  //    }
+  //exit(0);
+  factor=32.*sqrt(2.*parm->n_spin+1.)*pow(PI,3)/((parm->k_Aa)*(parm->k_Bb));
+  cout<<"Masa reducida entrante: "<<parm->mu_Aa<<", masa reducida saliente: "<<parm->mu_Bb<<endl;
+  cout<<"  Momentos-> KaA: "<<parm->k_Aa<<",   KbB: "<<parm->k_Bb<<endl;
+  //cout    <<" factor: "<<factor<<endl;
+  //exit(0);
+  /*Par�metros num�ricos para la integral */
+  intk->dim1=dim1;
+  intk->dim2=dim2;
+  intk->dim3=dim3;
+  intk->coords=coords;
+  intk->dim1->a=parm->r_Ccmin;
+  intk->dim1->b=parm->r_Ccmax;
+  intk->dim1->num_puntos=parm->rCc_puntos;
+  intk->dim2->a=parm->r_A2min;
+  intk->dim2->b=parm->r_A2max;
+  intk->dim2->num_puntos=parm->rA2_puntos;
+  intk->dim3->a=0.;
+  intk->dim3->b=PI;
+  intk->dim3->num_puntos=parm->theta_puntos;
+  GaussLegendre(intk->dim1->puntos,intk->dim1->pesos,intk->dim1->num_puntos);
+  GaussLegendre(intk->dim2->puntos,intk->dim2->pesos,intk->dim2->num_puntos);
+  GaussLegendre(intk->dim3->puntos,intk->dim3->pesos,intk->dim3->num_puntos);
+  GeneraCoordenadasOneTrans(parm,coords,intk->dim1,intk->dim2,intk->dim3);
+
+
+  /*Selecciona los potenciales opticos en los distintos canales*/
+  for (n=0;n<parm->num_opt;n++)
+	{
+      if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
+      if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
+      if(parm->core_pot==parm->pot_opt[n].id) indx_core=n;
+	}
+  intk->faA[0].pot=&(parm->pot_opt[indx_ingreso]);
+  /*Selecciona el potencial de transfer*/
+  for(n=0;n<parm->num_cm;n++)
+	{
+      if(parm->pot_transfer==parm->pot[n].id) {intk->pot=&(parm->pot[n]);indx_transfer=n;}
+	}
+  intk->core=core;
+  intk->opt=optico;
+  cout<<"Energia de centro de masa: "<<parm->energia_cm<<endl;
+  intk->prior=parm->prior;
+  intk->remnant=parm->remnant;
+  /*Calculo de las amplitudes de transferencia**************************************************************************/
+  for(n=0;n<parm->num_st;n++)
+	{
+      //		cout<<n<<"  "<<"parm->num_st: "<<parm->num_st<<"  st_a: "<<st_a<<endl;
+      if (parm->a_estados[0] == parm->st[n].id) intk->inicial_st = &(parm->st[n]);
+      if (parm->B_estados[0] == parm->st[n].id) intk->final_st = &(parm->st[n]);
+	}
+  for(la=0;la<parm->lmax;la++)
+	{
+      exp_delta_coulomb_i[la]=exp(I*(deltac(la,eta_i)));
+      exp_delta_coulomb_f[la]=exp(I*(deltac(la,eta_f)));
+	}
+  if(parm->remnant==0) {
+    intk->core=&parm->pot_opt[indx_core];
+    intk->opt=&parm->pot_opt[indx_salida];
+  }
+
+  Kmax=(intk->final_st->l+intk->inicial_st->l);
+  Kmin=abs(intk->final_st->l-intk->inicial_st->l);
+  c2=1.;
+  if(parm->remnant==1 && parm->prior==1) {
+    GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_core],parm->Z_A*parm->Z_a,parm->Z_A*parm->Z_a
+                  ,0.,0.,parm->mu_Aa,1.);
+  }
+  if(parm->remnant==1 && parm->prior==0) {
+    GeneraRemnant(optico,core,&parm->pot_opt[indx_salida],&parm->pot_opt[indx_core],parm->Z_A*parm->Z_a,parm->Z_A*parm->Z_a
+                  ,0.,0.,parm->mu_Bb,1.);
+  }
+  for(sptrans=0;sptrans<Gamma->n_transitions;sptrans++)
+    {
+      for (n = 0; n <Gamma->n_states; n++)
+        {
+          if (Gamma->particle[sptrans]==Gamma->st[n].id)
+            {
+              particle = &(Gamma->st[n]);
+            }
+          if (Gamma->hole[sptrans]==Gamma->st[n].id) 
+            {
+              hole = &(Gamma->st[n]);
+            }
+        }
+      fp_output<<"transition: "<<sptrans<<
+        "  hole (N,l,j,e): "<<hole->id<<"  "<<hole->l<<"  "<<hole->j<<"  "<<hole->energia<<"  "<<
+        "  particle (N,l,j,e): "<<particle->id<<"  "<<particle->l<<"  "<<particle->j<<"  "<<particle->energia<<endl;
+      Kmax1=(particle->l+intk->inicial_st->l);
+      Kmin1=abs(particle->l-intk->inicial_st->l);
+      Kmax=(hole->l+intk->inicial_st->l);
+      Kmin=abs(hole->l-intk->inicial_st->l);
+      if(Kmax1>Kmax) Kmax=Kmax1;
+      if(Kmin1<Kmin) Kmin=Kmin1;
+      if(Gamma->X[sptrans]!=0. || Gamma->Y[sptrans]!=0.)
+        {
+
+          for(la=0;la<parm->lmax;la++)
+            {
+              //cout<<"la: "<<la<<endl;
+              intk->la=la;
+              //distorted wave en el canal de entrada con spin up (entrante[0]) y spin down (entrante[1])
+              intk->faA[0].energia=parm->energia_cm;
+              intk->faA[0].l=la;
+              intk->faA[0].spin=0.;
+              intk->faA[0].j=la;
+              S[la]=GeneraDWspin(&(intk->faA[0]),&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,
+                                 parm->radio,parm->puntos,parm->matching_radio,&fp3);
+              S[la]=exp(2.*I*S[la]);
+              for(K=Kmin;K<=Kmax;K++)
+                {
+                  //cout<<particle->l<<"  "<<particle->j<<"  "<<intk->inicial_st->l<<"  "<<intk->inicial_st->j<<"  "<<K<<endl;
+                  c1p=Wigner9j(particle->l,parm->n_spin,particle->j,intk->inicial_st->l,parm->n_spin,intk->inicial_st->j,K,0,K)/
+					(2.*K+1.);
+                  c1h=Wigner9j(hole->l,parm->n_spin,hole->j,intk->inicial_st->l,parm->n_spin,intk->inicial_st->j,K,0,K)/
+					(2.*K+1.);
+                  //cout<<hole->l<<"  "<<hole->j<<"  "<<intk->inicial_st->l<<"  "<<intk->inicial_st->j<<"  "<<K<<endl;
+                  //cout<<"  "<<c1p<<"  "<<c1h<<endl;
+                  //cout<<"c1: "<<c1<<endl;
+                  for(lb=abs(la-K);lb<=la+K && lb<parm->lmax;lb++)
+                    {
+                      intk->lb=lb;
+                      //cout<<"lb: "<<lb<<endl;
+                      /* distorted wave en el canal de salida con spin up (saliente[0]) y spin down (saliente[1]) */
+                      intk->fbB[0].energia=parm->energia_cm+parm->Qvalue;
+                      intk->fbB[0].l=lb;
+                      intk->fbB[0].spin=0.;
+                      intk->fbB[0].j=lb;
+                      if(lb==0) intk->fbB[0].j=intk->fbB[0].spin;
+                      GeneraDWspin(&(intk->fbB[0]),&(parm->pot_opt[indx_salida]),parm->Z_A*parm->Z_a,parm->mu_Bb,
+                                   parm->radio,parm->puntos,parm->matching_radio,&fp4);
+                      //if((intk->final_st->spec)!=0. && (intk->inicial_st->spec)!=0.)
+                      //{
+                      fase=pow(I,la-lb);
+                      intk->final_st=particle;
+                      IntegralOneTransSpinless(intk,Ij,K);
+                      T[la][lb][K]+=c1p*sqrt(2.*lb+1.)*sqrt(2.*la+1.)*fase*intk->inicial_st->spec*Gamma->X[sptrans]*
+                        exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb]*factor*(*Ij);
+                      intk->final_st=hole;
+                      IntegralOneTransSpinless(intk,Ij,K);
+                      T[la][lb][K]+=c1h*sqrt(2.*lb+1.)*sqrt(2.*la+1.)*fase*intk->inicial_st->spec*Gamma->Y[sptrans]*
+                        exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb]*factor*(*Ij);
+                      // if(la==lb) misc3<<la<<"   "<<abs(*Ij)<<endl;
+                      //misc1<<c1p<<"  "<<c1h<<"  "<<sqrt(2.*lb+1.)*sqrt(2.*la+1.)<<"  "<<fase<<"  "<<intk->inicial_st->spec<<"  "<<Gamma->Y[sptrans]<<"  "<<
+                      //exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb]*factor<<"  "<<(*Ij)<<endl;
+                      //exit(0);
+                      //}
+                    }
+                }
+            }
+        }
+    }
+  for(K=Kmin;K<=Kmax;K++)
+	{
+      for(la=0;la<parm->lmax;la++)
+		{
+          for(lb=0;lb<parm->lmax;lb++)
+			{
+              fp<<la<<"  "<<lb<<"  "<<K<<"  "<<real(T[la][lb][K])<<"  "<<imag(T[la][lb][K])<<endl;
+			}
+		}
+	}
+  //CrossSectionOneTransSpinless(T,S,parm,intk->inicial_st,intk->final_st,exp_delta_coulomb_i,exp_delta_coulomb_f);
+  totalcross=CrossSectionOneTransSpinless(T,parm,intk->inicial_st,intk->final_st,exp_delta_coulomb_i,exp_delta_coulomb_f);
+  fp9<<parm->energia_lab<<"  "<<modalpha<<"  "<<totalcross<<"  "<<modalpha*totalcross<<endl;
+  delete[] Ij;
+  delete[] intk;
+  delete[] dim1;
+  delete[] dim3;
+  delete[] dim2;
+  delete[] coords;
+}
+
+
+
+
+
 /*****************************************************************************
 Coordenadas del integrando para el calculo del 1pt
  *****************************************************************************/
