@@ -1223,6 +1223,7 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T,phonon* Gamma)
       fp_output<<"transition: "<<sptrans<<
         "  hole (N,l,j,e): "<<hole->id<<"  "<<hole->l<<"  "<<hole->j<<"  "<<hole->energia<<"  "<<
         "  particle (N,l,j,e): "<<particle->id<<"  "<<particle->l<<"  "<<particle->j<<"  "<<particle->energia<<endl;
+      cout<<"transition: "<<sptrans<<"\n";
       Kmax1=(particle->l+intk->inicial_st->l);
       Kmin1=abs(particle->l-intk->inicial_st->l);
       Kmax=(hole->l+intk->inicial_st->l);
@@ -1234,7 +1235,7 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T,phonon* Gamma)
 
           for(la=0;la<parm->lmax;la++)
             {
-              //cout<<"la: "<<la<<endl;
+              cout<<"la: "<<la<<endl;
               intk->la=la;
               //distorted wave en el canal de entrada con spin up (entrante[0]) y spin down (entrante[1])
               intk->faA[0].energia=parm->energia_cm;

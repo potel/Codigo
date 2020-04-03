@@ -5305,6 +5305,15 @@ phonon::phonon(const char fp[100],double mass,double charge,potencial* pot,doubl
       count++;
       //if (nfunctions==2) exit(0);
     }
+  for (n=0;n<nfunctions;n++)
+    {
+      for (nr=0;nr<parm->puntos;nr++)
+        {
+          r=deltar*(nr+1);
+          st[n].r[nr]=r;
+          st[n].wf[nr]=interpola(radial_wf[n],rad,r)/r;
+        }
+    }
   count=0;
   flag=getline(fp_phonon,line);
   Xtot=0.;
@@ -5322,8 +5331,6 @@ phonon::phonon(const char fp[100],double mass,double charge,potencial* pot,doubl
          ,&tz,&Nh,&lh,&jhint,&eh,&Np,&lp,&jpint,&ep,&Xph,&Yph,&Eph);
       jh=double(jhint/2.);
       jp=double(jpint/2.);
-      //misc1<<line<<endl;
-      //misc1<<"       "<<tz<<"  "<<Nh<<"  "<<lh<<"  "<<jh<<"  "<<eh<<"  "<<Np<<"  "<<lp<<"  "<<jp<<"  "<<ep<<"  "<<Xph<<"  "<<Yph<<"  "<<Eph<<endl<<endl;
       // Enrico format
       //sscanf(line.c_str(),"%d %d %lf %d %lf %d %lf %lf %lf"
       //     ,&ntrans,&lh,&jh,&Nh,&eh,&Np,&ep,&Xph,&Yph);
@@ -5354,11 +5361,15 @@ phonon::phonon(const char fp[100],double mass,double charge,potencial* pot,doubl
               misc4<<" Transition number "<<ntrans<<"  l: "<<lh<<"   j: "<<jh<<"   Nh: "<<Nh<<"   Eh: "<<eh<<"   Np: "<<Np<<"   Ep:"<<ep<<"   X: "<<Xph<<"   Y: "<<Yph<<endl;
             }
         }
-      // Xph=0.;
-      // Yph=0.;
-      // if (count==37) Xph=1.;
       X.push_back(Xph);
       Y.push_back(real(phase)*Yph);
+      if(eh>ep)
+        {
+          swap(ep,eh);
+          swap(Nh,Np);
+          swap(lh,lp);
+          swap(jh,jp);
+        } 
       energy_h.push_back(eh);
       energy_p.push_back(ep);
       hole.push_back(Nh);
@@ -5380,15 +5391,17 @@ phonon::phonon(const char fp[100],double mass,double charge,potencial* pot,doubl
       st[Np-1].energia=ep;
       st[Np-1].l=lp;
       st[Np-1].j=jp;
-      for (nr=0;nr<parm->puntos;nr++)
-        {
-          r=deltar*(nr+1);
-          st[Nh-1].r[nr]=r;
-          st[Nh-1].wf[nr]=interpola(radial_wf[Nh-1],rad,r)/r;
-          st[Np-1].r[nr]=r;
-          st[Np-1].wf[nr]=interpola(radial_wf[Np-1],rad,r)/r;
-          //  misc1<<st[Nh-1].r[nr]<<"  "<<real(st[Np-1].wf[nr])<<"  "<<real(st[Nh-1].wf[nr])<<"\n";
-        }
+      // misc1<<"  ***** Nh: "<<Nh<<"  ***** Np: "<<Np<<endl;
+      // for (nr=0;nr<parm->puntos;nr++)
+      //   {
+      //     r=deltar*(nr+1);
+      //     st[Nh-1].r[nr]=r;
+      //     st[Nh-1].wf[nr]=interpola(radial_wf[Nh-1],rad,r)/r;
+      //     st[Np-1].r[nr]=r;
+      //     st[Np-1].wf[nr]=interpola(radial_wf[Np-1],rad,r)/r;
+      //     //if(Nh==11) cout<<"quillo!: "<<st[Nh-1].wf[nr]<<endl;
+      //     misc1<<st[Nh-1].r[nr]<<"  "<<real(st[Np-1].wf[nr])<<"  "<<real(st[Nh-1].wf[nr])<<"\n";
+      //   }
       count++;
       flag=getline(fp_phonon,line);
     }
@@ -5417,6 +5430,7 @@ phonon::phonon(const char fp[100],double mass,double charge,potencial* pot,doubl
         {
           //cout<<" state: "<<m<<endl;
           fp_st<<"  "<<real(st[m].wf[n])*st[0].r[n];
+          //cout<<"  "<<real(st[m].wf[n])*st[0].r[n];
           if (st[0].r[n]>r_cutoff) st[m].wf[n]=0.;
         }
       fp_st<<endl;
@@ -5429,7 +5443,7 @@ phonon::phonon(const char fp[100],double mass,double charge,potencial* pot,doubl
     {
 		fpen<<"  "<<m<<"..........."<<" "<<st[m].l<<"..........."<<" "<<st[m].j<<"..........."<<st[m].energia<<endl;
     }
-  //exit(0);
+  //  exit(0);
 }
 
 
