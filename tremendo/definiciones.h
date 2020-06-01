@@ -127,12 +127,14 @@ void GeneraCoordenadasOneTrans(parametros *parm_rec, coordenadas_onept* coords,
 complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, double masa,double radio_max,
 		int puntos,double radio_match,ofstream* fp);
 void AmplitudOneTransSpinless(parametros *parm,complejo ***T);
-void AmplitudOneTransSpinless(parametros *parm,complejo ***T,phonon* Gamma);
+void AmplitudOneTransSpinless(parametros *parm,phonon* Gamma);
 void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K);
 void CrossSectionOneTransSpinless(complejo ***Tlalb,complejo* Sel,struct parametros *parm,
 		struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f);
 double CrossSectionOneTransSpinless(complejo ***Tlalb,struct parametros *parm,
 		struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f);
+double CrossSectionOneCollective(complejo ****Tlalb,struct parametros *parm,
+                                 complejo *fase_coulomb_i,complejo *fase_coulomb_f);
 void FileDens(double* densidad,double* thick,double radio_max,int puntos,double A,char* file_dens);
 void  fcoul(double* theta,complejo* fc,double etac,int pts,double k);
 void File2Smatrix(complejo *S,const char[]);
@@ -253,3 +255,5 @@ double wig9j(double a,double b,double c, double d, double e, double f, double g,
 double wig6j(double a,double b,double c, double d, double e, double f);
 double fact(int n);
 int fail3(double x,double y,double z);
+void BecchettiGreelees(double E,double N,double Z);
+void DaehnickPotential(double E,double N,double Z);
