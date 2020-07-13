@@ -51,6 +51,7 @@ double ClebsGordan(float l1,float m1,float l2,float m2,float J,float M);
 void GeneraFormFactor(struct parametros *parm);
 void GeneraPotencialCM(struct parametros *parm,struct potencial *potencial);
 void CrossSection(complejo ***Csucc,complejo ***Csim,complejo ***Cnon,struct parametros *parm);
+void CrossSection(complejo ***Csucc,struct parametros *parm);
 complejo*** tensor_cmpx(int dim1,int dim2,int dim3);
 double Wigner9j(float j1,float j2,float j12,float j3,float j4,float j34,float j13,float j24,float j);
 double deltac(int l,double etac);
@@ -257,3 +258,8 @@ double fact(int n);
 int fail3(double x,double y,double z);
 void BecchettiGreelees(double E,double N,double Z);
 void DaehnickPotential(double E,double N,double Z);
+void NuclearJosephson(struct parametros *parm,complejo*** Clalb);
+void SJosephson(integrando_sgrande *integrando,int K,int P,int la,int lb,int lc,complejo* sgrande_mas,
+                complejo* sgrande_menos,parametros *parm);
+double AngularMomentumCoupling(int l1,int l2,int J,int M,double cos1,double cos2);
+void NuclearJo(struct parametros* parm);

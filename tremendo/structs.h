@@ -334,6 +334,7 @@ struct parametros {
   int num_opt;
   int id_pot_dens;
   int two_trans;
+  int nuclear_josephson;
   int capture;
   int cluster_inelastic;
   int one_trans;
