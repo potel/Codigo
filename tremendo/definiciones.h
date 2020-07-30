@@ -27,14 +27,14 @@ complejo GeneraDW(distorted_wave* funcion,potencial_optico *v, double q1q2, doub
 complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* funcion_irregular,potencial_optico *v, double q1q2,
 		double masa, double radio_max,int puntos,double radio_match,double spin);
 void SChica(integrando_schica *integrando,int P,int la,int lc,complejo* schica_mas,complejo* schica_menos,
-                 complejo* nonort_mas,complejo* nonort_menos);
+            complejo* nonort_mas,complejo* nonort_menos,parametros *parm);
 complejo interpola_cmpx(complejo* funcion,double* r,double posicion,int puntos);
 double interpola(vec funcion,vec r,double posicion);
 double interpola_dbl(double* funcion,double* r,double posicion,int puntos);
 double AcoplamientoAngular(int l1,int l2,int l3,int l4,int K,double coseno1,double coseno2,double coseno3);
 void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* sgrande_mas,
-             complejo* sgrande_menos,complejo* nonort_menos,complejo* nonort_mas
-             ,complejo* nonort_chica_menos,complejo* nonort_chica_mas);
+             complejo* sgrande_menos,complejo* nonort_mas,complejo* nonort_menos,
+             complejo* nonort_chica_mas,complejo* nonort_chica_menos,parametros *parm);
 int LeeMatrizCoeficientes(const char *fname,double** anm,int dimension);
 void ReadParS(char *s,const char key[20], char *par);
 int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,FILE* fp);
@@ -263,3 +263,5 @@ void SJosephson(integrando_sgrande *integrando,int K,int P,int la,int lb,int lc,
                 complejo* sgrande_menos,parametros *parm);
 double AngularMomentumCoupling(int l1,int l2,int J,int M,double cos1,double cos2);
 void NuclearJo(struct parametros* parm);
+void QuickShape(integrando_sgrande *integrando,complejo* sgrande_mas,distorted_wave *indw);
+potencial_optico AddCoulomb(const potencial_optico &v,double q1q2);

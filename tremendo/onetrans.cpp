@@ -1015,8 +1015,8 @@ void AmplitudOneTrans(parametros *parm,complejo *****T)
 	delete[] coords;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/* C�lculo de la secci�n eficaz de knockout. La amplitud T[ma][map][mbp] depende de las polarizaciones iniciales y finales de las
- * part�culas a, b. Los �ndices son tales que ma=0->ma=-1/2, ma=1->ma=1/2, etc.
+/* 
+ * One particle transfer amplitude
 */
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
@@ -1524,7 +1524,6 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
   for (n2 = 0; n2 < integrando->dim2->num_puntos; n2++) {
     r_An = (integrando->dim2->a)+((integrando->dim2->b)-(integrando->dim2->a))*((integrando->dim2->puntos[n2])+1.)/2.;
     estado_final=interpola_cmpx(integrando->final_st->wf,integrando->final_st->r,r_An,integrando->final_st->puntos);
-    if(integrando->lb==0) misc4<<r_An;
     if(integrando->prior==1) potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,r_An,integrando->pot->puntos);
     for (n1 = 0; n1 < integrando->dim1->num_puntos; n1++) {
       r_bB = (integrando->dim1->a)+((integrando->dim1->b)-(integrando->dim1->a))*((integrando->dim1->puntos[n1])+1.)/2.;
@@ -1562,7 +1561,6 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
         *Ij+=kernel;
       }
     }
-    if(integrando->lb==0) misc4<<"  "<<abs(*Ij)*abs(*Ij)<<"\n";
   }
   *Ij*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;

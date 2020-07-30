@@ -47,6 +47,50 @@ class potencial_optico {
   double aWd;
   double radioWd;
   potencial_optico() {};
+  potencial_optico operator+(const potencial_optico &v)
+  {
+    potencial_optico res;
+    int n;
+    res.puntos=puntos;
+    res.radio=radio;
+    if (puntos!=v.puntos)
+      { 
+        cout<<"Trying to sum potentials with different lengths"<<endl;
+        exit(0);
+      }
+    for(n=0;n<puntos;n++)
+      {
+        res.r[n]=r[n];
+        res.pot[n]=pot[n]+v.pot[n];
+      }
+    return res;
+  }
+  potencial_optico operator-(const potencial_optico &v)
+  {
+    potencial_optico res;
+    int n;
+    res.puntos=puntos;
+    res.radio=radio;
+    if (puntos!=v.puntos)
+      { 
+        cout<<"Trying to substract potentials with different lengths"<<endl;
+        exit(0);
+      }
+    for(n=0;n<puntos;n++)
+      {
+        res.r[n]=r[n];
+        res.pot[n]=pot[n]-v.pot[n];
+      }
+    return res;
+  }
+  void AddCoulomb(double q1q2)
+  {
+    int n;
+    for (n=0;n<puntos;n++) {
+      if(r[n]>=radio_coul) pot[n]+=E_CUADRADO*q1q2/r[n];
+      if(r[n]<radio_coul) pot[n]+=E_CUADRADO*q1q2*(3.-(r[n]/radio_coul)* (r[n]/radio_coul))/(2.*radio_coul);
+	}
+  }
 };
 
 
@@ -407,6 +451,8 @@ struct integrando_schica{
   struct parametros_integral *dim1;
   struct parametros_integral *dim2;
   struct parametros_integral *dim3;
+  struct potencial_optico *pot_intermediate;
+  struct potencial_optico *pot_in;
   int prior;
 };
 
@@ -421,6 +467,8 @@ struct integrando_sgrande{
   struct parametros_integral *dim1;
   struct parametros_integral *dim2;
   struct parametros_integral *dim3;
+  struct potencial_optico *pot_intermediate;
+  struct potencial_optico *pot_out;
   int prior;
 };
 struct integrando_knock{
