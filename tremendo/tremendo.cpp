@@ -1448,7 +1448,7 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 	gsl_complex deltagsl;
 	gsl_sf_result F1,G1,F2,G2,Fp,Gp;
 	complejo *potencial=new complejo[puntos];
-	if (funcion_regular[0].energia < 0.) Error( "Niveles intermedios energ�ticamente prohibidos!");
+	if (funcion_regular[0].energia < 0.) Error( "Negative energy in GeneraGreenFunction");
 	delta_r=radio_max/double(puntos);
 	if(radio_match>radio_max-4.*delta_r) Error("Radio de matching demasiado grande en GeneraGreenFunction");
 	hbarx=HC*HC/(2.*AMU*masa);
@@ -1937,29 +1937,31 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
 void QuickShape(integrando_sgrande *integrando,complejo* sgrande_mas,distorted_wave *indw)
 {
   int n1;
-  double r_Cc,potencial,Q,q,mu,Egamma;
+  double r_Cc,potencial,Q,q,mu,Egamma,sigma;
   complejo flb_mas,estado_inicial,
     estado_final,incoming;
   *sgrande_mas=0.;
-  Q=(indw->energia-integrando->saliente[0].energia);
-  Egamma=Q+1.305;
+  Q=abs(indw->energia-integrando->saliente[0].energia);
+  Egamma=Q+2;
   cout<<"E in: "<<indw->energia<<"     E out: "<<integrando->saliente[0].energia
       <<"    E gamma: "<<Egamma<<"    Q: "<<Q<<endl;
-  mu=40.;
+  mu=1.;
   q=0.005*sqrt(2*mu*abs(Q));
+  sigma=5.;
   for (n1 = 0; n1 < integrando->dim1->num_puntos; n1++) {
     r_Cc = (integrando->dim1->a)+((integrando->dim1->b)-(integrando->dim1->a))*((integrando->dim1->puntos[n1])+1.)/2.;
         estado_inicial=interpola_cmpx(integrando->inicial_st->wf,integrando->inicial_st->r,
                               r_Cc,integrando->inicial_st->puntos);
     incoming=interpola_cmpx(indw->wf,indw->r,r_Cc,indw->puntos);
     potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,r_Cc,integrando->pot->puntos);
+    potencial=-exp(-r_Cc*rCc/(2.*sigma*sigma));
     estado_final=interpola_cmpx(integrando->final_st->wf,integrando->final_st->r,r_Cc,
                               integrando->final_st->puntos);
     flb_mas=interpola_cmpx(integrando->saliente[0].wf,integrando->saliente[0].r,r_Cc,
                          integrando->saliente[0].puntos);
-    *sgrande_mas+=((r_Cc*r_Cc*r_Cc*potencial*estado_final*estado_inicial*incoming*flb_mas))*
-      (integrando->dim1)->pesos[n1];
-    //*sgrande_mas+=potencial*(cos(q*r_Cc))*(integrando->dim1)->pesos[n1];
+    //*sgrande_mas+=((r_Cc*r_Cc*r_Cc*potencial*estado_final*estado_inicial*incoming*flb_mas))*
+    //(integrando->dim1)->pesos[n1];
+    *sgrande_mas+=potencial*(sin(q*r_Cc))*(integrando->dim1)->pesos[n1];
   }
   //    exit(0);
   *sgrande_mas*=((integrando->dim1)->b-(integrando->dim1)->a)/2.;
@@ -2947,17 +2949,17 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
   Qmax=parm->Qvalue;
   Qmax_int=parm->int_Qvalue;
   gamma_max=parm->Qvalue+parm->energia_cm;
-  gamma_max=15.;
+  //gamma_max=15.;
   cout<<"Q-value: "<<parm->Qvalue<<endl;
   delta_e=0.1;
   gamma_energy=parm->Qvalue;
   //parm->mu_Aa=1000;
   //parm->mu_Bb=1000;
   cout<<"Mass: "<<parm->mu_Aa<<",  "<<parm->mu_Bb<<endl;
-  for(gamma_energy=-5.;gamma_energy<gamma_max;gamma_energy+=delta_e)
+  for(gamma_energy=0.;gamma_energy<gamma_max;gamma_energy+=delta_e)
     {      
       parm->Qvalue=Qmax-gamma_energy;
-      parm->int_Qvalue=Qmax_int-gamma_energy;
+      //parm->int_Qvalue=Qmax_int-gamma_energy;
       parm->k_Bb=sqrt(2.*parm->mu_Bb*AMU*(parm->energia_cm+parm->Qvalue))/HC;
       factor=qeff*1024*pow(PI,4.5)*parm->mu_Cc*AMU/(HC*HC*parm->k_Aa*parm->k_Cc*parm->k_Bb);
       heavy_density=parm->mu_Aa*parm->mu_Bb*AMU*AMU*parm->k_Bb/(4.*PI*PI*HC*HC*HC*HC*parm->k_Aa);
@@ -2965,7 +2967,7 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
       cout<<"E gamma: "<<gamma_energy<<"  Q-value: "<<parm->Qvalue<<endl;
       for(la=parm->lmin;la<parm->lmax;la++)
         {
-          //cout<<"la: "<<la<<endl;
+          cout<<"la: "<<la<<endl;
           exp_delta_coulomb_i=exp(I*(deltac(la,eta_i)));
           /* distorted wave en el canal de entrada con spin up (entrante[0]) y spin down (entrante[1]) */
           ints->entrante[0].energia=parm->energia_cm;
@@ -2977,7 +2979,7 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
           //exit(0);
           for(lb=abs(la-1);lb<=la+1 && lb<parm->lmax;lb++)
             {
-              //  cout<<"lb: "<<lb<<endl;
+              cout<<"lb: "<<lb<<endl;
               exp_delta_coulomb_f=exp(I*(deltac(lb,eta_f)));
               /* distorted wave en el canal de salida con spin up (saliente[0]) y spin down (saliente[1]) */
               intS->saliente[0].energia=parm->energia_cm+parm->Qvalue;
@@ -3016,12 +3018,14 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
                               for(P=abs((intS->final_st->l)-(ints->inicial_st->l));(P<=(intS->final_st->l)+(ints->inicial_st->l)) && (c2!=0.);P++)
                                 {
                                   c3=1./sqrt(2.*P+1.);
-                                  //                         cout<<"K: "<<K<<"  c2:"<<c2<<" *** P: "<<P<<"  c3:"<<c3<<"\n";
+                                  //cout<<"K: "<<K<<"  c2:"<<c2<<" *** P: "<<P<<"  c3:"<<c3<<"\n";
                                   for(lc=abs(la-K);(lc<=la+K) && (lc<parm->lmax);lc++)
                                     {
                                       c4=Wigner9j(la,lb,1,lc,lc,0.,P,K,1)*pow(2.*lc+1.,1.5);
+                                      
                                       if(c4!=0.)
                                         {
+                                          //cout<<c4<<"endl";
                                           /* funci�n de Green con spin up y spin down Energ�a corregida (factor adiab�tico)*/
                                           if(parm->adiabatico)
                                             {
@@ -3058,9 +3062,9 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
                                           GeneraGreenFunction(ints->funcion_regular,ints->funcion_irregular,&(parm->pot_opt[indx_intermedio]),
                                                               (parm->Z_A+parm->n1_carga)*(parm->Z_a-parm->n1_carga),parm->mu_Cc,parm->radio,
                                                               parm->puntos,parm->matching_radio,parm->n_spin);
-                                          if((intS->inicial_st->l+intS->final_st->l+lc+lb)%2==0)
+                                          //if((intS->inicial_st->l+intS->final_st->l+lc+lb)%2==0)
                                             {
-                                              //SChica(ints,K,la,lc,schica_mas,schica_menos,nonort_schica_mas,nonort_schica_menos);
+                                              //SChica(ints,K,la,lc,schica_mas,schica_menos,nonort_schica_mas,nonort_schica_menos,parm);
                                               if(la==lb) QuickShape(intS,sgrande_mas,&ints->entrante[0]);                                             
                                               //SJosephson(intS,K,P,la,lb,lc,sgrande_mas,sgrande_menos,parm);
                                               //cout<<"S:"<<abs(*sgrande_mas)<<endl;
@@ -3296,7 +3300,7 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
                             intS->final_st = &(Gamma->st[n]);
                             Qint_true=intS->inicial_st->energia-ints->final_st->energia;
                             int_energy=parm->energia_cm+Qint_true;
-                            if (int_energy<0.1) int_energy=0.1;
+                            if (int_energy<0.01) int_energy=0.01;
                             //Qtrue=2.*Qint_true;
                             //if(2.*Qtrue<-parm->energia_cm) Qtrue=-parm->energia_cm+0.1;
                             parm->k_Bb=sqrt(2.*parm->mu_Bb*AMU*(parm->energia_cm+Qtrue))/HC;
@@ -3313,7 +3317,7 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
                             intS->final_st = &(Gamma->st[n]);
                             Qint_true=intS->inicial_st->energia-ints->final_st->energia;
                             int_energy=parm->energia_cm+Qint_true;
-                            if (int_energy<0.1) int_energy=0.1;
+                            if (int_energy<0.01) int_energy=0.01;
                             //Qtrue=2.*Qint_true;
                             //if(2.*Qtrue<-parm->energia_cm) Qtrue=-parm->energia_cm+0.1;
                             parm->k_Bb=sqrt(2.*parm->mu_Bb*AMU*(parm->energia_cm+Qtrue))/HC;
@@ -6017,7 +6021,7 @@ phonon::phonon(const char fp[100],double mass,double charge,potencial* pot,doubl
   cout<<endl<<endl<<"*********************** Generating collective phonon  **********************\n";
   fp_output<<endl<<endl<<"*********************** Generating collective phonon  **********************"<<endl;
   threshold=1.;
-  en_threshold=40.;
+  en_threshold=5.;
   r_cutoff=28.;
   fp_output<<" Energy threshold: "<<en_threshold<<" MeV\n";
   fp_output<<" Radial cutoff: "<<r_cutoff<<" fm\n";
