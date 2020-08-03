@@ -1954,7 +1954,7 @@ void QuickShape(integrando_sgrande *integrando,complejo* sgrande_mas,distorted_w
                               r_Cc,integrando->inicial_st->puntos);
     incoming=interpola_cmpx(indw->wf,indw->r,r_Cc,indw->puntos);
     potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,r_Cc,integrando->pot->puntos);
-    potencial=-exp(-r_Cc*rCc/(2.*sigma*sigma));
+    potencial=-exp(-r_Cc*r_Cc/(2.*sigma*sigma));
     estado_final=interpola_cmpx(integrando->final_st->wf,integrando->final_st->r,r_Cc,
                               integrando->final_st->puntos);
     flb_mas=interpola_cmpx(integrando->saliente[0].wf,integrando->saliente[0].r,r_Cc,
