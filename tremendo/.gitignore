@@ -9,5 +9,4 @@
 !parametros.txt
 .project
 .cproject
-makefile
 *.o
