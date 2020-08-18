@@ -1382,7 +1382,8 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
   //<<"  Mass: "<<masa<<endl;
   for (i=0;i<puntos-1;i++) {
     //cout<<" hey: "<<i<<endl;
-    if(v->r[i]>=v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
+    if((v->r[i]>=v->radio_coul) && (v->r[i]<10.*v->radioV))
+      potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
                                  (funcion[0].l*(funcion[0].l+1.))*hbarx /(v->r[i]*v->r[i])
                                  -2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
                                  /((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
@@ -1390,7 +1391,7 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
                                 (funcion[0].l*(funcion[0].l+1.))*hbarx /(v->r[i]*v->r[i])
                                 -2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
                                 /((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
-    //misc3<<v->r[i]<<"  "<<real(v->pot[i])<<"  "<<real(potencial[i])<<endl;
+    if (v->r[i]>=10.*v->radioV) potencial[i]=E_CUADRADO*q1q2/v->r[i];
   }
   //exit(0);
   funcion->wf[0]=1.e-10;
@@ -1400,6 +1401,7 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
     funcion->wf[i+1]=(2.*(1.-0.416666667*dd*(-potencial[i]+funcion->energia))
                       *funcion->wf[i]-(1.+0.083333333*dd*(-potencial[i-1]+ funcion->energia))*funcion->wf[i-1])
       /(1.+0.083333333*dd*(-potencial[i+1]+funcion->energia));
+
   }
   // Calculo del desfase
   radio_1=radio_match;
@@ -1428,6 +1430,8 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
     if(status1 || status2) funcion->wf[i]=0.;
     //gsl_sf_coulomb_wave_FG_e(etac,q*funcion->r[i],funcion[0].l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
     *fp<<funcion->r[i]<<"  "<<real(funcion->wf[i]/funcion->r[i] )<<"  "<<imag(funcion->wf[i]/funcion->r[i] )<<"  "<<abs(funcion->wf[i]/funcion->r[i] )<<endl;
+    
+
     //    misc3<<funcion->r[i]<<"  "<<real(funcion->wf[i]/funcion->r[i] )<<"  "<<imag(funcion->wf[i]/funcion->r[i] )<<"  "<<abs(funcion->wf[i]/funcion->r[i] )<<endl;
   }
   //cout<<"nos vemos!"<<endl;
@@ -1633,6 +1637,7 @@ void SChica(integrando_schica *integrando,int P,int la,int lc,complejo* schica_m
   complejo* sumaPmas=new complejo[integrando->dim1->num_puntos];
   complejo* sumaPmenos=new complejo[integrando->dim1->num_puntos];
   complejo sum_nonort_mas,sum_nonort_menos;
+  //  cout<<"quillo! "<<endl;
   for (n1 = 0; n1 <integrando->dim1->num_puntos; n1++) {
     sum_nonort_mas=0.;
     sum_nonort_menos=0.;
@@ -1749,6 +1754,11 @@ complejo interpola_cmpx(complejo* funcion,double* r,double posicion,int puntos)
 //	misc1<<delta_r<<"  "<<idx<<"  "<<r[puntos-1]<<"  "<<r[puntos-2]<<endl;
 	if(idx>puntos-2) return funcion[puntos-1];
 	if(idx<1) return funcion[0];
+    if (isnan(abs(funcion[idx]+(funcion[idx+1]-funcion[idx])*(posicion-r[idx])/delta_r)))
+      {
+        cout<<delta_r<<"  "<<r[puntos-1]<<"  "<<idx<<"  "<<funcion[idx]<<"  "<<funcion[idx+1]<<endl;
+        Error("NaN in interpola_cmpx");
+      }
 	return (funcion[idx]+(funcion[idx+1]-funcion[idx])*(posicion-r[idx])/delta_r);
 }
 /*****************************************************************************
@@ -1959,14 +1969,14 @@ void QuickShape(integrando_sgrande *integrando,complejo* sgrande_mas,distorted_w
                               integrando->final_st->puntos);
     flb_mas=interpola_cmpx(integrando->saliente[0].wf,integrando->saliente[0].r,r_Cc,
                          integrando->saliente[0].puntos);
-    //*sgrande_mas+=((r_Cc*r_Cc*r_Cc*potencial*estado_final*estado_inicial*incoming*flb_mas))*
-    //(integrando->dim1)->pesos[n1];
-    *sgrande_mas+=potencial*(sin(q*r_Cc))*(integrando->dim1)->pesos[n1];
+    *sgrande_mas+=((r_Cc*r_Cc*r_Cc*potencial*estado_final*estado_inicial*incoming*flb_mas))*
+    (integrando->dim1)->pesos[n1];
+    //*sgrande_mas+=potencial*(sin(q*r_Cc))*(integrando->dim1)->pesos[n1];
   }
   //    exit(0);
   *sgrande_mas*=((integrando->dim1)->b-(integrando->dim1)->a)/2.;
-  misc2<<Egamma<<"  "<<Q<<"  "<<Egamma*Egamma*abs(*sgrande_mas)*abs(*sgrande_mas)
-     <<"  "<<abs(*sgrande_mas)*abs(*sgrande_mas)<<endl;
+  //  misc2<<Egamma<<"  "<<Q<<"  "<<Egamma*Egamma*abs(*sgrande_mas)*abs(*sgrande_mas)
+  // <<"  "<<abs(*sgrande_mas)*abs(*sgrande_mas)<<endl;
   // misc2<<Egamma+3.4<<"  "<<Q<<"  "<<(Egamma+3.4)*(Egamma+3.4)*abs(*sgrande_mas)*abs(*sgrande_mas)
   //   <<"  "<<abs(*sgrande_mas)*abs(*sgrande_mas)<<endl;
 
@@ -1983,11 +1993,6 @@ void SJosephson(integrando_sgrande *integrando,int K,int P,int la,int lb,int lc,
 	double r_Cc,rb1,theta,potencial,angsum,rO1x,rO1z,rO1
       ,k1,k2,k4,k5,sintheta,costheta,cosrO1,sinrO1,k3,A1,A0,Am1,angcumul;
 	complejo flb_mas,flb_menos,estado_inicial,estado_final;
-    // if((integrando->inicial_st->l+integrando->final_st->l+lc+lb+1)%2==0) {
-    //   *sgrande_mas=0.;
-    //   *sgrande_menos=0.;
-    //   return;
-    // }
 	*sgrande_mas=0.;
 	*sgrande_menos=0.;
     k1=parm->m_b/(parm->m_b+1.);
@@ -2049,26 +2054,26 @@ void SJosephson(integrando_sgrande *integrando,int K,int P,int la,int lb,int lc,
                 angcumul+=angsum;
 
                 /// with rO1  
-				// *sgrande_mas+=((r_Cc*rb1*rb1*rO1*sin(theta)*potencial*estado_final*estado_inicial*flb_mas*integrando->schica_mas[n1]*angsum)/
-				// 		integrando->coords->r_Bb[n1][n2][n3])*
-				// 		(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
-				// *sgrande_menos+=((r_Cc*rb1*rb1*rO1*sin(theta)*potencial*estado_final*estado_inicial*flb_menos*integrando->schica_menos[n1]*angsum)/
-				// 		integrando->coords->r_Bb[n1][n2][n3])*
-				// 		(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+				*sgrande_mas+=((r_Cc*rb1*rb1*rO1*sin(theta)*potencial*estado_final*estado_inicial*flb_mas*integrando->schica_mas[n1]*angsum)/
+						integrando->coords->r_Bb[n1][n2][n3])*
+						(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+				*sgrande_menos+=((r_Cc*rb1*rb1*rO1*sin(theta)*potencial*estado_final*estado_inicial*flb_menos*integrando->schica_menos[n1]*angsum)/
+						integrando->coords->r_Bb[n1][n2][n3])*
+						(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
 
                 /// without rO1 
-                *sgrande_mas+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_mas*integrando->schica_mas[n1]*angsum)/
-						integrando->coords->r_Bb[n1][n2][n3])*
-						(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
-				*sgrande_menos+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_menos*integrando->schica_menos[n1]*angsum)/
-						integrando->coords->r_Bb[n1][n2][n3])*
-						(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+                // *sgrande_mas+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_mas*integrando->schica_mas[n1]*angsum)/
+				// 		integrando->coords->r_Bb[n1][n2][n3])*
+				// 		(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+				// *sgrande_menos+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_menos*integrando->schica_menos[n1]*angsum)/
+				// 		integrando->coords->r_Bb[n1][n2][n3])*
+				// 		(integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
                 
-                //   misc1<<cos(theta)<<" "<<abs(*sgrande_mas)<<" "<<abs(potencial*estado_final)<<"  "<<abs(flb_mas)
-                //   <<"  "<<abs(angsum)<<endl;
-                //misc6<<r_Cc<<" "<<real(*sgrande_mas)<<" "<<real(flb_mas)<<endl;
-                // misc2<<integrando->schica_mas[n1]<<"  "<<angsum<<"  "<<"  "<<*sgrande_mas<<"\n";
-                //          misc3<<integrando->coords->r_C1[n1][n2][n3]<<"  "<<real(estado_final)<<endl;
+                //    misc1<<cos(theta)<<" "<<abs(*sgrande_mas)<<" "<<abs(potencial*estado_final)<<"  "<<abs(flb_mas)
+                //    <<"  "<<abs(angsum)<<endl;
+                // misc6<<r_Cc<<" "<<real(*sgrande_mas)<<" "<<real(flb_mas)<<endl;
+                //  misc2<<integrando->schica_mas[n1]<<"  "<<angsum<<"  "<<"  "<<*sgrande_mas<<"\n";
+                //           misc3<<integrando->coords->r_C1[n1][n2][n3]<<"  "<<real(estado_final)<<endl;
  			}
 		}
 	}
@@ -2949,14 +2954,14 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
   Qmax=parm->Qvalue;
   Qmax_int=parm->int_Qvalue;
   gamma_max=parm->Qvalue+parm->energia_cm;
-  //gamma_max=15.;
+  gamma_max=50.;
   cout<<"Q-value: "<<parm->Qvalue<<endl;
-  delta_e=0.1;
+  delta_e=1000;
   gamma_energy=parm->Qvalue;
   //parm->mu_Aa=1000;
   //parm->mu_Bb=1000;
   cout<<"Mass: "<<parm->mu_Aa<<",  "<<parm->mu_Bb<<endl;
-  for(gamma_energy=0.;gamma_energy<gamma_max;gamma_energy+=delta_e)
+  for(gamma_energy=8.;gamma_energy<gamma_max;gamma_energy+=delta_e)
     {      
       parm->Qvalue=Qmax-gamma_energy;
       //parm->int_Qvalue=Qmax_int-gamma_energy;
@@ -3064,9 +3069,9 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
                                                               parm->puntos,parm->matching_radio,parm->n_spin);
                                           //if((intS->inicial_st->l+intS->final_st->l+lc+lb)%2==0)
                                             {
-                                              //SChica(ints,K,la,lc,schica_mas,schica_menos,nonort_schica_mas,nonort_schica_menos,parm);
-                                              if(la==lb) QuickShape(intS,sgrande_mas,&ints->entrante[0]);                                             
-                                              //SJosephson(intS,K,P,la,lb,lc,sgrande_mas,sgrande_menos,parm);
+                                              SChica(ints,K,la,lc,schica_mas,schica_menos,nonort_schica_mas,nonort_schica_menos,parm);
+                                              //if(la==lb) QuickShape(intS,sgrande_mas,&ints->entrante[0]);                                             
+                                              SJosephson(intS,K,P,la,lb,lc,sgrande_mas,sgrande_menos,parm);
                                               //cout<<"S:"<<abs(*sgrande_mas)<<endl;
                                               Clalb[la][lb][0]+=fase*pow(I,la-lb)*ints->inicial_st->spec*intS->final_st->spec*
                                                 exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor*(*sgrande_mas);
@@ -3103,9 +3108,9 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
         }
       //cout<<"Gamma energy: "<<gamma_energy<<"   Cross section: "<<constante*gamma_density*heavy_density*totalsum<<"\n";
       //cout<<"T**2 : "<<totalsum<<"\n";
-      misc1<<gamma_energy<<"  "<<constante*gamma_density*heavy_density*totalsum
-           <<"  "<<gamma_density<<"  "<<heavy_density<<"  "<<totalsum<<
-        "  "<<gamma_density*heavy_density<<endl;
+      // misc1<<gamma_energy<<"  "<<constante*gamma_density*heavy_density*totalsum
+      //      <<"  "<<gamma_density<<"  "<<heavy_density<<"  "<<totalsum<<
+      //   "  "<<gamma_density*heavy_density<<endl;
     }
   //exit(0);
   for(la=0;la<parm->lmax;la++)
@@ -4335,6 +4340,7 @@ void CrossSection(complejo ***Csucc,complejo ***Csim,complejo ***Cnon,struct par
             crossNon+= (abs(NonA_M[M]) * abs(NonA_M[M]) + abs(NonB_M[M]) * abs(
 				    NonB_M[M]))*constante*escala*factor_cutre;
 		}
+        if (n==156) cout<<" Cross section at "<<theta<<": "<<crossSucc<<endl;
         cross_lab=cross*(cl1/cl2);
         if (parm->angle0<=theta*180./PI && parm->angle1>=theta*180./PI) {
           if(parm->simultaneous==1) totalcross+=cross*sin(theta)*2.*PI*delta_theta;
@@ -4349,7 +4355,8 @@ void CrossSection(complejo ***Csucc,complejo ***Csim,complejo ***Cnon,struct par
         //misc1<<theta*180./PI<<"  "<<theta_lab*180./PI<<"  "<<cl1/cl2<<"  "<<cl1<<"  "<<cl2<<endl;
 	}
     cout<<"Successive cross section from "<<parm->angle0<<" degrees to "<<parm->angle1<<" degrees: "<<totalcross<<endl;
-    fp2<<parm->energia_lab<<"  "<<totalcross<<endl;
+    cout<<"T-matrix: "<<totalcross/constante<<endl;
+    fp2<<parm->energia_lab<<"  "<<totalcross<<"  "<<totalcross/constante<<endl;
 	//Cross section para termino simultaneous
 	// for(n=0;n<parm->cross_puntos;n++)
 	// {
@@ -6021,7 +6028,7 @@ phonon::phonon(const char fp[100],double mass,double charge,potencial* pot,doubl
   cout<<endl<<endl<<"*********************** Generating collective phonon  **********************\n";
   fp_output<<endl<<endl<<"*********************** Generating collective phonon  **********************"<<endl;
   threshold=1.;
-  en_threshold=5.;
+  en_threshold=40.;
   r_cutoff=28.;
   fp_output<<" Energy threshold: "<<en_threshold<<" MeV\n";
   fp_output<<" Radial cutoff: "<<r_cutoff<<" fm\n";

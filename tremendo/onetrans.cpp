@@ -1043,7 +1043,6 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 	ofstream fp(parm->fl_amplitudes);
 	ofstream fp1("some_dw.txt");
 	ofstream fp2(parm->fl_dw);
-    //cout<<"Quilloooo!!!!"<<endl;
 	ofstream fp4("dw_out.txt");
 	ofstream fp3("dw_in.txt");
 	int la,lb,ln,lnp,m,n,indx_st,indx_ingreso,indx_salida,indx_core,indx_transfer;
@@ -1317,19 +1316,19 @@ void AmplitudOneTransSpinless(parametros *parm,phonon* Gamma)
   Kmax=(intk->final_st->l+intk->inicial_st->l);
   Kmin=abs(intk->final_st->l-intk->inicial_st->l);
   c2=1.;
-  Gamma->n_transitions=2;
+  Gamma->n_transitions=1;
   Gamma->particle[0]=10;
   Gamma->hole[0]=3;
   Gamma->particle[1]=10;
   Gamma->hole[1]=3;
-  flag=getline(fp_vladimir,line);
-  while(flag)
+  //flag=getline(fp_vladimir,line);
+  //while(flag)
     {
-      sscanf(line.c_str(),"%lf %lf %lf ",&Gamma->energy,&X1,&X2);
-      Gamma->X[0]=X1;
-      Gamma->Y[0]=0.;
-      Gamma->X[1]=X2;
-      Gamma->Y[1]=0.;
+      // sscanf(line.c_str(),"%lf %lf %lf ",&Gamma->energy,&X1,&X2);
+      // Gamma->X[0]=X1;
+      // Gamma->Y[0]=0.;
+      // Gamma->X[1]=X2;
+      // Gamma->Y[1]=0.;
       /*Calculo de las amplitudes de transferencia**************************************************************************/
       for(la=0;la<parm->lmax;la++)
         {
@@ -1559,9 +1558,13 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
                         integrando->coords->r_aA[n1][n2][n3])*(integrando->dim1)->pesos[n1]*(integrando->dim3)->pesos[n3]*
             ((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim3)->b-(integrando->dim3)->a)/4.;
         *Ij+=kernel;
+        // misc1<<r_bB*r_An*r_An*seno<<"  "<<(potencial-remnant)<<"  "<<estado_inicial<<" "<<estado_final<<"  "
+        //     <<angsum<<"  "<<fr_aA<<"  "<<fr_bB<<"  "<<
+        //   integrando->coords->r_aA[n1][n2][n3]<<endl;
       }
     }
   }
+  //exit(0);
   *Ij*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
   delete[] parcial;
