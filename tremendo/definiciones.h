@@ -265,3 +265,4 @@ double AngularMomentumCoupling(int l1,int l2,int J,int M,double cos1,double cos2
 void NuclearJo(struct parametros* parm);
 void QuickShape(integrando_sgrande *integrando,complejo* sgrande_mas,distorted_wave *indw);
 potencial_optico AddCoulomb(const potencial_optico &v,double q1q2);
+void VFintegral(integrando_onept *integrando,complejo *Ij,int K,double start_An,double Rmax,parametros *parm);

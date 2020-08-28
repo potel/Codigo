@@ -90,7 +90,7 @@ void OneTrans(struct parametros* parm)
   //File2Pot(&(parm->pot[indx_pot_B]),parm);
   delta_r=parm->radio/double(parm->puntos);
   cout<<"Absorcion: "<<absorcion<<" MeV"<<endl;
-  /*Genera los potenciales opticos (sin t�rminos coulombiano y spin-�rbita) */
+  /*Genera los potenciales opticos (sin terminos coulombiano y spin-orbita) */
   EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
   EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
   EscribePotencialOptico(parm->puntos,parm->pot_opt,parm->num_opt,parm);
@@ -101,8 +101,8 @@ void OneTrans(struct parametros* parm)
   if (parm->phonon==1) AmplitudOneTransSpinless(parm,Gamma);
   delete[] D0;
   delete[] rms;
-  delete Tlalb;
-  delete TSpinless;
+  delete[] Tlalb;
+  delete[] TSpinless;
   delete[] dumb_pot;
   delete[]  dumb_pot_opt;
   delete Gamma;
@@ -1059,16 +1059,6 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
     homega_lambda=3.5;
     L=10.;
     Omega_lambda=abs(epsilon_i-homega_lambda-epsilon_k);
-    //for (parm->energia_lab=0.001;parm->energia_lab<50;parm->energia_lab+=0.0005)
-      //{
-        tau=(L/HC)*sqrt(AMU/(parm->energia_lab));
-        Phi=Omega_lambda*tau;
-        damping=Gamma_lambda*tau;
-        //        modalpha=(1.+exp(-2.*damping)-2.*exp(-2.*damping)*cos(Phi))/(Omega_lambda*Omega_lambda+Gamma_lambda*Gamma_lambda);
-        modalpha=(1.+exp(-2.*damping)-2.*exp(-2.*damping)*cos(Phi));
-        misc1<<parm->energia_lab<<"  "<<modalpha<<"  "<<(damping)<<"  "<<Phi<<"  "<<tau<<"  "<<cos(Phi)<<endl;
-        //    }
-//exit(0);
 	factor=32.*sqrt(2.*parm->n_spin+1.)*pow(PI,3)/((parm->k_Aa)*(parm->k_Bb));
 	cout<<"Masa reducida entrante: "<<parm->mu_Aa<<", masa reducida saliente: "<<parm->mu_Bb<<endl;
 	cout<<"  Momentos-> KaA: "<<parm->k_Aa<<",   KbB: "<<parm->k_Bb<<endl;
@@ -1569,6 +1559,107 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
   delete[] parcial;
 }
+
+
+
+void VFintegral(integrando_onept *integrando,complejo *Ij,int K,double start_An,double Rmax,parametros *parm)
+{
+  int n1,n2,n3;
+  double r_bB,r_An,theta,potencial,angsum,
+    coseno,seno,r_aAx,r_aAz,r_aA,k1,k2,k3,k4
+    ,k_aA,k_bB,k_An,phi,r_f,eta_bB,eta_aA,eta_An,z,gamma
+    ,r_bnx,r_bnz,r_bn,cos_bn,cos_aA,r_Abx,r_Abz,r_Ab;
+  complejo fr_aA,delta_An,delta_aA,delta_bB,
+    norm_An,norm_bB,norm_aA,Sl,r_fplus,r_fminus;
+  complejo fr_bB,estado_inicial,estado_final,remnant,optico,core;
+  complejo kernel,partial_sum,braket;
+  k1=(parm->m_A+parm->m_a)/(parm->m_B*parm->m_a);
+  k2=parm->m_A/parm->m_B;
+  k3=parm->m_b/parm->m_a;
+  k4=(parm->m_A+parm->m_B)/(parm->m_B);
+  partial_sum=0.;
+  *Ij=0.;
+  k_aA=integrando->faA[0].k;
+  k_bB=integrando->fbB[0].k;
+  k_An=integrando->final_st->k;
+  eta_bB=integrando->fbB[0].eta;
+  eta_An=integrando->final_st->eta;
+  eta_aA=integrando->faA[0].eta;
+  
+  delta_An=integrando->final_st->PhaseShift();
+  norm_An=interpola_cmpx(integrando->final_st->wf,integrando->final_st->r,start_An,integrando->final_st->puntos)/
+    sin(k_An*start_An+eta_An*log(2*k_An*start_An)+delta_An);
+
+  delta_bB=integrando->fbB[0].phase_shift;
+  norm_bB=interpola_cmpx(integrando->fbB[0].wf,integrando->fbB[0].r,Rmax,integrando->final_st->puntos)/
+    sin(k_bB*Rmax+eta_bB*log(2*k_bB*Rmax)+delta_bB);
+  Sl=exp(2.*I*delta_bB);
+  
+  r_aA=k3*Rmax+k1*start_An;
+  
+  delta_aA=integrando->faA[0].phase_shift;
+  norm_aA=interpola_cmpx(integrando->faA[0].wf,integrando->faA[0].r,r_aA,integrando->faA[0].puntos)/
+    sin(k_aA*r_aA+eta_aA*log(2*k_aA*r_aA)+delta_aA);
+  
+  for (n2 = 0; n2 < integrando->dim2->num_puntos; n2++) {
+    r_An = (integrando->dim2->a+start_An)+((integrando->dim2->b)-
+                                           (integrando->dim2->a))*((integrando->dim2->puntos[n2])+1.)/2.;
+    estado_final=norm_An*sin(k_An*r_An+eta_An*log(2*k_An*r_An)+delta_An);
+    for (n1 = 0; n1 < integrando->dim1->num_puntos; n1++) {
+      z = (integrando->dim1->a+Rmax)+((integrando->dim1->b)-(integrando->dim1->a))*((integrando->dim1->puntos[n1])+1.)/2.;
+      r_f=sqrt(Rmax*Rmax+z*z);
+      phi=atan(z/Rmax);
+      gamma=k_bB*Rmax+eta_bB*log(2.*k_bB*r_f);
+      fr_bB=norm_bB*exp(-k_bB*z-eta_bB*phi);
+      r_fplus=Rmax+I*z;
+      r_fminus=Rmax-I*z;
+
+      if(integrando->prior==0) optico=interpola_cmpx(integrando->opt->pot,integrando->opt->r,r_f,
+                                                     integrando->opt->puntos);
+      for (n3=0;n3<integrando->dim3->num_puntos; n3++) {
+        theta = (integrando->dim3->a)+((integrando->dim3->b)-(integrando->dim3->a))*((integrando->dim3->puntos[n3])+1.)/2.;
+        coseno=cos(theta);
+        seno=sin(theta);
+        r_aAx=k1*r_An*seno;
+        r_aAz=k3*r_f+k1*r_An*coseno;
+        r_aA=sqrt(r_aAx*r_aAx+r_aAz*r_aAz);
+        cos_aA=r_aAz/r_aA;
+        
+        r_bnx=k2*r_An*seno;
+        r_bnz=-r_f+k2*r_An*coseno;
+        r_bn=sqrt(r_bnx*r_bnx+r_aAz*r_bnz);
+        cos_bn=r_bnz/r_bn;
+        
+        r_Abx=-k4*r_An*seno;
+        r_Abz=r_f-k4*r_An*coseno;
+        r_Ab=sqrt(r_Abx*r_Abx+r_Abz*r_Abz);
+
+        if(integrando->prior==1) optico=interpola_cmpx(integrando->opt->pot,integrando->opt->r,r_aA,
+                                                       integrando->opt->puntos);
+        core=interpola_cmpx(integrando->core->pot,integrando->core->r,r_Ab,
+                            integrando->core->puntos);
+        remnant=optico-core;
+
+        if(integrando->remnant==0) remnant=0.;
+        angsum=-AcoplamientoAngular(integrando->lb,integrando->la,integrando->final_st->l
+                                    ,integrando->inicial_st->l,K,coseno,cos_bn,cos_aA);
+        if(integrando->prior==0)
+          potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,r_bn,integrando->pot->puntos);
+        estado_inicial=interpola_cmpx(integrando->inicial_st->wf,integrando->inicial_st->r,r_bn,integrando->inicial_st->puntos);
+        fr_aA=norm_aA*sin(k_aA*r_aA+eta_aA*log(2*k_aA*r_aA)+delta_aA);
+        braket=Sl*(cos(gamma)+I*sin(gamma))*r_fplus-(cos(gamma)-I*sin(gamma))*r_fminus;
+        kernel=((r_An*r_An*seno*(potencial-remnant)*estado_inicial*estado_final*angsum*fr_aA*fr_bB)*braket/r_aA)*
+          (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+        *Ij+=kernel;
+      }
+    }
+  }
+  *Ij*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
+    ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
+}
+
+
+
 
 
 

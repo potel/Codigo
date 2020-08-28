@@ -204,7 +204,12 @@ class estado {
   complejo wf[MAX_PTS];
   double energia;
   double spec;
+  double eta;
+  double k;
+  double mass;
+  complejo phase_shift;
   char file[100];
+  complejo PhaseShift();
 };
 
 
@@ -225,9 +230,14 @@ class distorted_wave {
   int nodos;
   double r[MAX_PTS];
   complejo wf[MAX_PTS];
+  double eta;
+  double k;
+  complejo phase_shift;
+  double mass;
   double energia;
   float spin;
   double absorption(double mass);
+  complejo PhaseShift();
 };
 
 struct parametros {

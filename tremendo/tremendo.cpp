@@ -829,18 +829,23 @@ void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,d
 		,double* rms) {
 	int ND,i;
 	double *vv=new double[puntos],*sx=new double[puntos],*vs=new double[puntos],*v=new double[puntos];
-	double hbarx,dd,Wlim,centr,Etrial,Emax,Emin,ls,delta_r,radio;
+	double hbarx,dd,Wlim,centr,Etrial,Emax,Emin,ls,
+      delta_r,radio,q,eta;
 	delta_r=radio_max/double(puntos);
-    //    misc1<<"in GeneraEstado, l="<<st->l<<"  j:"<<st->j<<"  nodes: "<<st->nodos<<"\n";
 	Emin=MIN_ENERGIA;
 	Emax=MAX_ENERGIA;
 	hbarx=HC*HC/(2.*AMU*masa);
 	dd=delta_r*delta_r/hbarx;
+    q=sqrt(st->energia/hbarx);
+    eta=q1q2*masa*E2HC*AMU/(HC*q);
+    st->k=q;
+    st->eta=eta;
+    st->mass=masa;
 	Wlim=1.e-13;
 	centr=(st->l*(st->l+1.))*hbarx;
 	ls=(st->j*(st->j+1.)-st->l*(st->l+1.)-0.75);
 	st->puntos=puntos;
-	// a�ade los terminos Coulomb y spin-orbita *********************************************************************
+	// adds Coulomb and spin-orbit *********************************************************************
 	if(!strcmp(potencial->tipo,"ws"))
 	{
 		for (i=0;i<puntos;i++) {
@@ -851,12 +856,9 @@ void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,d
 			vs[i]=-2.*(potencial->VSO)*exp((st->r[i]-potencial->RSO)/potencial->aSO)/
 					(st->r[i]*potencial->aSO*(1.+exp((st->r[i]-potencial->RSO)
 							/potencial->aSO))*(1.+exp((st->r[i]-potencial->RSO)/potencial->aSO)));
-//			potencial->pot[i]=v[i];
 			potencial->pot[i]=v[i]+ls*vs[i];
-//			misc3<<st->r[i]<<"  "<<v[i]<<"  "<<ls*vs[i]<<"  "<<potencial->pot[i]<<endl;
 		}
 	}
-//	exit(0);
 	if(!strcmp(potencial->tipo,"tang"))
 	{
 		if(delta_r>potencial->rhc/2.) Error("Paso de intagraci�n demasiado grande para el potencial Tang-Herndon");
@@ -866,8 +868,7 @@ void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,d
 			if (st->r[i]<=potencial->rhc) v[i]=0.;
 		}
 	}
-	while (fabs(-Emin+Emax)>Wlim) {
-      //      misc1<<"energy: "<<Etrial<<"   nodes: "<<ND<<"  "<<"   accuracy: "<<fabs(-Emin+Emax)<<"\n";
+	while (fabs(-Emin+Emax)>Wlim) {     
       Etrial=(Emin+ Emax)/2.0;
       st->wf[0]=pow(delta_r,(st->l+1));
       st->wf[1]=pow(2.0*delta_r,(st->l+1));
@@ -883,27 +884,22 @@ void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,d
       if (ND>st->nodos) Emax=Etrial;
       if (ND<=st->nodos) Emin=Etrial;
 	}
-    //cout<<"energy out: "<<Etrial<<"\n";
 	st->energia=Etrial;
 	radio=0.;
 	for (i=0;i<puntos;i++) {
 		st->wf[i]=st->wf[i]/st->r[i];
-        //misc4<<st->r[i]<<"  "<<real(st->wf[i])<<"\n";
 		if (i>0)
 			if((abs(st->wf[i])>abs(st->wf[i-1]))&&(abs(st->r[i])>4.*(potencial->RV))&&(st->energia<0.))
 				st->wf[i]=st->wf[i-1];
-        //misc3<<st->r[i]<<"  "<<real(st->wf[i])<<"\n";
 	}
 	st->radio=radio_max;
-	//  Normalizacion
+	//  Normalization
 	Normaliza(st,st,radio_max,puntos,'s');
 	*D0=3.54490770181103*VertexD0(st,potencial,radio_max,puntos,rms);
-//	cout<<*D0<<"  "<<*rms<<endl;
 	delete[] vv;
 	delete[] v;
 	delete[] sx;
 	delete[] vs;
-    //exit(0);
 }
 
 
@@ -916,16 +912,20 @@ void GeneraEstado(estado *st,potencial *potencial,double q1q2,double masa, doubl
 		,double* rms) {
   int ND,i,nodes;
 	double *vv=new double[st->puntos],*sx=new double[st->puntos],*vs=new double[st->puntos],*v=new double[st->puntos];
-	double hbarx,dd,Wlim,centr,Etrial,Emax,Emin,ls,delta_r,radio,epsilon;
+	double hbarx,dd,Wlim,centr,Etrial,Emax,Emin,
+      ls,delta_r,radio,epsilon,q,eta;
     epsilon=0.5;
 	delta_r=st->radio/double(st->puntos);
 	Emin=MIN_ENERGIA;
 	Emax=MAX_ENERGIA;
     Etrial=MIN_ENERGIA;
 	hbarx=HC*HC/(2.*AMU*masa);
-    //cout<<"h/2m:"<<hbarx<<"  "<<HC*HC/(2.*AMU*20.75)<<endl;
-    //exit(0);
 	dd=delta_r*delta_r/hbarx;
+    q=sqrt(st->energia/hbarx);
+    eta=q1q2*masa*E2HC*AMU/(HC*q);
+    st->k=q;
+    st->eta=eta;
+    st->mass=masa;
 	Wlim=1.e-13;
 	centr=(st->l*(st->l+1.))*hbarx;
 	ls=(st->j*(st->j+1.)-st->l*(st->l+1.)-0.75);
@@ -1355,7 +1355,7 @@ complejo GeneraDW(distorted_wave* funcion,potencial_optico *v, double q1q2, doub
   return delta;
 }
 /*****************************************************************************
-Soluci�n de energ�a positiva con potencial �ptico con condiciones al contorno
+Solucion de energia positiva con potencial optico con condiciones al contorno
 coulombianas, para un spin arbitrario contenido en funcion->spin
 *****************************************************************************/
 complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, double masa,double radio_max,
@@ -1374,14 +1374,14 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
   dd=delta_r*delta_r/hbarx;
   q=sqrt(funcion[0].energia/hbarx);
   etac=q1q2*masa*E2HC*AMU/(HC*q);
+  funcion->eta=etac;
+  funcion->k=q;
+  funcion->mass=masa;
   funcion->puntos=puntos;
   funcion->radio=radio_max;
   spinorbit =(funcion->j)*((funcion->j)+1.)-funcion->l*(funcion->l+1.)-(funcion->spin)*((funcion->spin)+1.); //T�rmino de spin-�rbita
   /* actualizacion del potencial con los t�rminos de Coulomb, centr�fugo y de spin-�rbita*/
-  //misc1<<endl<<"& Energy: "<<funcion->energia<<"   Orbital angular momentum: "<<funcion->l<<"  Total angular momentum: "<<funcion->j
-  //<<"  Mass: "<<masa<<endl;
   for (i=0;i<puntos-1;i++) {
-    //cout<<" hey: "<<i<<endl;
     if((v->r[i]>=v->radio_coul) && (v->r[i]<10.*v->radioV))
       potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
                                  (funcion[0].l*(funcion[0].l+1.))*hbarx /(v->r[i]*v->r[i])
@@ -1393,7 +1393,6 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
                                 /((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
     if (v->r[i]>=10.*v->radioV) potencial[i]=E_CUADRADO*q1q2/v->r[i];
   }
-  //exit(0);
   funcion->wf[0]=1.e-10;
   funcion->wf[1]=(2.*(1.-0.416666667*dd*(-potencial[0]+funcion->energia))*funcion->wf[0])/
     (1.+0.083333333*dd*(-potencial[1]+funcion->energia));
@@ -1414,28 +1413,20 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
   fu2=funcion->wf[i_2];
   derivada_log=fu1/fu2;
   status1=gsl_sf_coulomb_wave_FG_e(etac,q*radio_1,funcion->l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
-  //	if(status1) cout<<gsl_strerror (status1)<<"  en l="<<funcion[0].l<<",  energia="<<funcion[0].energia<<endl;
   status2=gsl_sf_coulomb_wave_FG_e(etac,q*radio_2,funcion->l,0,&F2,&Fp,&G2,&Gp,&ex1,&ex2);
-  //	if(status2) cout<<gsl_strerror (status2)<<"  en l="<<funcion[0].l<<",  energia="<<funcion[0].energia<<endl;
   x=real((F1.val-F2.val*derivada_log)/(-G1.val+G2.val*derivada_log));
   y=imag((F1.val-F2.val*derivada_log)/(-G1.val+G2.val*derivada_log));
   GSL_SET_COMPLEX(&deltagsl,x,y);
   delta=(gsl_complex_arctan(deltagsl).dat[0]+I*gsl_complex_arctan(deltagsl).dat[1]); // desfase
+  funcion->phase_shift=delta;
   factor=exp(I*(delta))*(cos(delta)*F1.val+sin(delta)*G1.val)/fu1;
   //	*fp<<endl<<"& Energy: "<<funcion->energia<<"   Orbital angular momentum: "<<funcion->l<<"  Total angular momentum: "<<funcion->j
-  // <<"  Mass: "<<masa<<endl;
   for (i=0;i<puntos;i++) {
     funcion->r[i] =delta_r*(i+1.);
     funcion->wf[i]=factor*funcion->wf[i];
     if(status1 || status2) funcion->wf[i]=0.;
-    //gsl_sf_coulomb_wave_FG_e(etac,q*funcion->r[i],funcion[0].l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
-    *fp<<funcion->r[i]<<"  "<<real(funcion->wf[i]/funcion->r[i] )<<"  "<<imag(funcion->wf[i]/funcion->r[i] )<<"  "<<abs(funcion->wf[i]/funcion->r[i] )<<endl;
-    
-
-    //    misc3<<funcion->r[i]<<"  "<<real(funcion->wf[i]/funcion->r[i] )<<"  "<<imag(funcion->wf[i]/funcion->r[i] )<<"  "<<abs(funcion->wf[i]/funcion->r[i] )<<endl;
+    //*fp<<funcion->r[i]<<"  "<<real(funcion->wf[i]/funcion->r[i] )<<"  "<<imag(funcion->wf[i]/funcion->r[i] )<<"  "<<abs(funcion->wf[i]/funcion->r[i] )<<endl;
   }
-  //cout<<"nos vemos!"<<endl;
-  //exit(0);
   delete[] potencial;
   return delta;
 }
@@ -2475,13 +2466,11 @@ void TwoTrans(struct parametros* parm)
 	{
 	  if(parm->B_estados[n]==parm->st[m].id) indx_st=m;
 	}
-      //      GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),
-      //      parm->radio,parm->puntos,(parm->n1_carga)*parm->Z_A,parm,1,0.95,D0,rms);
-            GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),
-            parm->radio,parm->puntos,(parm->n1_carga)*parm->Z_A,parm,1,parm->m_A/(parm->m_A+1.),D0,rms);
+      GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),
+                      parm->radio,parm->puntos,(parm->n1_carga)*parm->Z_A,parm,1,parm->m_A/(parm->m_A+1.),D0,rms);
       cout<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_B].V<<endl;
     }
-  File2Pot(&parm->pot[indx_pot_B],parm);
+  //File2Pot(&parm->pot[indx_pot_B],parm);
   EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
   //  exit(0);
   /*Genera los potenciales opticos (sin t�rminos coulombiano y spin-�rbita) */
@@ -6481,12 +6470,53 @@ potencial_optico AddCoulomb(const potencial_optico &v,double q1q2)
       res.r[n]=v.r[n];
       if(v.r[n]>=v.radio_coul) res.pot[n]=v.pot[n]+E_CUADRADO*q1q2/v.r[n];
       if(v.r[n]<v.radio_coul) res.pot[n]=v.pot[n]+E_CUADRADO*q1q2*(3.-(v.r[n]/v.radio_coul)*(v.r[n]/v.radio_coul))/(2.*v.radio_coul);
-      misc2<<v.r[n]<<"  "<<real(v.pot[n])<<"  "<<real(res.pot[n])<<endl;
 	}
-    //exit(0);
     return res;
   }
 
+////////////////////////////////////////
+// Computes phase shift               //
+////////////////////////////////////////
+complejo estado::PhaseShift()
+{
+  double x,y,rad1,rad2,ex1,ex2;
+  int status1,status2;
+  gsl_complex deltagsl;
+  gsl_sf_result F1, G1, F2, G2, Fp, Gp;
+  complejo fu1,fu2,derivada_log;
+  rad1=r[puntos-2];
+  rad2=r[puntos-1];
+  fu1=wf[puntos-2];
+  fu2=wf[puntos-1];
+  derivada_log=fu1/fu2;
+  status1=gsl_sf_coulomb_wave_FG_e(eta,k*rad1,l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
+  status2=gsl_sf_coulomb_wave_FG_e(eta,k*rad2,l,0,&F2,&Fp,&G2,&Gp,&ex1,&ex2);
+  x=real((F1.val-F2.val*derivada_log)/(-G1.val+G2.val*derivada_log));
+  y=imag((F1.val-F2.val*derivada_log)/(-G1.val+G2.val*derivada_log));
+  GSL_SET_COMPLEX(&deltagsl,x,y);
+  phase_shift=(gsl_complex_arctan(deltagsl).dat[0]+I*gsl_complex_arctan(deltagsl).dat[1]);
+  return phase_shift;
+}
+complejo distorted_wave::PhaseShift()
+{
+  double x,y,rad1,rad2,ex1,ex2;
+  int status1,status2;
+  gsl_complex deltagsl;
+  gsl_sf_result F1, G1, F2, G2, Fp, Gp;
+  complejo fu1,fu2,derivada_log;
+  rad1=r[puntos-2];
+  rad2=r[puntos-1];
+  fu1=wf[puntos-2];
+  fu2=wf[puntos-1];
+  derivada_log=fu1/fu2;
+  status1=gsl_sf_coulomb_wave_FG_e(eta,k*rad1,l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
+  status2=gsl_sf_coulomb_wave_FG_e(eta,k*rad2,l,0,&F2,&Fp,&G2,&Gp,&ex1,&ex2);
+  x=real((F1.val-F2.val*derivada_log)/(-G1.val+G2.val*derivada_log));
+  y=imag((F1.val-F2.val*derivada_log)/(-G1.val+G2.val*derivada_log));
+  GSL_SET_COMPLEX(&deltagsl,x,y);
+  phase_shift=(gsl_complex_arctan(deltagsl).dat[0]+I*gsl_complex_arctan(deltagsl).dat[1]);
+  return phase_shift;
+}
 
 
 
