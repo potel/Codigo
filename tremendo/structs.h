@@ -310,6 +310,9 @@ struct parametros {
   int successive;
   int simultaneous;
   int adiabatico;
+  int vf_convergence;
+  double vf_max;
+  int vf_points;
   int prior;
   int zerorange;
   int relativista;
