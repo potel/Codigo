@@ -418,6 +418,8 @@ void LeeParametros(const char *fname,struct parametros *x)
     x->zerorange=0;
     x->phonon=0;
     x->vf_convergence=0;
+    x->en_threshold=1.e5;
+    x->ampli_threshold=0.;
     strcpy(x->flcoef,"nada");
     strcpy(x->file_dens,"\0");
     potopt=0;
@@ -568,6 +570,8 @@ void LeeParametros(const char *fname,struct parametros *x)
 		ReadParF(aux,"r_Ccmax",&(x->r_Ccmax));
 		ReadParF(aux,"r_A2min",&(x->r_A2min));
 		ReadParF(aux,"r_A2max",&(x->r_A2max));
+        ReadParF(aux,"en_threshold",&(x->en_threshold));
+        ReadParF(aux,"ampli_threshold",&(x->ampli_threshold));
 		ReadParD(aux,"rCc_puntos",&(x->rCc_puntos));
 		ReadParD(aux,"rA2_puntos",&(x->rA2_puntos));
 		ReadParD(aux,"theta_puntos",&(x->theta_puntos));
@@ -3299,8 +3303,8 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
                   for(round=0;round<numrounds;round++)
                     {
                       //cout<<"Round "<<round<<endl;
-                      ints->inicial_st = &(parm->st[0]);
-                      intS->inicial_st = &(parm->st[0]);
+                      //ints->inicial_st = &(parm->st[0]);
+                      //intS->inicial_st = &(parm->st[0]);
                       for (n = 0; n <Gamma->n_states; n++)
                         {
                           if (Gamma->particle[sptrans]==Gamma->st[n].id)
@@ -3339,7 +3343,7 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
                             }                      
                         }
                       //                  cout<<sptrans<<"  "<<factor<<"  "<<parm->k_Cc<<endl<<endl;
-                      if(Gamma->X[sptrans]!=0. || Gamma->Y[sptrans]!=0.)
+                      if((Gamma->X[sptrans]!=0. || Gamma->Y[sptrans]!=0.) && (ints->inicial_st->spec!=0.))
                         {
                           exp_delta_coulomb_f=exp(I*(deltac(lb,eta_f))); 
                           // // /* distorted wave en el canal de salida con spin up (saliente[0]) y spin down (saliente[1]) */
@@ -3404,16 +3408,16 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
                                           SChica(ints,P,la,lc,schica_mas,schica_menos,nonort_schica_mas,nonort_schica_menos,parm);
                                           SGrande(intS,K,la,lb,lc,sgrande_mas,sgrande_menos,nonort_sgrande_mas,
                                                   nonort_sgrande_menos,nonort_schica_mas,nonort_schica_menos,parm);
-                                          Clalb[la][lb][0]+=facrounds*fase*pow(I,la-lb)*spectroscopic*
+                                          Clalb[la][lb][0]+=facrounds*fase*pow(I,la-lb)*spectroscopic*ints->inicial_st->spec*
                                             exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor*(*sgrande_mas);
                                       
-                                          Clalb[la][lb][1]+=facrounds*fase*pow(I,la-lb)*spectroscopic*
+                                          Clalb[la][lb][1]+=facrounds*fase*pow(I,la-lb)*spectroscopic*ints->inicial_st->spec*
                                             exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor*(*sgrande_menos);
 
-                                          Cnonlalb[la][lb][0]+=facrounds*fase*pow(I,la-lb)*spectroscopic*
+                                          Cnonlalb[la][lb][0]+=facrounds*fase*pow(I,la-lb)*spectroscopic*ints->inicial_st->spec*
                                             exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor_non*(*nonort_sgrande_mas);
                                       
-                                          Cnonlalb[la][lb][1]+=facrounds*fase*pow(I,la-lb)*spectroscopic*
+                                          Cnonlalb[la][lb][1]+=facrounds*fase*pow(I,la-lb)*spectroscopic*ints->inicial_st->spec*
                                             exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor_non*(*nonort_sgrande_menos);
                                         }
                                     }
@@ -6035,15 +6039,15 @@ phonon::phonon(const char fp[100],double mass,double charge,potencial* pot,doubl
   Lnorm.zeros(20);
   cout<<endl<<endl<<"*********************** Generating collective phonon  **********************\n";
   fp_output<<endl<<endl<<"*********************** Generating collective phonon  **********************"<<endl;
-  threshold=1.;
-  en_threshold=40.;
+  threshold=parm->ampli_threshold;
+  en_threshold=parm->en_threshold;
   r_cutoff=28.;
   fp_output<<" Energy threshold: "<<en_threshold<<" MeV\n";
   fp_output<<" Radial cutoff: "<<r_cutoff<<" fm\n";
+  fp_output<<" Amplitude threshold X+Y="<<threshold<<" fm\n";
   lfilter=-1;
   if (lfilter>=0) fp_output<<"Computing L="<<lfilter<<" transitions only\n";
   fp_phonon.open(fp,ios::in);
-  
   //fp_radial.open("/home/gregory/projects/completed/pygmy/radial.dat",ios::in);
   //fp_radial.open("/home/gregory/projects/C12tp/input/sp-wf-Gogny-phonons.dat",ios::in);
   fp_radial.open("/home/gregory/projects/C12tp/input/sp-wf.dat",ios::in);
@@ -6155,7 +6159,7 @@ phonon::phonon(const char fp[100],double mass,double charge,potencial* pot,doubl
   }
     smalltrans=0.;
   ntrans=0;
-  fp_output<<"Transitions under the "<<en_threshold<<" MeV threshold"<<endl;
+  fp_output<<"Transitions under the "<<en_threshold<<" MeV threshold and over the |X+Y|="<<threshold<<" threshold"<<endl;
   Xadd1=0.;
   Xadd2=0.;
   while(flag)
@@ -6201,7 +6205,7 @@ phonon::phonon(const char fp[100],double mass,double charge,potencial* pot,doubl
       /// End reading formats  **************************************
       
       tz=-1.;
-      if(eh>en_threshold || ep>en_threshold)
+      if((eh>en_threshold || ep>en_threshold) || abs(Xph+Yph)<threshold)
         {
           smalltrans++;
           Xph=0.;
@@ -6298,11 +6302,13 @@ phonon::phonon(const char fp[100],double mass,double charge,potencial* pot,doubl
   n_transitions=count;
   cout<<"Ground state correlations (0=yes,1=no): "<<nogsc<<endl;
   cout<<"Number of transitions: "<<n_transitions<<"   Norm of phonon: "<<norm<<"   Xsum: "<<Xtot<<"   Ysum: "<<Ytot<<"\n";
-  cout<<"Number of transitions below "<<en_threshold<<" MeV: "<<n_transitions-smalltrans<<endl;
+  cout<<"Number of transitions below the "<<en_threshold<<
+    "  MeV threshold and over the |X+Y|="<<threshold<<" threshold: "<<n_transitions-smalltrans<<endl;
 
   fp_output<<"Ground state correlations (0=yes,1=no): "<<nogsc<<endl;
   fp_output<<"Number of transitions: "<<n_transitions<<"   Norm of phonon: "<<norm<<"   Xsum: "<<Xtot<<"   Ysum: "<<Ytot<<"\n";
-  fp_output<<"Number of transitions below "<<en_threshold<<" MeV: "<<n_transitions-smalltrans<<endl;
+  fp_output<<"Number of transitions below the "<<en_threshold<<
+    "  MeV threshold and over the |X+Y|="<<threshold<<" threshold: "<<n_transitions-smalltrans<<endl;
   fp_output<<"Angular momentum content: \n";
   for(n=0;n<20;n++)
     {

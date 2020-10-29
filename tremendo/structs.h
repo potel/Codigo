@@ -257,6 +257,8 @@ struct parametros {
   int cross_puntos;
   double angle0;
   double angle1;
+  double en_threshold;
+  double ampli_threshold;
   /* Parametros de la reaccion*/
 
   int base1;
