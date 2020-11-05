@@ -539,6 +539,8 @@ class phonon {
   vector<estado> st;
   vector<double> X;
   vector<double> Y;
+  vector<double> Xso1;
+  vector<double> Xso2;
   vector<double> hole;
   vector<double> particle;
   vector<int> st_index;

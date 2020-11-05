@@ -3353,7 +3353,8 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
                           intS->saliente[1].l=lb;
                           GeneraDW(intS->saliente,&(parm->pot_opt[indx_salida]),parm->Z_B*parm->Z_b,parm->mu_Bb,
                                    parm->radio,parm->puntos,parm->matching_radio,&fp5);
-                          spectroscopic=Gamma->X[sptrans]+Gamma->Y[sptrans];
+                          if(round==0) spectroscopic=Gamma->X[sptrans]+Gamma->Xso1[sptrans]+Gamma->Y[sptrans];
+                          if(round==1) spectroscopic=Gamma->X[sptrans]+Gamma->Xso2[sptrans]+Gamma->Y[sptrans];
                           fase=1.;
                           //fase=pow(-1.,round);
                           c1=sqrt((2.*intS->final_st->j+1.)/((2.*parm->lambda+1.)*(2.*ints->inicial_st->j+1.)));
@@ -4135,10 +4136,10 @@ void GeneraFormFactor(struct parametros *parm)
                 u_lf_rC1=real(interpola_cmpx(parm->st[indx_B].wf,parm->st[indx_B].r,rC1,parm->st[indx_B].puntos));
                 u_lf_rA2=real(interpola_cmpx(parm->st[indx_B].wf,parm->st[indx_B].r,rA2,parm->st[indx_B].puntos));
 
-                partial=parm->st[indx_B].spec*parm->st[indx_a].spec*pot_rb1*u_lf_rC1*u_li_rb1
-                  *pot_post*u_lf_rA2*u_li_rc2;
                 //partial=parm->st[indx_B].spec*parm->st[indx_a].spec*pot_rb1*u_lf_rC1*u_li_rb1
-                  //*u_lf_rA2*u_li_rc2;
+                  //*pot_post*u_lf_rA2*u_li_rc2;
+                partial=parm->st[indx_B].spec*parm->st[indx_a].spec*u_lf_rC1*u_li_rb1
+                  *u_lf_rA2*u_li_rc2;
                 simpleform[n]+=partial;
                 prior_ff+=parm->st[indx_B].spec*parm->st[indx_a].spec*pot_prior*u_lf_rA2*u_li_rc2;
                 post_ff+=parm->st[indx_B].spec*parm->st[indx_a].spec*pot_post*u_lf_rA2*u_li_rc2;
@@ -6175,22 +6176,22 @@ phonon::phonon(const char fp[100],double mass,double charge,potencial* pot,doubl
       // End of Paco format +++++++++++++++++++++++++++++
       
       // Enrico format 1 ++++++++++++++++++++++++++++++
-      sscanf(line.c_str(),"%d  %lf %d %d  %lf %lf %lf"
-             ,&lh,&jh,&Nh,&Np,&eh,&ep,&Xph);
-      jp=jh;
-      lp=lh;
-      ntrans++;
-      // End of Enrico format +++++++++++++++++++++++++++++
-
-      // Enrico format 2 (with added X factors) ++++++++++++++++++++++++++++++ 
       // sscanf(line.c_str(),"%d  %lf %d %d  %lf %lf %lf"
       //        ,&lh,&jh,&Nh,&Np,&eh,&ep,&Xph);
-      // flag=getline(fp_phonon,line);
-      // sscanf(line.c_str(),"%lf %lf"
-      //        ,&Xadd1,&Xadd2);
       // jp=jh;
       // lp=lh;
       // ntrans++;
+      // End of Enrico format +++++++++++++++++++++++++++++
+
+      // Enrico format 2 (with added X factors) ++++++++++++++++++++++++++++++ 
+      sscanf(line.c_str(),"%d  %lf %d %d  %lf %lf %lf"
+             ,&lh,&jh,&Nh,&Np,&eh,&ep,&Xph);
+      flag=getline(fp_phonon,line);
+      sscanf(line.c_str(),"%lf %lf"
+             ,&Xadd1,&Xadd2);
+      jp=jh;
+      lp=lh;
+      ntrans++;
       // End of Enrico format +++++++++++++++++++++++++++++
 
 
@@ -6236,6 +6237,8 @@ phonon::phonon(const char fp[100],double mass,double charge,potencial* pot,doubl
         }
       X.push_back(Xph);
       Y.push_back(real(phase)*Yph);
+      Xso1.push_back(Xadd1);
+      Xso2.push_back(Xadd2);
       if(eh>ep)
         {
           swap(ep,eh);

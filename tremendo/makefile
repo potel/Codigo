@@ -1,5 +1,3 @@
-
-
 CC=g++
 OBJ= tremendo.o capture.o knockout.o onetrans.o raditrans.o racah_algebra.o
 LIBDIR=/usr/local/lib
