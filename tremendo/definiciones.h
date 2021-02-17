@@ -266,3 +266,12 @@ void NuclearJo(struct parametros* parm);
 void QuickShape(integrando_sgrande *integrando,complejo* sgrande_mas,distorted_wave *indw);
 potencial_optico AddCoulomb(const potencial_optico &v,double q1q2);
 void VFintegral(integrando_onept *integrando,complejo *Ij,int K,double Rmax,parametros *parm,parametros_integral *dim);
+void SChicaJosephson(integrando_schica *integrando,int P,int K,int la,int lc,complejo* schica_mas,complejo* schica_menos,parametros *parm);
+void TransitionLengths(struct parametros *parm);
+void Inner1(integrando_schica *integrando,int P,int la,int lc,complejo* inner_0,parametros *parm);
+void Inner0(integrando_schica *integrando,int P,int la,int lc,complejo* inner_0,parametros *parm);
+void Outer12(integrando_sgrande *integrando,int K,int P,int la,int lb,int lc,complejo* sgrande_mas,parametros *parm);
+void Outer0(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* outer,parametros *parm);
+void Outer1(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* outer,parametros *parm);
+void YahfcInput(double* lmenos,double* lmas,double energia_trans,parametros* parm,ofstream* fp,
+                ofstream* fp2,ofstream* fp3,double s,int parity);

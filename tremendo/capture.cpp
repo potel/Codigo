@@ -163,7 +163,7 @@ void AmplitudeCapture(struct parametros* parm)
   fp10.open("dsdEdO.txt");
   ofstream fp11;
   fp11.open("dsdE_angular.txt");
-   ofstream fp12;
+  ofstream fp12;
   fp12.open("dsdO.txt");
   
   fp7<<"Positive parity populations listed in first column"<<endl; 
@@ -266,14 +266,6 @@ void AmplitudeCapture(struct parametros* parm)
       if(parm->pot_transfer==parm->pot[n].id) {indx_transfer=n;}
     }
   step=double(parm->radio/parm->puntos);
-  //	cross=0.;
-  //	for(n=0;n<parm->puntos;n++){
-  //		rn=step*(n+1);
-  //		misc1<<st->r[n]<<"  "<<abs(st->wf[n])<<endl;
-  //		cross+=abs(st->wf[n])*abs(st->wf[n])*rn*rn*step;
-  //	}
-  //	cout<<"Norma: "<<cross<<endl;
-  //	exit(0);
   absorcion=Absorcion2(&(parm->pot_opt[indx_neutron_target]),st_fin);
   cout<<"Absorcion: "<<absorcion<<endl;
   //	exit(0);
@@ -316,34 +308,11 @@ void AmplitudeCapture(struct parametros* parm)
                                   "***** Koning-Delaroche potential for neutron-target interaction*****"<<endl<<
                                   "*****************************************************"<<endl;
 
-    if(parm->koning_delaroche==10) cout<<"*****************************************************"<<endl<<
-                                     "***** Using dispersive optical potential from RIPL3  *****"<<endl<<
-                                  "*****************************************************"<<endl;
-  //	for(energia_trans=0;energia_trans<10.;energia_trans+=0.001)
-  //	{
-  //	KoningDelaroche(energia_trans,parm->T_N,parm->T_carga,1.,&pot_p,
-  //	&pot_n,0,0.,pot_dumb,&(parm->pot_opt[indx_neutron_target]));
-  //	}
-  //	exit(0);
-
-
-    // cout<<"Testing RIPL potential"<<endl;
-    // for(Ecm=-3;Ecm<2;Ecm+=0.05)
-    //   {
-    //     misc3<<"& energy: "<<Ecm<<endl;
-    //     RIPL_pot->Get(Ecm);
-    //     v=&(parm->pot_opt[indx_neutron_target]);
-    //     for(n=0;n<v->puntos;n++)
-    //       {
-    //         misc3<<v->r[n]<<"  "<<real(v->pot[n])<<"  "<<imag(v->pot[n])<<endl;
-    //       }
-    //   }
-    // cout<<"OK"<<endl;
-    // exit(0);
-
-
-    double Ecm_old=1000.;
-    double deltaE=0.;
+  if(parm->koning_delaroche==10) cout<<"*****************************************************"<<endl<<
+                                   "***** Using dispersive optical potential from RIPL3  *****"<<endl<<
+                                   "*****************************************************"<<endl;
+  double Ecm_old=1000.;
+  double deltaE=0.;
 
   r_F=1000.;
   cout<<"Radio de fusi�n: "<<r_F<<" fm"<<endl;
@@ -369,37 +338,33 @@ void AmplitudeCapture(struct parametros* parm)
       eta_f=carga_out*parm->res_carga*E2HC*(parm->m_b*parm->T_masa/(parm->m_b+parm->T_masa))*AMU/(HC*k_p);
       cross_total=0.;
       cross_total_elasticb=0.;
-      if(parm->koning_delaroche==1){
-        for(n=0;n<parm->puntos;n++){
-          rn=step*(n+1.);
-          KoningDelaroche(energia_trans,parm->T_N,parm->T_carga,rn,&pot_p,
-                          &pot_n,0,0.,pot_dumb,&(parm->pot_opt[indx_neutron_target]));
-          parm->pot_opt[indx_neutron_target].r[n]=rn;
-          if(carga_trans<0.1) parm->pot_opt[indx_neutron_target].pot[n]=pot_n;
-          if(carga_trans>0.1) parm->pot_opt[indx_neutron_target].pot[n]=pot_p;
-          KoningDelaroche(energia_out,parm->T_N,parm->T_carga,rn,&pot_p,
-                          &pot_n,0,0.,&(parm->pot_opt[indx_salida]),pot_dumb);
-          parm->pot_opt[indx_salida].r[n]=rn;
-          if(carga_out>0.1) parm->pot_opt[indx_salida].pot[n]=pot_p;
-          if(carga_out<0.1) parm->pot_opt[indx_salida].pot[n]=pot_n;
+      if(parm->koning_delaroche==1)
+        {
+          for(n=0;n<parm->puntos;n++)
+            {
+              rn=step*(n+1.);
+              KoningDelaroche(energia_trans,parm->T_N,parm->T_carga,rn,&pot_p,
+                              &pot_n,0,0.,pot_dumb,&(parm->pot_opt[indx_neutron_target]));
+              parm->pot_opt[indx_neutron_target].r[n]=rn;
+              if(carga_trans<0.1) parm->pot_opt[indx_neutron_target].pot[n]=pot_n;
+              if(carga_trans>0.1) parm->pot_opt[indx_neutron_target].pot[n]=pot_p;
+              KoningDelaroche(energia_out,parm->T_N,parm->T_carga,rn,&pot_p,
+                              &pot_n,0,0.,&(parm->pot_opt[indx_salida]),pot_dumb);
+              parm->pot_opt[indx_salida].r[n]=rn;
+              if(carga_out>0.1) parm->pot_opt[indx_salida].pot[n]=pot_p;
+              if(carga_out<0.1) parm->pot_opt[indx_salida].pot[n]=pot_n;
+            }
         }
-      }
       if(parm->koning_delaroche==10){
         RIPL_pot->Get(Ecm);
       }
       v=&(parm->pot_opt[indx_neutron_target]);
-      // for(n=0;n<v->puntos;n++)
-      //   {
-      //     misc3<<v->r[n]<<"  "<<real(v->pot[n])<<"  "<<imag(v->pot[n])<<endl;
-      //   }
-      // exit(0);
       if(parm->remnant==1 && parm->prior==1) {
         GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_salida],parm->T_carga*parm->P_carga,
-                    parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
+                      parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
       }
       misc1<<"& Proton energy: "<<energia_out<<" MeV. Neutron energy: "<<energia_trans<<" MeV"<<endl;
       for(l=parm->lmin;l<parm->ltransfer;l++)
-        //		for(l=1;l<2;l++)
         {
           cout<<"L: "<<l<<endl;
           funcion_regular_up[0].energia=Ecm;
@@ -415,7 +380,7 @@ void AmplitudeCapture(struct parametros* parm)
           funcion_regular_up[1].j=l+parm->n_spin;
           funcion_irregular_up[1].j=l+parm->n_spin;
           if (Ecm<=0.) wronskiano_up=GeneraGreenFunctionLigada(&(funcion_regular_up[0]),&(funcion_irregular_up[0]),
-                                                               &(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
+                                          &(parm->pot_opt[indx_neutron_target]),parm->radio,parm->puntos,carga_trans*(parm->T_carga),
                                                                parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),parm->n_spin);
           if (Ecm>0.)
             {
@@ -452,7 +417,6 @@ void AmplitudeCapture(struct parametros* parm)
               wronskiano_down=k_n;
             }
           for(lp=0;lp<parm->lmax;lp++)
-            //			for(lp=0;lp<1;lp++)
             {
               gl->energia=Ecm_out;
               gl->l=lp;
@@ -462,9 +426,6 @@ void AmplitudeCapture(struct parametros* parm)
               GeneraDWspin(gl,&(parm->pot_opt[indx_salida]),parm->res_carga*carga_out,
                            parm->m_b*parm->res_masa/(parm->m_b+parm->res_masa),
                            parm->radio,parm->puntos,parm->matching_radio,&fp2);
-              //cout<<"computing absorption"<<endl;
-              //cout<<"Absorption: "<<gl->absorption(parm->m_b*parm->res_masa/(parm->m_b+parm->res_masa))<<endl;
-              //exit(0);
               for(n=0;n<dim1->num_puntos;n++){
                 for(m=0;m<=lp;m++){
                   rho[n][l][m][lp]=0.;
@@ -514,13 +475,11 @@ void AmplitudeCapture(struct parametros* parm)
                             dim1,parm,rn,l,lp,ld,wronskiano_up);
                 for(m=0;m<=lp;m++){
                   phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
-                  //phi_up[n][l][m][lp]=phim[m];
                 }
                 NeutronWave(phim,rho,&(funcion_regular_down[1]),&(funcion_irregular_down[1]),
                             dim1,parm,rn,l,lp,ld,wronskiano_down);
                 for(m=0;m<=lp;m++){
                   phi_down[n][l][m][lp]=(l/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
-                  //						phi_down[n][l][m][lp]=phim[m];
                 }
               }
             }
@@ -533,7 +492,6 @@ void AmplitudeCapture(struct parametros* parm)
           inc_break[l]=inc_break_lmas[l];
           inc_break_lmenos[l]=rhoE*escala*sigma_const*AbsorcionPrior(direct,non_orth,cross_term,&(parm->pot_opt[indx_neutron_target]),
                                                                      phi_down,non,dim1,l,parm->lmax,r_F);
-
           inc_break[l]+=inc_break_lmenos[l];
           if(energia_trans>0.) elastic_break[l]=rhoE*rhoE_n*escala*sigma_const*PI*ElasticBreakupCross(Teb,l,parm->lmax);
           cross_total+=inc_break[l];
@@ -542,7 +500,6 @@ void AmplitudeCapture(struct parametros* parm)
           cout<<" NEB cross section: "<<inc_break[l]<<endl<<endl;
           cout<<" EB cross section: "<<elastic_break[l]<<endl<<endl;
           fp9<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<"  ";
-          misc1<<l<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<endl;
         }
       TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp3,&fp4,&fp7,parm->J_A,parm->parity_A);
       cout<<"NEB cross section:  "<<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
@@ -1643,6 +1600,73 @@ void TalysInput(double* lmenos,double* lmas,double energia_trans,parametros* par
       if(parity<0) *fp3<<left<<setw(5)<<Jp<<setw(12)<<left<<parity1[int(Jp)]/norma<<left<<setw(12)<<parity2[int(Jp)]/norma<<endl;
 	}
 }
+
+///////////////////////////////////////////////////////////////////
+///    Prepares the intitial spin-parity distribution as a function
+///   of energy to be used by YAHFC in a decay calculation
+//////////////////////////////////////////////////////////////////
+void YahfcInput(double* lmenos,double* lmas,double energia_trans,parametros* parm,ofstream* fp,ofstream* fp2,ofstream* fp3,double s,int parity)
+{
+	int l;
+	double Ex,factor,J,Jp,j_menos,j_mas,norma;
+	double* parity1=new double[parm->ltransfer+int(ceil(s))+2];
+	double* parity2=new double[parm->ltransfer+int(ceil(s))+2];
+	Ex=energia_trans-parm->B_Sn;
+	*fp3<<"NEnergy= "<<Ex<<"   Entries "<<parm->ltransfer+int(ceil(s))+2<<endl;
+	for(l=0;l<parm->ltransfer+int(ceil(s))+2;l++){
+		parity1[l]=0.;
+		parity2[l]=0.;
+	}
+	for(l=1;l<parm->ltransfer;l+=2){
+		j_menos=l-0.5;
+		if(l==0) j_menos=0.5;
+		for(Jp=abs(j_menos-s);Jp<=(j_menos+s);Jp++){
+			factor=(2.*Jp+1.)/((j_menos+s)*(j_menos+s+2.)-(abs(j_menos-s)-1.)*(abs(j_menos-s)+1.));
+			parity1[int(Jp)]+=factor*lmenos[l];
+		}
+		j_mas=l+0.5;
+		for(Jp=abs(j_mas-s);Jp<=(j_mas+s);Jp++){
+			factor=(2.*Jp+1.)/((j_mas+s)*(j_mas+s+2.)-(abs(j_mas-s)-1.)*(abs(j_mas-s)+1.));
+			parity1[int(Jp)]+=factor*lmas[l];
+		}
+	}
+	for(l=0;l<parm->ltransfer;l+=2){
+		j_menos=l-0.5;
+		if(l==0) j_menos=0.5;
+		for(Jp=abs(j_menos-s);Jp<=(j_menos+s);Jp++){
+			factor=(2.*Jp+1.)/((j_menos+s)*(j_menos+s+2.)-(abs(j_menos-s)-1.)*(abs(j_menos-s)+1.));
+			parity2[int(Jp)]+=factor*lmenos[l];
+		}
+		j_mas=l+0.5;
+		for(Jp=abs(j_mas-s);Jp<=(j_mas+s);Jp++){
+			factor=(2.*Jp+1.)/((j_mas+s)*(j_mas+s+2.)-(abs(j_mas-s)-1.)*(abs(j_mas-s)+1.));
+			parity2[int(Jp)]+=factor*lmas[l];
+		}
+	}
+	norma=0.;
+	*fp<<Ex<<"  ";
+	for(Jp=0;Jp<parm->ltransfer+int(ceil(s))+2;Jp++){
+		*fp<<parity1[int(Jp)]<<"    ";
+		norma+=parity1[int(Jp)]+parity2[int(Jp)];
+	}
+	*fp<<endl;
+	*fp2<<Ex<<"  ";
+	for(Jp=0;Jp<parm->ltransfer+int(ceil(s))+2;Jp++){
+		*fp2<<parity2[int(Jp)]<<"    ";
+	}
+	*fp2<<endl;
+	for(Jp=0;Jp<parm->ltransfer+int(ceil(s))+2;Jp++){
+      if(parity>0) {
+        fp3->unsetf(ios_base::floatfield);
+        *fp3<<left<<setw(5)<<Jp;
+        *fp3<<std::fixed;
+        fp3->precision(7);
+        *fp3<<setw(12)<<left<<parity2[int(Jp)]/norma<<left<<setw(12)<<parity1[int(Jp)]/norma<<endl;
+      }
+      if(parity<0) *fp3<<left<<setw(5)<<Jp<<setw(12)<<left<<parity1[int(Jp)]/norma<<left<<setw(12)<<parity2[int(Jp)]/norma<<endl;
+	}
+}
+
 void ClusterInelastic(struct parametros* parm)
 {
 	cout<<"********************************************************************************"<<endl;
