@@ -1352,8 +1352,7 @@ void AmplitudOneTransSpinless(parametros *parm,phonon* Gamma)
   Gamma->hole[0]=3;
   Gamma->particle[1]=15;
   Gamma->hole[1]=3;
-  flag=getline(fp_vladimir,line);
-  while(flag)
+  while(getline(fp_vladimir,line))
     {
       sscanf(line.c_str(),"%lf %lf %lf ",&Gamma->energy,&X1,&X2);
       Gamma->X[0]=X1;
@@ -1473,7 +1472,6 @@ void AmplitudOneTransSpinless(parametros *parm,phonon* Gamma)
       totalcross=CrossSectionOneCollective(T,parm,exp_delta_coulomb_i,exp_delta_coulomb_f);
       //fp9<<parm->energia_lab<<"  "<<totalcross<<endl;
       fp9<<Gamma->energy<<"  "<<totalcross<<endl;
-      flag=getline(fp_vladimir,line);
     }
   delete[] Ij;
   delete[] intk;

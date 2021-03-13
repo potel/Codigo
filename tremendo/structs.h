@@ -150,16 +150,14 @@ class RIPL_potential {
   int ReadRIPL()
   {
     int count;
-    bool flag;
     string line;
     streampos pos;
     float ene,val1,val2,val3,val4,val5,val6,val7,val8,val9,val10,
       val11,val12,val13,val14,val15,val16,val17,val18,val19;
     count=0;
-    flag=getline(*fl_RIPL,line);
+    getline(*fl_RIPL,line);
     sscanf(line.c_str(),"%d %d",&Z,&N);
-    flag=getline(*fl_RIPL,line);
-    while(flag)
+    while(getline(*fl_RIPL,line))
       {          
         sscanf(line.c_str(),"%g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g"
                ,&ene,&val1,&val2,&val3,&val4,&val5,&val6,&val7,&val8,&val9,&val10,&val11,
@@ -185,7 +183,6 @@ class RIPL_potential {
         RWSO(count)=val18;
         AWSO(count)=val19;
         count++;
-        flag=getline(*fl_RIPL,line);
       }
     return count+1;
   }
