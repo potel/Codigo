@@ -37,11 +37,11 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
              complejo* nonort_chica_mas,complejo* nonort_chica_menos,parametros *parm);
 int LeeMatrizCoeficientes(const char *fname,double** anm,int dimension);
 void ReadParS(char *s,const char key[20], char *par);
-int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,FILE* fp);
-int LeePotencialesCampoMedio(char *s,const char key[100],potencial* pot,FILE* fp);
+int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,ifstream & fp);
+int LeePotencialesCampoMedio(char *s,const char key[100],potencial* pot,ifstream & fp);
 void GeneraDensidad(struct parametros* parm);
 void PotencialEfectivo(struct parametros* parm,double* dnsty,double* poteff);
-int LeeEstados(char *s,const char key[100],estado* st,FILE* fp);
+int LeeEstados(char *s,const char key[100],estado* st,ifstream & fp);
 void TwoTrans(struct parametros* parm);
 void InicializaTwoTrans(struct parametros* parm);
 void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb);
@@ -275,3 +275,4 @@ void Outer0(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* 
 void Outer1(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* outer,parametros *parm);
 void YahfcInput(double* lmenos,double* lmas,double energia_trans,parametros* parm,ofstream* fp,
                 ofstream* fp2,ofstream* fp3,double s,int parity);
+void restart(complejo*** Clalb,fstream& fp,int* la_min);

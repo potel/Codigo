@@ -309,6 +309,7 @@ struct parametros {
   int successive;
   int simultaneous;
   int adiabatico;
+  int continuation;
   int adjust_potential;
   int radial_cutoff;
   int vf_convergence;

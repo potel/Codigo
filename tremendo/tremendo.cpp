@@ -371,10 +371,11 @@ void LeeParametros(const char *fname,struct parametros *x)
 {
 	char aux[500];
 	int potopt,potcm,numst;
-	FILE *fp;
-	fp = fopen(fname,"r");
+    ifstream fp;
+    fp.open(fname,std::ios_base::in);
 	if (!fp) Error("Error al abrir fichero de parametros");
     x->gen12=0;
+    x->continuation=0;
     x->eikonal=0;
     x->debug=0;
     x->gen_dens_bound=0;
@@ -420,12 +421,14 @@ void LeeParametros(const char *fname,struct parametros *x)
     x->adjust_potential=1;
     x->radial_cutoff=1000.;
     x->transition_length=0;
+    strcpy(x->fl_output,"output.txt");
     potopt=0;
     potcm=0;
     numst=0;
-    
-	while(fgets(aux,500,fp)!=NULL)
+    string line;
+	while(getline(fp,line))
 	{
+      strcpy(aux,line.c_str());
 		if (!potopt) potopt=LeePotencialesOpticos(aux,"InicioPotencialesOpticos",x->pot_opt,fp);
 		if (!potcm) potcm=LeePotencialesCampoMedio(aux,"InicioCampoMedio",x->pot,fp);
 		if (!numst && (x->two_trans || x->knockout || x->one_trans || x->capture
@@ -464,6 +467,7 @@ void LeeParametros(const char *fname,struct parametros *x)
         ReadParD(aux,"transition_length",&(x->transition_length));
 		ReadParD(aux,"cluster_inelastic",&(x->cluster_inelastic));
         ReadParD(aux,"phonon",&(x->phonon));
+        ReadParD(aux,"continuation",&(x->continuation));
 		ReadParD(aux,"capture",&(x->capture));
 		ReadParD(aux,"knockout",&(x->knockout));
 		ReadParD(aux,"zerorange",&(x->zerorange));
@@ -581,15 +585,24 @@ void LeeParametros(const char *fname,struct parametros *x)
 		ReadParF(aux,"a_Sn",&(x->a_Sn));
 		ReadParF(aux,"B_Sn",&(x->B_Sn));
 	}
-//	cout<<"x->a_estados: "<<x->a_estados[0]<<endl;
-//	exit(0);
+    fp.clear();
+    fp.seekg(0);
 	if((x->a_numst+x->B_numst)>(x->num_st)) Error("El numero de estados total debe ser la suma de los estados de ambos n�cleos");
 	if(potopt!=x->num_opt) Error("El numero de potenciales opticos leidos no coincide con el especificado");
 	if(potcm!=x->num_cm) Error("El numero de potenciales de campo medio leidos no coincide con el especificado");
 	if(numst!=x->num_st && x->two_trans && !(!strcmp(x->a_tipo_fun,"li")) && !(!strcmp(x->B_tipo_fun,"li")))
 		Error("El numero de estados leidos no coincide con el especificado");
 	if(x->prior==-1 && x->two_trans==1) Error("La representacion (post-prior) no ha sido definida");
-	fclose(fp);
+    ofstream fp_output;
+    fp_output.open(x->fl_output, std::ios_base::out);
+    fp_output<<"************************************************"<<endl;
+    fp_output<<"     Input file: "<<fname<<endl;
+    fp_output<<"************************************************"<<endl;
+    while(getline(fp,line))
+      {
+        fp_output<<line<<"\n";
+      }
+	fp.close();
 }
 
 /*****************************************************************************
@@ -719,9 +732,10 @@ void ReadParMultF(char *s,const char key[20],int num, double *par)
 	fflush(stderr);
 }
 
-int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,FILE* fp)
+int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,ifstream & fp)
 {
 	int l,i,l2;
+    string line;
 	const char fin[]="FinPotencialesOpticos";
 	const char flag[]="***************";
 	char aux[500]="\0";
@@ -732,7 +746,9 @@ int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,FILE
 	{
 		while(strncmp(aux,fin,l2))
 		{
-			fgets(aux,500,fp);
+          //fgets(aux,500,fp);
+            getline(fp,line);
+            strcpy(aux,line.c_str());
 			ReadParD(aux,"id",&(pot[i].id));
 			ReadParF(aux,"RealVolumen",&(pot[i].V));
 			ReadParF(aux,"ImaginarioVolumen",&(pot[i].W));
@@ -760,9 +776,10 @@ int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,FILE
 /*****************************************************************************
 Lee los potenciales de campo medio del fichero de par�metros
  *****************************************************************************/
-int LeePotencialesCampoMedio(char *s,const char key[100],potencial* pot,FILE* fp)
+int LeePotencialesCampoMedio(char *s,const char key[100],potencial* pot,ifstream & fp)
 {
 	int l,i,l2;
+    string line;
 	const char fin[]="FinCampoMedio";
 	const char flag[]="***************";
 	char aux[500]="\0";
@@ -773,7 +790,8 @@ int LeePotencialesCampoMedio(char *s,const char key[100],potencial* pot,FILE* fp
 	{
 		while(strncmp(aux,fin,l2))
 		{
-			fgets(aux,500,fp);
+            getline(fp,line);
+            strcpy(aux,line.c_str());
 			ReadParD(aux,"id",&(pot[i].id));
 			ReadParS(aux,"tipo",pot[i].tipo);
 			ReadParF(aux,"VV",&(pot[i].V));
@@ -788,7 +806,6 @@ int LeePotencialesCampoMedio(char *s,const char key[100],potencial* pot,FILE* fp
 			if(!strncmp(aux,flag,3)) i++;
 		}
 		cout<<"Leidos "<<i<<" potenciales de campo medio"<<endl;
-		cout<<"file: "<<pot[i].file<<endl;
 		fflush(stdout);
 		return i;
 	}
@@ -797,9 +814,10 @@ int LeePotencialesCampoMedio(char *s,const char key[100],potencial* pot,FILE* fp
 /*****************************************************************************
 Lee los potenciales de campo medio del fichero de par�metros
  *****************************************************************************/
-int LeeEstados(char *s,const char key[100],estado* st,FILE* fp)
+int LeeEstados(char *s,const char key[100],estado* st,ifstream & fp)
 {
 	int l,i,l2;
+    string line;
 	const char fin[]="FinEstados";
 	const char flag[]="***************";
 	char aux[500]="\0";
@@ -810,7 +828,9 @@ int LeeEstados(char *s,const char key[100],estado* st,FILE* fp)
 	{
 		while(strncmp(aux,fin,l2))
 		{
-			fgets(aux,500,fp);
+          //fgets(aux,500,fp);
+            getline(fp,line);
+            strcpy(aux,line.c_str());
 			ReadParD(aux,"id",&(st[i].id));
 			ReadParD(aux,"l",&(st[i].l));
 			ReadParF(aux,"j",&(st[i].j));
@@ -2902,6 +2922,12 @@ void TwoTrans(struct parametros* parm)
   potencial_optico* dumb_pot_opt_p=new potencial_optico[1];
   ifstream fp_phonon;
   phonon* Gamma1;
+  ofstream fp_output;
+  fp_output.open(parm->fl_output, std::ios_base::app);
+  fp_output<<"********************************************************************************"<<endl;
+  fp_output<<"                       Starting 2-nucleon transfer calculation"<<endl;
+  fp_output<<"********************************************************************************"<<endl;
+
   succClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
   simClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
   nonClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
@@ -3927,7 +3953,7 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
 {
   int la,lb,lc,st_a,st_B,n,K,P,indx_ingreso,
     indx_intermedio,indx_salida,sptrans,round,
-    numrounds,trans_old,numtrans;
+    numrounds,trans_old,numtrans,la_min,lb_min;
   double factor,c1,c2,c3,c4,facrounds,int_energy,Qtrue,Qint_true,small_energy;
   double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
   double eta_i=parm->eta;
@@ -3957,7 +3983,13 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
   sgrande_menos=new complejo;
   nonort_sgrande_mas=new complejo;
   nonort_sgrande_menos=new complejo;
-  ofstream fp(parm->fl_amplitudes);
+  fstream fp;
+  if (parm->continuation)
+    fp.open(parm->fl_amplitudes, std::ios_base::app | std::ios_base::in);
+  else
+    fp.open(parm->fl_amplitudes,std::ios_base::out);
+  // fp<<"quillo!!"<<endl;
+  // exit(0);
   ofstream fp2(parm->fl_dw);
   ofstream fp3(parm->fl_gf);
   ofstream fp5("dw_out1trans.txt");
@@ -4009,12 +4041,6 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
   ints->pot_in=&with_coulomb_in;
   intS->pot_intermediate=&with_coulomb_intermediate;
   intS->pot_out=&with_coulomb_out;
-  // for(n=0;n<remnant_in.puntos;n++)
-  //   {
-  //     misc3<<remnant_in.r[n]<<"  "<<real(remnant_in.pot[n])
-  //          <<"  "<<real(remnant_out.pot[n])<<endl;
-  //   }
-  // exit(0);
   /*Selecciona el potencial de transfer*/
   for(n=0;n<parm->num_cm;n++)
     {
@@ -4034,6 +4060,28 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
     parm->lambda=Gamma->L;
   }
   /*Calculo de las amplitudes de transferencia**************************************************************************/
+  la_min=parm->lmin;
+  if (parm->continuation)
+    {
+      fp_output<<"\n*********************** continuation run   **********************\n";
+      restart(Clalb,fp,&la_min);
+      fp.clear();
+      fp.seekg(0);
+      if(parm->lmax<=la_min+1)
+        {
+          cout<<"Maximum number of partial waves: "<<parm->lmax<<endl;
+          cout<<"Restartin from l=: "<<la_min+1<<endl;
+          cout<<"Trying to restart calculation with too little partial waves: stopping calculation"<<endl;
+          fp_output<<"Maximum number of partial waves: "<<parm->lmax<<endl;
+          fp_output<<"Restartin from l=: "<<la_min+1<<endl;
+          fp_output<<"Trying to restart calculation with too little partial waves: stopping calculation"<<endl;
+          exit(0);
+        }
+      cout<<"Restarting calculation from l="<<la_min+1<<endl;
+      cout<<"Amplitudes read from file "<<parm->fl_amplitudes<<endl;
+      fp_output<<"Restarting calculation from l="<<la_min+1<<endl;
+      fp_output<<"Amplitudes read from file "<<parm->fl_amplitudes<<endl;
+    }
   cout<<"Center of mass energy: "<<parm->energia_cm<<endl;
   cout<<"Final state energy: "<<Gamma->energy<<"\n";
   cout<<"Q-value: "<<parm->Qvalue<<endl;
@@ -4041,7 +4089,7 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
   trans_old=-1;
   numtrans=0;
   small_energy=1.;
-  for(la=parm->lmin;la<parm->lmax;la++)
+  for(la=la_min+1;la<parm->lmax;la++)
     {
       cout<<"la: "<<la<<endl;
       exp_delta_coulomb_i=exp(I*(deltac(la,eta_i)));
@@ -4146,7 +4194,7 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
                                   //Wigner9j(0,0,K,0.5,0.5,parm->lambda,0.,P,P)*
                                   //(1./sqrt(2.*P+1.));
                                   //for(lc=abs(la-P);(lc<=la+P) && (c3!=0.) && (lc<parm->lmax);lc++)
-                                  for(lc=0;(c3!=0.) && (lc<parm->lmax);lc++)
+                                  for(lc=0;(c3!=0.) && (lc<la+parm->lambda);lc++)
                                     {
                                       c4=Wigner9j(la,lb,parm->lambda,lc,lc,0.,P,K,parm->lambda)*pow(2.*lc+1.,1.5);
                                       if(c4!=0.)
@@ -4204,8 +4252,6 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
                                       
                                           Cnonlalb[la][lb][1]+=facrounds*fase*pow(I,la-lb)*spectroscopic*ints->inicial_st->spec*
                                             exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor_non*(*nonort_sgrande_menos);
-                                          if (la != lb) misc3<<" la:"<<la<<"  lb:"<<lb<<"  lc:"<<lc
-                                                             <<"  K:"<<K<<"  P:"<<P<<"  "<<schica_mas[5]<<"  "<<(*sgrande_mas)<<endl;
                                         }
                                     }
                                 }
@@ -4213,18 +4259,12 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
                         }
                     }
                 }
-              //exit(0);
             }
-        }
-    }
-  for(la=0;la<parm->lmax;la++)
-    {
-      for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
-        {
-          fp<<la<<"  "<<lb<<"  "<<real(Clalb[la][lb][0])<<"  "<<imag(Clalb[la][lb][0])<<"  "<<abs(Clalb[la][lb][0])
+          fp<<la<<"  "<<lb<<"  "<<real(Clalb[la][lb][0])<<"  "<<imag(Clalb[la][lb][0])
             <<"  "<<real(Clalb[la][lb][1])<<"  "<<imag(Clalb[la][lb][1])<<endl;
         }
     }
+  fp.close();
   delete[] schica_mas;
   delete[] schica_menos;
   delete[] nonort_schica_mas;
@@ -5225,6 +5265,8 @@ void CrossSection(complejo ***Csucc,struct parametros *parm)
 	ofstream fp(parm->fl_cross_tot);
     ofstream fp2;
     fp2.open("dsdE.txt", std::ios_base::app);
+    ofstream fp_out;
+    fp_out.open(parm->fl_output, std::ios_base::app);
 	ofstream fp3;
     fp3.open("cross_lab.txt");
     ofstream fp4(parm->fl_cross_sim);
@@ -5259,28 +5301,37 @@ void CrossSection(complejo ***Csucc,struct parametros *parm)
 	if(!strncmp(parm->unidades,"b",len)) flag=3;
 	if(!strncmp(parm->unidades,"microb",len)) flag=4;
 	factor_cutre=1.; // Cuidado!!! Factor cutre!!!
+    fp_out<<"**************************************"<<endl;
+    fp_out<<"              cross section"<<endl;
+    fp_out<<"**************************************"<<endl;
 	switch(flag)
 	{
 	case 1:
 		escala=10.;
 		cout<<"Seccion eficaz medida en milibarn"<<endl;
+        fp_out<<"cross section mesured in milibarn"<<endl;
 		break;
 	case 2:
 		escala=1.;
 		cout<<"Seccion eficaz medida en fm^2"<<endl;
+        fp_out<<"cross section mesured in fm^2"<<endl;
 		break;
 	case 3:
 		escala=0.01;
 		cout<<"Seccion eficaz medida en barn"<<endl;
+        fp_out<<"cross section mesured in  barn"<<endl;
 		break;
 	case 4:
 		escala=10000.;
 		cout<<"Seccion eficaz medida en microbarn"<<endl;
+        fp_out<<"cross section mesured in  microbarn"<<endl;
 		break;
 	default:
 		Error("Unidades desconocidas para la secci�n eficaz");
 		break;
 	}
+    fp_out<<" angle (center of mass)        sigma"<<endl;
+    fp_out<<endl;
 	//Cross section para termino successive
     delta_theta=PI/double(parm->cross_puntos);
     totalcross=0.;
@@ -5336,9 +5387,12 @@ void CrossSection(complejo ***Csucc,struct parametros *parm)
         }
         totalcross_lab+=cross_lab*sin(theta_lab)*2.*PI*delta_theta;
 		fp<<theta*180./PI<<"  "<<cross<<endl;
+        fp_out<<theta*180./PI<<"  "<<cross<<endl;
         fp3<<theta_lab*180./PI<<"  "<<cross_lab<<endl;
 	}
-    cout<<"Gamma emission section from "<<parm->angle0<<" degrees to "<<parm->angle1<<" degrees: "<<totalcross<<endl;
+    fp_out<<"end of cross section"<<endl;
+    cout<<"cross section from "<<parm->angle0<<" degrees to "<<parm->angle1<<" degrees: "<<totalcross<<endl;
+    fp_out<<"cross section from "<<parm->angle0<<" degrees to "<<parm->angle1<<" degrees: "<<totalcross<<endl;
     fp2<<parm->energia_lab<<"  "<<totalcross<<endl;
 	fp.close();
 }
@@ -6842,7 +6896,8 @@ phonon::phonon(const char fp[100],double mass,double charge,potencial* pot,doubl
   ofstream fp_phwf2;
   ifstream fp_radial;
   ofstream fpen;
-  ofstream fp_output(parm->fl_output);
+  ofstream fp_output;
+  fp_output.open(parm->fl_output, std::ios_base::app);
   double* D0=new double[1];
   double* rms=new double[1];
   complejo* phonon_wf=new complejo[points];
@@ -7330,22 +7385,18 @@ complejo distorted_wave::PhaseShift()
   phase_shift=(gsl_complex_arctan(deltagsl).dat[0]+I*gsl_complex_arctan(deltagsl).dat[1]);
   return phase_shift;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void restart(complejo*** Clalb,fstream & fp,int* la_min)
+{
+  string line;
+  float x1,x2,x3,x4;
+  int lb;
+  *la_min=0;
+  getline(fp,line);
+  while(getline(fp,line))
+    {
+      sscanf(line.c_str(),"%d %d %f %f %f %f",la_min,&lb,&x1,&x2,&x3,&x4);
+      Clalb[*la_min][lb][0]=double(x1)+I*double(x2);
+      Clalb[*la_min][lb][1]=double(x3)+I*double(x4);
+      //cout<<*la_min<<"  "<<lb<<"  "<<real(Clalb[*la_min][lb][0])<<"  "<<imag(Clalb[*la_min][lb][0])<<endl;
+    }
+}
