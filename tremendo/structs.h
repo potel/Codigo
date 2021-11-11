@@ -384,6 +384,7 @@ struct parametros {
   char file_dens[100];
   char fl_phonon[100];
   char fl_output[100];
+  char fl_spwf[100];
   char unidades[10];
   int debug;
   int lmin;
@@ -549,4 +550,5 @@ class phonon {
   int L;
   double energy;
   phonon(const char fp[100],double mass,double charge,potencial* pot,double rmax,int points,parametros* parm);
+  phonon(parametros* parm);
 };

@@ -515,6 +515,7 @@ void AmplitudeCapture(struct parametros* parm)
       if(parm->capture_angular==1)
         {
           cout<<"computing angular differential cross section"<<endl;
+          fp10<<"### Proton energy: "<<energia_out<<" MeV. Neutron energy: "<<energia_trans<<" MeV"<<endl;
           for(n=0;n<parm->cross_puntos;n++)
             {
               theta=PI*double(n)/double(parm->cross_puntos);

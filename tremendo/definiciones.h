@@ -247,7 +247,8 @@ int ReadRIPL(ifstream* fl_RIPL,double* V,double* RV,double* AV,double* DWV,doubl
 void Overlaps(struct parametros* parm);
 void RadTrans(struct parametros* parm);
 void DirectRadTrans(parametros *parm,complejo ***T);
-void IntegralRadTrans(integrando_onept *integrando,complejo *Ij,int K,double mA);
+void IntegralRadTrans(integrando_onept *integrando,complejo *Ij,int K,int P,double mA,parametros* parm);
+void IntegralRadTrans0(integrando_onept *integrando,complejo *Ij,int K,int P,double mA,parametros* parm);
 complejo FuncionAngular2(int lp,int ld,int l,double costheta, double costheta_d);
 void CrossSectionRadTrans(complejo ***Tlalb,complejo* Sel,struct parametros *parm,
                           struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f,double Egamma,double Ep);
@@ -270,9 +271,19 @@ void SChicaJosephson(integrando_schica *integrando,int P,int K,int la,int lc,com
 void TransitionLengths(struct parametros *parm);
 void Inner1(integrando_schica *integrando,int P,int la,int lc,complejo* inner_0,parametros *parm);
 void Inner0(integrando_schica *integrando,int P,int la,int lc,complejo* inner_0,parametros *parm);
+void Inner_rb2(integrando_schica *integrando,int P,int la,int lc,complejo* inner_0,parametros *parm);
 void Outer12(integrando_sgrande *integrando,int K,int P,int la,int lb,int lc,complejo* sgrande_mas,parametros *parm);
 void Outer0(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* outer,parametros *parm);
 void Outer1(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* outer,parametros *parm);
+void Outer_rA1(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* outer,parametros *parm);
 void YahfcInput(double* lmenos,double* lmas,double energia_trans,parametros* parm,ofstream* fp,
                 ofstream* fp2,ofstream* fp3,double s,int parity);
 void restart(complejo*** Clalb,fstream& fp,int* la_min);
+void Trajectory(potencial_optico* pot,double mass,double q1q2,double energy,vector <double> &t
+                ,vector <double> &r,vector <complejo> &phase,double l,double Qval);
+void SGrandeGauge(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* sgrande_mas,
+                  complejo* sgrande_menos,complejo* nonort_mas,complejo* nonort_menos,
+                  complejo* nonort_chica_mas,complejo* nonort_chica_menos,parametros *parm,
+                  vector <double> &r,vector <complejo> &gauge,vector <double> &t,vector <complejo> &at);
+complejo interpola_cmpx(vector <complejo> &funcion,vector <double>  &r,double posicion,int puntos);
+void AngularGamma(complejo ***Csucc,struct parametros *parm);

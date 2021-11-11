@@ -848,6 +848,7 @@ double CrossSectionOneCollective(complejo ****Tlalb,struct parametros *parm,
         //   }
 		fp<<theta*180./PI<<"  "<<cross<<endl;
 		if(((theta*180./PI)>=parm->angle0) && ((theta*180./PI)<=parm->angle1)) totalcross+=cross*sin(theta)*2.*PI*delta_theta;
+        //if(n==136 || n==146) totalcross+=cross*4.*PI*0.0056;
 	}
 	cout<<"Seccion eficaz total entre "<<parm->angle0<<" y "<<parm->angle1<<": "<<totalcross<<endl;
 	fp.close();
@@ -1010,11 +1011,11 @@ void AmplitudOneTrans(parametros *parm,complejo *****T)
 	}
 	CrossSectionOneTrans(T,S,parm,intk->inicial_st,intk->final_st,exp_delta_coulomb_i,exp_delta_coulomb_f);
 	delete[] Ij;
-	delete[] intk;
-	delete[] dim1;
-	delete[] dim2;
-	delete[] dim3;
-	delete[] coords;
+	delete intk;
+	delete dim1;
+	delete dim2;
+	delete dim3;
+	delete coords;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* 
@@ -1167,7 +1168,7 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
     start_An=parm->r_A2max;
     *I1=0.;
     *Ij=0.;
-	for(la=0;la<parm->lmax;la++)
+	for(la=parm->lmin;la<parm->lmax;la++)
       {
 		cout<<"la: "<<la<<endl;
 		intk->la=la;
@@ -1228,11 +1229,11 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
     totalcross=CrossSectionOneTransSpinless(T,parm,intk->inicial_st,intk->final_st,exp_delta_coulomb_i,exp_delta_coulomb_f);
     fp9<<parm->energia_lab<<"  "<<modalpha<<"  "<<totalcross<<"  "<<modalpha*totalcross<<endl;
 	delete[] Ij;
-	delete[] intk;
-	delete[] dim1;
-	delete[] dim3;
-	delete[] dim2;
-	delete[] coords;
+	delete intk;
+	delete dim1;
+	delete dim3;
+	delete dim2;
+	delete coords;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
@@ -1474,7 +1475,7 @@ void AmplitudOneTransSpinless(parametros *parm,phonon* Gamma)
       fp9<<Gamma->energy<<"  "<<totalcross<<endl;
     }
   delete[] Ij;
-  delete[] intk;
+  delete intk;
   delete dim1;
   delete dim3;
   delete dim2;
