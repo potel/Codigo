@@ -5096,9 +5096,9 @@ double ClebsGordan(float l1,float m1,float l2,float m2,float J,float M)
 double Wigner9j(float j1,float j2,float j12,float j3,float j4,float j34,float j13,float j24,float j)
 {
   double cg1,cg2;
-  cg1=sqrt((2.*j12+1.)*(2.*j34+1.)*(2.*j13+1.)*(2.*j24+1.))*wig9j(j1,j2,j12,j3,j4,j34,j13,j24,j);
-  //cg1=sqrt((2.*j12+1.)*(2.*j34+1.)*(2.*j13+1.)*(2.*j24+1.))*
-  //gsl_sf_coupling_9j(int(2.*j1),int(2.*j2),int(2.*j12),int(2.*j3),int(2.*j4),int(2.*j34),int(2.*j13),int(2.*j24),int(2.*j));
+  //cg1=sqrt((2.*j12+1.)*(2.*j34+1.)*(2.*j13+1.)*(2.*j24+1.))*wig9j(j1,j2,j12,j3,j4,j34,j13,j24,j);
+  cg1=sqrt((2.*j12+1.)*(2.*j34+1.)*(2.*j13+1.)*(2.*j24+1.))*
+    gsl_sf_coupling_9j(int(2.*j1),int(2.*j2),int(2.*j12),int(2.*j3),int(2.*j4),int(2.*j34),int(2.*j13),int(2.*j24),int(2.*j));
   return cg1;
 }
 /***************************************************************************
