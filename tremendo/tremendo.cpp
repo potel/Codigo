@@ -3206,8 +3206,7 @@ void TwoTrans(struct parametros* parm)
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_salida]),parm->m_B,parm->m_b);
   EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
   EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
-  // elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm
-  //         ,parm,parm->eta,0.);
+  elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,parm->eta,0.);
   // exit(0);
   if(parm->form_factor) GeneraFormFactor(parm);
   if(parm->successive && ((!strcmp(parm->a_tipo_fun,"li"))||(!strcmp(parm->B_tipo_fun,"li")))) SuccessiveTipoLi(parm,succClalb,nonClalb);
