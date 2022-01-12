@@ -32,7 +32,7 @@ void OneTrans(struct parametros* parm)
   InicializaOneTrans(parm);
   HanShiShen(parm->energia_lab,parm->T_N,parm->T_carga);
   CH89(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
-  KoningDelaroche(parm->energia_lab+parm->Qvalue,parm->T_N+1,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
+  KoningDelaroche(parm->energia_lab,parm->P_N,parm->P_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
   BecchettiGreelees(parm->energia_lab+parm->Qvalue,parm->T_N+1,parm->T_carga);
   DaehnickPotential(parm->energia_lab,parm->T_N,parm->T_carga);
   cout<<"Generando potenciales de campo medio"<<endl;
@@ -81,7 +81,7 @@ void OneTrans(struct parametros* parm)
           if(parm->B_estados[n]==parm->st[m].id) indx_st=m;
 		}
       cout<<"masa reducida: "<<parm->m_A/parm->m_B<<endl;
-      GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,parm->m_A/parm->m_B,D0,rms);
+      GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->adjust_potential,parm->m_A/parm->m_B,D0,rms);
       absorcion=Absorcion2(&(parm->pot_opt[indx_intermedio]),&(parm->st[indx_st]));
       cout<<"D0: "<<*D0<<"  rms: "<<*rms<<endl;
       cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
@@ -94,12 +94,8 @@ void OneTrans(struct parametros* parm)
   EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
   EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
   EscribePotencialOptico(parm->puntos,parm->pot_opt,parm->num_opt,parm);
-  //exit(0);
-  //	AmplitudOneTrans(parm,Tlalb);
-  //	CrossSectionOneTrans(Tlalb,parm,parm->st[indx_st].l);
-  cout<<"quillo 1"<<endl;
+  elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,parm->eta,0.);
   if (parm->phonon==0) AmplitudOneTransSpinless(parm,TSpinless);
-  cout<<"quillo 2"<<endl;
   if (parm->phonon==1) AmplitudOneTransSpinless(parm,Gamma);
   delete[] D0;
   delete[] rms;
@@ -1204,13 +1200,8 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
                     if(parm->vf_convergence) VFintegral(intk,I1,K,Rmax,parm,dim4);
                     T[la][lb][K]+=c1*sqrt(2.*lb+1.)*sqrt(2.*la+1.)*fase*intk->inicial_st->spec*intk->final_st->spec*
                       exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb]*factor*(*Ij+*I1);
-                    // c_phase=0.677*exp(I*4.31);
-                    // c_phase=1.;
-                    misc1<<abs(T[la][lb][K])<<"  "<<abs(intk->inicial_st->spec*intk->final_st->spec*
-                                                        exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb])<<"  "<<factor<<"  "<<abs(*Ij)<<endl;
-                    // if(la==0) fp10<<parm->r_Ccmax<<"  "<<parm->vf_max<<"  "<<parm->r_A2max<<"  "<<abs(*Ij)<<"  "<<abs(*I1)<<"  "<<abs(*Ij+c_phase*(*I1))
-                    //               <<"  "<<real(*Ij)<<"  "<<real(*I1)<<"  "<<real(*Ij+c_phase*(*I1))
-                    //               <<"  "<<imag(*Ij)<<"  "<<imag(*I1)<<"  "<<imag(*Ij+c_phase*(*I1))<<endl;
+                    // misc1<<abs(T[la][lb][K])<<"  "<<abs(intk->inicial_st->spec*intk->final_st->spec*
+                    //                                     exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb])<<"  "<<factor<<"  "<<abs(*Ij)<<endl;
                   }
               }
           }

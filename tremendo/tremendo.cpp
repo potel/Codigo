@@ -2332,6 +2332,7 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
   double r_Cc,rb1,theta,angsum;
   complejo flb_mas,flb_menos,estado_inicial,
     estado_final,remnant,potencial, pot_out,pot_intermediate;
+  complejo* at=new complejo[integrando->dim1->num_puntos];
   *sgrande_mas=0.;
   *sgrande_menos=0.;
   *nonort_menos=0.;
@@ -2380,6 +2381,11 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
           (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
       }
     }
+    //at[n1]=*sgrande_mas*1e5;
+    //misc1<<r_Cc<<"  "<<real(*sgrande_mas)<<"  "<<imag(*sgrande_mas)<<"  "<<abs(*sgrande_mas)
+    //   <<"  "<<abs(*sgrande_mas)*abs(*sgrande_mas)<<endl;
+    //misc1<<r_Cc<<"  "<<real(at[n1])<<"  "<<imag(at[n1])<<"  "<<abs(at[n1])
+    //   <<"  "<<abs(at[n1])*abs(at[n1])<<endl;
   }
   *sgrande_mas*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
@@ -2389,7 +2395,7 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
   *nonort_menos*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
-  //  exit(0);
+  //exit(0);
 }
 /*****************************************************************************
 External integral for successive and non-orthogonality. Contains variation of gauge
@@ -2410,8 +2416,9 @@ void SGrandeGauge(integrando_sgrande *integrando,int K,int la,int lb,int lc,comp
   *nonort_menos=0.;
   *nonort_mas=0.;
   for (n1 = 0; n1 < integrando->dim1->num_puntos; n1++) {
+    //at[n1]=0.;
     r_Cc = (integrando->dim1->a)+((integrando->dim1->b)-(integrando->dim1->a))*((integrando->dim1->puntos[n1])+1.)/2.;
-    phase=interpola_cmpx(gauge,r,r_Cc,gauge.size());
+    //    phase=interpola_cmpx(gauge,r,r_Cc,gauge.size());
     phase=1.;
     time=interpola(t,r,r_Cc);
     //    misc1<<r_Cc<<"  "<<real(phase)<<"  "<<imag(phase)<<"  "<<abs(phase)<<endl;
@@ -2458,12 +2465,19 @@ void SGrandeGauge(integrando_sgrande *integrando,int K,int la,int lb,int lc,comp
         // if (la==1 && lb==2 )misc4<<angsum<<"  "<<integrando->schica_mas[n1]
         //                          <<"  "<<*sgrande_mas<<endl;
         //if (n2==0 && n3==0) misc2<<r_Cc<<" "<<time<<"  "<<abs(*sgrande_mas)<<endl;
-        if (n2==0 && n3==0) at[n1]+=(r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_mas*
-                                     integrando->schica_mas[n1]*angsum)/integrando->coords->r_Bb[n1][n2][n3];
+        // if (n2==0 && n3==0) at[n1]+=(r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_mas*
+        //                              integrando->schica_mas[n1]*angsum)/integrando->coords->r_Bb[n1][n2][n3];
+        // at[n1]+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_mas*
+        //          integrando->schica_mas[n1]*angsum)/integrando->coords->r_Bb[n1][n2][n3])
+        //   *(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3]*(integrando->dim1)->pesos[n1]
+        //   *((integrando->dim2)->b-(integrando->dim2)->a)*
+        //   ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
         //misc2<<r_Cc<<" "<<time<<"  "<<abs(*sgrande_mas)*abs(*sgrande_mas)<<endl;
       }
     }
-    //at[n1]+=*sgrande_mas;
+    at[n1]=*sgrande_mas*(r_Cc-(integrando->dim1)->a);
+    misc1<<r_Cc<<"  "<<real(at[n1])<<"  "<<imag(at[n1])<<"  "<<abs(at[n1])
+         <<"  "<<abs(at[n1])*abs(at[n1])<<endl;
   }
   *sgrande_mas*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
@@ -3442,8 +3456,8 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
     {
       cout<<"la: "<<la<<endl;
       exp_delta_coulomb_i=exp(I*(deltac(la,eta_i)));
-      // Trajectory(&(parm->pot_opt[indx_ingreso]),parm->mu_Aa,parm->Z_A*parm->Z_a,
-      //             parm->energia_cm,t,r,phase,la,parm->Qvalue);
+      Trajectory(&(parm->pot_opt[indx_ingreso]),parm->mu_Aa,parm->Z_A*parm->Z_a,
+                   parm->energia_cm,t,r,phase,la,parm->Qvalue);
       //cout<<"size: "<<phase.size()<<endl;
       //exit(0);
       /* distorted wave en el canal de entrada con spin up (entrante[0]) y spin down (entrante[1]) */
@@ -3541,9 +3555,9 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
                                       SChica(ints,P,la,lc,schica_mas,schica_menos,nonort_schica_mas,nonort_schica_menos,parm);
 
                                       SGrande(intS,K,la,lb,lc,sgrande_mas,sgrande_menos,nonort_sgrande_mas,nonort_sgrande_menos,
-                                                 nonort_schica_mas,nonort_schica_menos,parm);
+                                                  nonort_schica_mas,nonort_schica_menos,parm);
                                       //SGrandeGauge(intS,K,la,lb,lc,sgrande_mas,sgrande_menos,nonort_sgrande_mas,nonort_sgrande_menos,
-                                      //            nonort_schica_mas,nonort_schica_menos,parm,r,phase,t,at);
+                                      //         nonort_schica_mas,nonort_schica_menos,parm,r,phase,t,at);
                                       //cout<<"S:"<<abs(*sgrande_mas)<<endl;
                                       Clalb[la][lb][0]+=fase*pow(I,la-lb)*ints->inicial_st->spec*intS->final_st->spec*
                                         exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor*(*sgrande_mas);
@@ -3568,9 +3582,10 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
   for(n=0;n<parm->rCc_puntos;n++)
     {
       r_Cc = (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
-      //      misc1<<r_Cc<<" "<<real(at[n])<<" "<<imag(at[n])<<" "<<abs(at[n])<<endl;
+      misc1<<r_Cc<<" "<<real(at[n])<<" "<<imag(at[n])<<" "<<abs(at[n])
+           <<" "<<abs(at[n])*abs(at[n])<<endl;
     }
-  //exit(0);
+  exit(0);
   for(la=0;la<parm->lmax;la++)
     {
       for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
@@ -3636,6 +3651,7 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
   ofstream fp3(parm->fl_gf);
   ofstream fp5("dw_out1trans.txt");
   ofstream fp4("dw_in1trans.txt");
+  ofstream fp6("T-matrix-v1");
   qeff=-(parm->Z_A+parm->Z_b)/(parm->m_A+parm->m_b);
   cout<<"Effective neutron charge (in units of e): "<<qeff<<"\n";
   factor=qeff*1024*pow(PI,4.5)*parm->mu_Cc*AMU/(HC*HC*parm->k_Aa*parm->k_Cc*parm->k_Bb);
@@ -3693,17 +3709,25 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
   Qmax=parm->Qvalue;
   Qmax_int=parm->int_Qvalue;
   gamma_max=parm->Qvalue+parm->energia_cm;
-  gamma_max=50.;
+  gamma_max=10.;
   cout<<"Q-value: "<<parm->Qvalue<<endl;
-  delta_e=1000;
+  delta_e=0.1;
   gamma_energy=parm->Qvalue;
   //parm->mu_Aa=1000;
   //parm->mu_Bb=1000;
   cout<<"Mass: "<<parm->mu_Aa<<",  "<<parm->mu_Bb<<endl;
-  for(gamma_energy=30.;gamma_energy<gamma_max;gamma_energy+=delta_e)
-    {      
+  for(gamma_energy=0.;gamma_energy<gamma_max;gamma_energy+=delta_e)
+    {
+      for(la=parm->lmin;la<parm->lmax;la++)
+        {
+          for(lb=parm->lmin;lb<=la+1 && lb<parm->lmax;lb++)
+            {
+              Clalb[la][lb][0]=0.;
+            }
+        }
+      cout<<"Energy: "<<gamma_energy<<endl;
       parm->Qvalue=Qmax-gamma_energy;
-      //parm->int_Qvalue=Qmax_int-gamma_energy;
+      parm->int_Qvalue=Qmax_int-gamma_energy;
       parm->k_Bb=sqrt(2.*parm->mu_Bb*AMU*(parm->energia_cm+parm->Qvalue))/HC;
       factor=qeff*1024*pow(PI,4.5)*parm->mu_Cc*AMU/(HC*HC*parm->k_Aa*parm->k_Cc*parm->k_Bb);
       heavy_density=parm->mu_Aa*parm->mu_Bb*AMU*AMU*parm->k_Bb/(4.*PI*PI*HC*HC*HC*HC*parm->k_Aa);
@@ -3841,6 +3865,7 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
               totalsum+=abs(Clalb[la][lb][0])*abs(Clalb[la][lb][0]);
             }
         }
+      fp6<<gamma_energy<<"  "<<totalsum<<endl;
     }
   for(la=0;la<parm->lmax;la++)
     {
@@ -4174,7 +4199,7 @@ void TransitionLengths(struct parametros *parm)
   r12=0.5*(sum_r12-rO1*rO1-rO2*rO2);
   cosine=r12/(rO1*rO2);
   fp_output<<"Transition lengths:"<<endl;
-  cout<<"   T: "<<totalsum_T<<"   1: "<<totalsum_r1<<"   2: "<<totalsum_r2<<"   12: "<<totalsum_r1r2<<endl;
+  cout<<"   T0: "<<totalsum_T<<"   T1: "<<totalsum_r1<<"   T2: "<<totalsum_r2<<"   12: "<<totalsum_r1r2<<endl;
   cout<<"   rO1: "<<rO1<<"   rO2: "<<rO2<<"  rO1xrO2: "<<rO1xrO2<<endl;
   cout<<"   |rO1+rO2|: "<<sqrt(rO1*rO1+rO2*rO2+2.*rO1xrO2)<<"   |rO1-rO2|: "<<sqrt(rO1*rO1+rO2*rO2-2.*rO1xrO2)<<endl;
   cout<<"  coherent  |rO1+rO2|: "<<sqrt(sum_r12)<<"  coherent  |rO1-rO2|: "<<sqrt(subs_r12)<<endl;
@@ -4517,7 +4542,6 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
 
                                           Cnonlalb[la][lb][1]+=facrounds*fase*pow(I,la-lb)*spectroscopic*ints->inicial_st->spec*
                                             exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor_non*(*nonort_sgrande_menos);
-                                          // misc2<<Clalb[la][lb][0]<<" "<<facrounds*fase*pow(I,la-lb)*spectroscopic*ints->inicial_st->spec<<"  "<<exp_delta_coulomb_i<<"  "<<exp_delta_coulomb_f<<"  c1: "<<c1<<"  c2: "<<c2<<"  c3: "<<c3<<"  c4: "<<c4<<"  factor: "<<factor<<"  "<<*sgrande_mas<<endl;
                                         }
                                     }
                                 }
@@ -5508,7 +5532,8 @@ void CrossSection(complejo ***Csucc,complejo ***Csim,complejo ***Cnon,struct par
 	}
     cout<<"Successive cross section from "<<parm->angle0<<" degrees to "<<parm->angle1<<" degrees: "<<totalcross<<endl;
     cout<<"T-matrix: "<<totalcross/constante<<endl;
-    fp2<<parm->energia_lab<<"  "<<totalcross<<"  "<<totalcross/constante<<endl;
+    //fp2<<parm->energia_lab<<"  "<<totalcross<<"  "<<totalcross/constante<<endl;
+    fp2<<parm->r_Ccmax<<"  "<<totalcross<<"  "<<totalcross/constante<<endl;
 	//Cross section para termino simultaneous
 	// for(n=0;n<parm->cross_puntos;n++)
 	// {
@@ -7086,7 +7111,6 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 	distorted_wave* f_down= new distorted_wave[1];
 	complejo* delta_up = new complejo[parm->lmax];
 	complejo* delta_down = new complejo[parm->lmax];
-
 	double costheta, cross_dif_total, cross_dif_nuclear,sum,sum2,escala,k;
 	int sc,len,flag;
 	complejo dif_mas, dif_menos;
@@ -7097,7 +7121,6 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 	complejo* scattering_amplitude_nuclear_mas = new complejo[parm->cross_puntos];
 	complejo* scattering_amplitude_total_menos = new complejo[parm->cross_puntos];
 	complejo* scattering_amplitude_nuclear_menos = new complejo[parm->cross_puntos];
-	
 	ofstream fp2("dw_elastic_down.txt");
 	ofstream fp1("dw_elastic_up.txt");
 	ofstream fp3("phase_shifts.txt");
