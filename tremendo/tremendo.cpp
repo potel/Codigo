@@ -5080,24 +5080,29 @@ void GeneraPotencialOpticoSpinCoulomb(struct parametros *parm,struct potencial_o
 }
 void GeneraPotencialCM(struct parametros *parm,struct potencial *potencial)
 {
-	int i;
-	double delta_r;
-	delta_r=parm->radio/double(parm->puntos);
-	potencial->puntos=parm->puntos;
-	if(!strcmp(potencial->tipo,"ws"))
+  int i;
+  double delta_r;
+  delta_r=parm->radio/double(parm->puntos);
+  potencial->puntos=parm->puntos;
+  if(*(potencial->file)!='\0')
+    {
+      File2Pot(potencial,parm);
+      return;
+    }
+  if(!strcmp(potencial->tipo,"ws"))
 	{
-		for (i=0;i<potencial->puntos;i++) {
-			potencial->r[i]=delta_r*(i+1);
-			potencial->pot[i]=-(potencial->V)/(1.+exp((potencial->r[i]-potencial->RV)/potencial->aV));
-		}
+      for (i=0;i<potencial->puntos;i++) {
+        potencial->r[i]=delta_r*(i+1);
+        potencial->pot[i]=-(potencial->V)/(1.+exp((potencial->r[i]-potencial->RV)/potencial->aV));
+      }
 	}
-	if(!strcmp(potencial->tipo,"tang"))
+  if(!strcmp(potencial->tipo,"tang"))
 	{
-		for (i=0;i<potencial->puntos;i++) {
-			potencial->r[i]=delta_r*(i+1);
-			if(potencial->r[i]>potencial->rhc) potencial->pot[i]=-potencial->V*exp(-potencial->k*(potencial->r[i]-potencial->rhc));
-			if (potencial->r[i]<=potencial->rhc) potencial->pot[i]=potencial->V;
-		}
+      for (i=0;i<potencial->puntos;i++) {
+        potencial->r[i]=delta_r*(i+1);
+        if(potencial->r[i]>potencial->rhc) potencial->pot[i]=-potencial->V*exp(-potencial->k*(potencial->r[i]-potencial->rhc));
+        if (potencial->r[i]<=potencial->rhc) potencial->pot[i]=potencial->V;
+      }
 	}
 }
 /***************************************************************
@@ -6156,8 +6161,8 @@ void File2State(estado *st,parametros *parm)
 {
   ifstream fp;
   fp.open(st->file);
-  if(!fp.is_open()) {cout<<"Could not open "<<st->file<<endl; exit(0);}
   cout<<"Reading wavefunction from "<<st->file<<endl;
+  if(!fp.is_open()) {cout<<"Could not open "<<st->file<<endl; exit(0);}
   int puntos,n;
   double pos,delta_r;
   double *r=new double[MAX_PTS];

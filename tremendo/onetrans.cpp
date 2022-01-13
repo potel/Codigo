@@ -71,7 +71,7 @@ void OneTrans(struct parametros* parm)
       GeneraPotencialCM(parm,&(parm->pot[indx_pot_a]));
 	}
   cout<<"Generando niveles nucleo B"<<endl;
-  if(*(parm->pot[indx_pot_a].file)!='\0') File2Pot(&(parm->pot[indx_pot_a]),parm);
+  //
   /* Genera niveles del nucleo 'B' */
   for (n=0;n<parm->B_numst;n++)
 	{
@@ -86,7 +86,7 @@ void OneTrans(struct parametros* parm)
       cout<<"Depth of potential well: "<<parm->pot[indx_pot_B].V<<endl;
 
 	}
-  if(*(parm->pot[indx_pot_B].file)!='\0') File2Pot(&(parm->pot[indx_pot_B]),parm);
+  //if(*(parm->pot[indx_pot_B].file)!='\0') File2Pot(&(parm->pot[indx_pot_B]),parm);
   delta_r=parm->radio/double(parm->puntos);
   cout<<"Absorcion: "<<absorcion<<" MeV"<<endl;
   /*Genera los potenciales opticos (sin terminos coulombiano y spin-orbita) */
