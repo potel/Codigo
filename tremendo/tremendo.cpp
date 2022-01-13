@@ -6154,50 +6154,50 @@ int** matriz_int(int dim1,int dim2)
 ////////////////////////////////////////////////////
 void File2State(estado *st,parametros *parm)
 {
-	ifstream fp;
-	fp.open(st->file);
-	if(!fp.is_open()) {cout<<"No se pudo abrir "<<st->file<<endl; exit(0);}
-    cout<<"Reading wavefunction from "<<st->file<<endl;
-	int puntos,n;
-	double pos,delta_r;
-	double *r=new double[MAX_PTS];
-	double *wf=new double[MAX_PTS];
-	double *wf_r=new double[MAX_PTS];
-	delta_r=parm->radio/double(parm->puntos);
-	puntos=0;
-	while(!fp.eof())
-	{
-		puntos++;
-		fp>>r[puntos];
-		fp>>wf[puntos];
-		wf_r[puntos]=wf[puntos]/r[puntos];
-		if(puntos>=MAX_PTS) {cout<<"N�mero de puntos en "<<st->file<<" mayor que MAX_PTS"<<endl; exit(0);}
-//		misc3<<r[puntos]<<"  "<<wf[puntos]<<"  "<<wf_r[puntos]<<endl;
-	}
+  ifstream fp;
+  fp.open(st->file);
+  if(!fp.is_open()) {cout<<"Could not open "<<st->file<<endl; exit(0);}
+  cout<<"Reading wavefunction from "<<st->file<<endl;
+  int puntos,n;
+  double pos,delta_r;
+  double *r=new double[MAX_PTS];
+  double *wf=new double[MAX_PTS];
+  double *wf_r=new double[MAX_PTS];
+  delta_r=parm->radio/double(parm->puntos);
+  puntos=0;
+  while(!fp.eof())
+    {
+      puntos++;
+      fp>>r[puntos];
+      fp>>wf[puntos];
+      wf_r[puntos]=wf[puntos]/r[puntos];
+      if(puntos>=MAX_PTS) {cout<<"N�mero de puntos en "<<st->file<<" mayor que MAX_PTS"<<endl; exit(0);}
+      //		misc3<<r[puntos]<<"  "<<wf[puntos]<<"  "<<wf_r[puntos]<<endl;
+    }
 
-	for(n=0;n<parm->puntos;n++)
-	{
-		pos=delta_r*(n+1);
-		st->r[n]=pos;
-		if(pos<=r[puntos-1]) st->wf[n]=interpola_dbl(wf_r,r,pos,puntos-1);
-		else st->wf[n]=0.;
-//		misc2<<pos<<"  "<<st->wf[n]*st->r[n]<<"  "<<st->wf[n]<<endl;
-	}
-	st->puntos=parm->puntos;
-	st->radio=parm->radio;
-	delete[] r;
-	delete[] wf;
-	delete[] wf_r;
+  for(n=0;n<parm->puntos;n++)
+    {
+      pos=delta_r*(n+1);
+      st->r[n]=pos;
+      if(pos<=r[puntos-1]) st->wf[n]=interpola_dbl(wf_r,r,pos,puntos-1);
+      else st->wf[n]=0.;
+      //		misc2<<pos<<"  "<<st->wf[n]*st->r[n]<<"  "<<st->wf[n]<<endl;
+    }
+  st->puntos=parm->puntos;
+  st->radio=parm->radio;
+  delete[] r;
+  delete[] wf;
+  delete[] wf_r;
 }
 //////////////////////////////////////////////////////
 //  Lee potencial de un archivo                       //
 ////////////////////////////////////////////////////
 void File2Pot(potencial *pot,parametros *parm)
 {
-	cout<<"Generando potencial de campo medio a partir de "<<pot->file<<endl;
+	cout<<"Reading potential from "<<pot->file<<endl;
 	ifstream fp;
 	fp.open(pot->file);
-	if(!fp.is_open()) {cout<<"No se pudo abrir archivo de potencial: "<<pot->file<<endl; exit(0);}
+	if(!fp.is_open()) {cout<<"Could not open: "<<pot->file<<endl; exit(0);}
 	int puntos,n;
 	double pos,delta_r;
 	double *r=new double[MAX_PTS];
@@ -6302,6 +6302,11 @@ void GeneraEstadosPI(potencial* pot,estado* st,double radio,int puntos,double ca
 		,double* D0,double* rms)
 {
   double energia,etrial,vmax,vmin;
+  if(*(st->file)!='\0')
+    {
+      File2State(st,parm);
+      return;
+    }
   if(ajuste==1)
 	{
       energia=st->energia;

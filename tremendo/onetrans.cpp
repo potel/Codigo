@@ -51,7 +51,6 @@ void OneTrans(struct parametros* parm)
       if(parm->scatt_pot==parm->pot_opt[n].id) indx_scatt=n;
 	}
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_ingreso]),parm->m_A,parm->m_a);
-  //exit(0);
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_salida]),parm->m_B,parm->m_b);
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_core]),parm->m_A,parm->m_b);
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_A,parm->m_b);
@@ -65,14 +64,14 @@ void OneTrans(struct parametros* parm)
 		{
           if(parm->a_estados[n]==parm->st[m].id) indx_st=m;
 		}
-      cout<<"masa reducida: "<<parm->m_b/parm->m_a<<endl;
+      cout<<"reduced mass: "<<parm->m_b/parm->m_a<<endl;
       GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,1,parm->m_b/parm->m_a,D0,rms);
       cout<<"D0: "<<*D0<<"  rms: "<<*rms<<endl;
-      cout<<"Profundidad pozo: "<<parm->pot[indx_pot_a].V<<endl;
+      cout<<"Depth of potential well: "<<parm->pot[indx_pot_a].V<<endl;
       GeneraPotencialCM(parm,&(parm->pot[indx_pot_a]));
 	}
   cout<<"Generando niveles nucleo B"<<endl;
-  //File2Pot(&(parm->pot[indx_pot_B]),parm);
+  if(*(parm->pot[indx_pot_a].file)!='\0') File2Pot(&(parm->pot[indx_pot_a]),parm);
   /* Genera niveles del nucleo 'B' */
   for (n=0;n<parm->B_numst;n++)
 	{
@@ -80,14 +79,14 @@ void OneTrans(struct parametros* parm)
 		{
           if(parm->B_estados[n]==parm->st[m].id) indx_st=m;
 		}
-      cout<<"masa reducida: "<<parm->m_A/parm->m_B<<endl;
+      cout<<"reduced mass: "<<parm->m_A/parm->m_B<<endl;
       GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->adjust_potential,parm->m_A/parm->m_B,D0,rms);
       absorcion=Absorcion2(&(parm->pot_opt[indx_intermedio]),&(parm->st[indx_st]));
       cout<<"D0: "<<*D0<<"  rms: "<<*rms<<endl;
-      cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
+      cout<<"Depth of potential well: "<<parm->pot[indx_pot_B].V<<endl;
 
 	}
-  //File2Pot(&(parm->pot[indx_pot_B]),parm);
+  if(*(parm->pot[indx_pot_B].file)!='\0') File2Pot(&(parm->pot[indx_pot_B]),parm);
   delta_r=parm->radio/double(parm->puntos);
   cout<<"Absorcion: "<<absorcion<<" MeV"<<endl;
   /*Genera los potenciales opticos (sin terminos coulombiano y spin-orbita) */
