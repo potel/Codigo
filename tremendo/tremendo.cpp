@@ -1710,6 +1710,7 @@ void SChica(integrando_schica *integrando,int P,int la,int lc,complejo* schica_m
         sumaPmenos[n1]+=((r_Cc*rA2*rA2*sin(theta)*potencial*estado_final*estado_inicial*fla_menos*Plc_menos[n1]*angsum)/
                          integrando->coords->r_Aa[n1][n2][n3])*
           (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+
         sum_nonort_mas+=((rA2*rA2*sin(theta)*estado_final*estado_inicial*fla_mas*angsum)/
                          integrando->coords->r_Aa[n1][n2][n3])*
           (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
@@ -2057,9 +2058,6 @@ void SChicaJosephson(integrando_schica *integrando,int K,int P,int la,int lc,com
                           (k4*A0*cosrO2+k3*sinrO2*(Am1-A1));
               }
           }
-        //angsum=1;
-        //rO2=1;
-        ///  With     rO2 ++++++++++++++++++++++++++++++
         sumafmas[n1]+=((r_Cc*rA2*rA2*rO2*sin(theta)*potencial*estado_final*estado_inicial*fla_mas*flc_mas[n1]*angsum)/
                        integrando->coords->r_Aa[n1][n2][n3])*
           (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
@@ -2072,6 +2070,7 @@ void SChicaJosephson(integrando_schica *integrando,int K,int P,int la,int lc,com
         sumaPmenos[n1]+=((r_Cc*rA2*rA2*rO2*sin(theta)*potencial*estado_final*estado_inicial*fla_menos*Plc_menos[n1]*angsum)/
                          integrando->coords->r_Aa[n1][n2][n3])*
           (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+
       }
     }
     if(n1>0)
@@ -2322,7 +2321,7 @@ double interpola2D_dbl(double** funcion,double* r1,double* r2,
           +f12*(r1[indice1+1]-posicion1)*(posicion2-r2[indice2])+f22*(posicion1-r1[indice1])*(posicion2-r2[indice2]));
 }
 /*****************************************************************************
-Integral externa para el c�lculo sucesivo y de no ortogonalidad
+Outer integral for successive and non-orthogonal terms
 *****************************************************************************/
 void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* sgrande_mas,
              complejo* sgrande_menos,complejo* nonort_mas,complejo* nonort_menos,
@@ -2379,13 +2378,23 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
         *nonort_menos+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_menos*nonort_chica_menos[n1]*angsum)/
 						integrando->coords->r_Bb[n1][n2][n3])*
           (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+        at[n1]+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*integrando->schica_mas[n1]*angsum)/
+                 integrando->coords->r_Bb[n1][n2][n3])*
+          (integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3]*((integrando->dim2)->b-(integrando->dim2)->a)*
+          ((integrando->dim3)->b-(integrando->dim3)->a)/4.;
+        // at[n1]+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_mas*integrando->schica_mas[n1]*angsum)/
+        //          integrando->coords->r_Bb[n1][n2][n3])*
+        //   (integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3]*((integrando->dim2)->b-(integrando->dim2)->a)*
+        //   ((integrando->dim3)->b-(integrando->dim3)->a)/4.;
       }
     }
+    //cout<<*sgrande_mas<<endl;
     //at[n1]=*sgrande_mas*1e5;
+    //misc1<<r_Cc<<"  "<<real(at[n1])<<"  "<<imag(at[n1])<<"  "<<abs(at[n1])<<endl;
     //misc1<<r_Cc<<"  "<<real(*sgrande_mas)<<"  "<<imag(*sgrande_mas)<<"  "<<abs(*sgrande_mas)
-    //   <<"  "<<abs(*sgrande_mas)*abs(*sgrande_mas)<<endl;
-    //misc1<<r_Cc<<"  "<<real(at[n1])<<"  "<<imag(at[n1])<<"  "<<abs(at[n1])
-    //   <<"  "<<abs(at[n1])*abs(at[n1])<<endl;
+    // <<"  "<<abs(*sgrande_mas)*abs(*sgrande_mas)<<endl;
+    misc1<<r_Cc<<"  "<<real(at[n1])<<"  "<<imag(at[n1])<<"  "<<abs(at[n1])
+       <<"  "<<abs(at[n1])*abs(at[n1])<<endl;
   }
   *sgrande_mas*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
@@ -2395,7 +2404,7 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
   *nonort_menos*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
-  //exit(0);
+  exit(0);
 }
 /*****************************************************************************
 External integral for successive and non-orthogonality. Contains variation of gauge
@@ -8020,6 +8029,7 @@ void Trajectory(potencial_optico* pot,double mass,double q1q2,double energy,vect
           vr=v*costheta;
         }
       phase.push_back(exp(I*omega*t[count]));
+      //misc2<<t[count]<<"  "<<r[count]<<endl;
       // misc1<<t[count]<<"  "<<r[count]<<"  "<<real(phase[count])<<"  "<<imag(phase[count])
       //       <<"  "<<abs(phase[count])<<endl;
     }
