@@ -2404,7 +2404,6 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
   *nonort_menos*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
-  exit(0);
 }
 /*****************************************************************************
 External integral for successive and non-orthogonality. Contains variation of gauge
@@ -3591,10 +3590,9 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
   for(n=0;n<parm->rCc_puntos;n++)
     {
       r_Cc = (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
-      misc1<<r_Cc<<" "<<real(at[n])<<" "<<imag(at[n])<<" "<<abs(at[n])
-           <<" "<<abs(at[n])*abs(at[n])<<endl;
+      //      misc1<<r_Cc<<" "<<real(at[n])<<" "<<imag(at[n])<<" "<<abs(at[n])
+      //   <<" "<<abs(at[n])*abs(at[n])<<endl;
     }
-  exit(0);
   for(la=0;la<parm->lmax;la++)
     {
       for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
