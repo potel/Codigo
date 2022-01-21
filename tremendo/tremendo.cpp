@@ -3475,10 +3475,8 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
       ints->entrante[1].l=la;
       GeneraDW(ints->entrante,&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,
                parm->radio,parm->puntos,parm->matching_radio,&fp4);
-      //exit(0);
       for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
         {
-          cout<<"lb: "<<lb<<endl;
           exp_delta_coulomb_f=exp(I*(deltac(lb,eta_f)));
           /* distorted wave en el canal de salida con spin up (saliente[0]) y spin down (saliente[1]) */
           intS->saliente[0].energia=parm->energia_cm+parm->Qvalue;
@@ -3559,9 +3557,7 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
                                       GeneraGreenFunction(ints->funcion_regular,ints->funcion_irregular,&(parm->pot_opt[indx_intermedio]),
                                                           (parm->Z_A+parm->n1_carga)*(parm->Z_a-parm->n1_carga),parm->mu_Cc,parm->radio,
                                                           parm->puntos,parm->matching_radio,parm->n_spin);
-
                                       SChica(ints,P,la,lc,schica_mas,schica_menos,nonort_schica_mas,nonort_schica_menos,parm);
-
                                       SGrande(intS,K,la,lb,lc,sgrande_mas,sgrande_menos,nonort_sgrande_mas,nonort_sgrande_menos,
                                                   nonort_schica_mas,nonort_schica_menos,parm);
                                       //SGrandeGauge(intS,K,la,lb,lc,sgrande_mas,sgrande_menos,nonort_sgrande_mas,nonort_sgrande_menos,
@@ -5132,9 +5128,15 @@ double ClebsGordan(float l1,float m1,float l2,float m2,float J,float M)
 double Wigner9j(float j1,float j2,float j12,float j3,float j4,float j34,float j13,float j24,float j)
 {
   double cg1,cg2;
-  //cg1=sqrt((2.*j12+1.)*(2.*j34+1.)*(2.*j13+1.)*(2.*j24+1.))*wig9j(j1,j2,j12,j3,j4,j34,j13,j24,j);
-  cg1=sqrt((2.*j12+1.)*(2.*j34+1.)*(2.*j13+1.)*(2.*j24+1.))*
+  if (j1<70 && j2<70 && j3<70 && j4<70)
+    {
+      cg1=sqrt((2.*j12+1.)*(2.*j34+1.)*(2.*j13+1.)*(2.*j24+1.))*
     gsl_sf_coupling_9j(int(2.*j1),int(2.*j2),int(2.*j12),int(2.*j3),int(2.*j4),int(2.*j34),int(2.*j13),int(2.*j24),int(2.*j));
+    }
+  else
+    {
+      cg1=sqrt((2.*j12+1.)*(2.*j34+1.)*(2.*j13+1.)*(2.*j24+1.))*wig9j(j1,j2,j12,j3,j4,j34,j13,j24,j);
+    }
   return cg1;
 }
 /***************************************************************************
