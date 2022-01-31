@@ -89,7 +89,6 @@ int main(int argc,char* argv[])
   if(parm->radtrans) {RadTrans(parm);}
   if(parm->nuclear_josephson) {NuclearJo(parm);}
   cout<<parm->two_trans<<endl;
-  cout<<"quillo!"<<endl;
   delete parm;
   return(0);
 }
@@ -1417,7 +1416,9 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
                                 -2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
                                 /((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
     if (v->r[i]>=10.*v->radioV) potencial[i]=E_CUADRADO*q1q2/v->r[i];
+    //misc1<<v->r[i]<<"  "<<real(potencial[i])<<endl;
   }
+  //exit(0);
   funcion->wf[0]=1.e-10;
   funcion->wf[1]=(2.*(1.-0.416666667*dd*(-potencial[0]+funcion->energia))*funcion->wf[0])/
     (1.+0.083333333*dd*(-potencial[1]+funcion->energia));
@@ -2378,10 +2379,10 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
         *nonort_menos+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_menos*nonort_chica_menos[n1]*angsum)/
 						integrando->coords->r_Bb[n1][n2][n3])*
           (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
-        at[n1]+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*integrando->schica_mas[n1]*angsum)/
-                 integrando->coords->r_Bb[n1][n2][n3])*
-          (integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3]*((integrando->dim2)->b-(integrando->dim2)->a)*
-          ((integrando->dim3)->b-(integrando->dim3)->a)/4.;
+        // at[n1]+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*integrando->schica_mas[n1]*angsum)/
+        //          integrando->coords->r_Bb[n1][n2][n3])*
+        //   (integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3]*((integrando->dim2)->b-(integrando->dim2)->a)*
+        //   ((integrando->dim3)->b-(integrando->dim3)->a)/4.;
         // at[n1]+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_mas*integrando->schica_mas[n1]*angsum)/
         //          integrando->coords->r_Bb[n1][n2][n3])*
         //   (integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3]*((integrando->dim2)->b-(integrando->dim2)->a)*
@@ -2389,13 +2390,14 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
       }
     }
     //cout<<*sgrande_mas<<endl;
-    //at[n1]=*sgrande_mas*1e5;
+    at[n1]=*sgrande_mas*1e5;
     //misc1<<r_Cc<<"  "<<real(at[n1])<<"  "<<imag(at[n1])<<"  "<<abs(at[n1])<<endl;
     //misc1<<r_Cc<<"  "<<real(*sgrande_mas)<<"  "<<imag(*sgrande_mas)<<"  "<<abs(*sgrande_mas)
     // <<"  "<<abs(*sgrande_mas)*abs(*sgrande_mas)<<endl;
-    misc1<<r_Cc<<"  "<<real(at[n1])<<"  "<<imag(at[n1])<<"  "<<abs(at[n1])
-       <<"  "<<abs(at[n1])*abs(at[n1])<<endl;
+    // misc1<<r_Cc<<"  "<<real(at[n1])<<"  "<<imag(at[n1])<<"  "<<abs(at[n1])
+    //    <<"  "<<abs(at[n1])*abs(at[n1])<<endl;
   }
+  //  exit(0);
   *sgrande_mas*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
   *sgrande_menos*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
@@ -3213,7 +3215,6 @@ void TwoTrans(struct parametros* parm)
                       parm->radio,parm->puntos,(parm->n1_carga)*parm->Z_A,parm,parm->adjust_potential,parm->m_A/(parm->m_A+1.),D0,rms);
       cout<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_B].V<<endl;
     }
-  cout<<"l1: "<<parm->st[2].l<<"  "<<parm->st[3].l<<endl;
   //File2Pot(&parm->pot[indx_pot_B],parm);
   EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
   /*Genera los potenciales opticos (sin terminos coulombiano y spin-orbita) */
@@ -3362,7 +3363,7 @@ void InicializaTwoTrans(struct parametros* parm)
 
 void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
 {
-  int la,lb,lc,st_a,st_B,n,K,P,indx_ingreso,indx_intermedio,indx_salida;
+  int la,lb,lc,st_a,st_B,n,K,P,indx_ingreso,indx_intermedio,indx_salida,la_min;
   double factor,c1,c2,c3,c4,r_Cc;
   double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
   double eta_i=parm->eta;
@@ -3395,12 +3396,17 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
   sgrande_menos=new complejo;
   nonort_sgrande_mas=new complejo;
   nonort_sgrande_menos=new complejo;
-  ofstream fp(parm->fl_amplitudes);
+  fstream fp;
+  if (parm->continuation)
+    fp.open(parm->fl_amplitudes, std::ios_base::app | std::ios_base::in);
+  else
+    fp.open(parm->fl_amplitudes,std::ios_base::out);
   ofstream fp2(parm->fl_dw);
   ofstream fp3(parm->fl_gf);
   ofstream fp5("dw_out1trans.txt");
   ofstream fp4("dw_in1trans.txt");
-
+  ofstream fp_output;
+  fp_output.open(parm->fl_output, std::ios_base::app);
   factor=2048*PI*PI*PI*PI*PI*parm->mu_Cc*AMU/(HC*HC*parm->k_Aa*parm->k_Cc*parm->k_Bb);
   factor_non=-I*factor*HC*HC*parm->k_Cc/(2.*parm->mu_Cc*AMU);
   /*Par�metros num�ricos para s */
@@ -3458,6 +3464,28 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
   intS->prior=parm->prior;
   
   /*Calculo de las amplitudes de transferencia**************************************************************************/
+    la_min=parm->lmin;
+  if (parm->continuation)
+    {
+      fp_output<<"\n*********************** continuation run   **********************\n";
+      restart(Clalb,fp,&la_min);
+      fp.clear();
+      fp.seekg(0);
+      if(parm->lmax<la_min+1)
+        {
+          cout<<"Maximum number of partial waves: "<<parm->lmax<<endl;
+          cout<<"Restartin from l=: "<<la_min+1<<endl;
+          cout<<"Trying to restart calculation with too little partial waves: stopping calculation"<<endl;
+          fp_output<<"Maximum number of partial waves: "<<parm->lmax<<endl;
+          fp_output<<"Restartin from l=: "<<la_min+1<<endl;
+          fp_output<<"Trying to restart calculation with too little partial waves: stopping calculation"<<endl;
+          exit(0);
+        }
+      cout<<"Restarting calculation from l="<<la_min+1<<endl;
+      cout<<"Amplitudes read from file "<<parm->fl_amplitudes<<endl;
+      fp_output<<"Restarting calculation from l="<<la_min+1<<endl;
+      fp_output<<"Amplitudes read from file "<<parm->fl_amplitudes<<endl;
+    }
   cout<<"Energia del centro de masa: "<<parm->energia_cm<<endl;
   cout<<"Q-value: "<<parm->Qvalue<<endl;
   for(la=parm->lmin;la<parm->lmax;la++)
@@ -3581,6 +3609,8 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
                     }
                 }
             }
+          fp<<la<<"  "<<lb<<"  "<<real(Clalb[la][lb][0])<<"  "<<imag(Clalb[la][lb][0])<<"  "<<abs(Clalb[la][lb][0])
+            <<"  "<<real(Clalb[la][lb][1])<<"  "<<imag(Clalb[la][lb][1])<<endl;
         }
     }
   for(n=0;n<parm->rCc_puntos;n++)
@@ -3589,14 +3619,14 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
       //      misc1<<r_Cc<<" "<<real(at[n])<<" "<<imag(at[n])<<" "<<abs(at[n])
       //   <<" "<<abs(at[n])*abs(at[n])<<endl;
     }
-  for(la=0;la<parm->lmax;la++)
-    {
-      for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
-        {
-          fp<<la<<"  "<<lb<<"  "<<real(Clalb[la][lb][0])<<"  "<<imag(Clalb[la][lb][0])<<"  "<<abs(Clalb[la][lb][0])
-            <<"  "<<real(Clalb[la][lb][1])<<"  "<<imag(Clalb[la][lb][1])<<endl;
-        }
-    }
+  // for(la=0;la<parm->lmax;la++)
+  //   {
+  //     for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
+  //       {
+  //         fp<<la<<"  "<<lb<<"  "<<real(Clalb[la][lb][0])<<"  "<<imag(Clalb[la][lb][0])<<"  "<<abs(Clalb[la][lb][0])
+  //           <<"  "<<real(Clalb[la][lb][1])<<"  "<<imag(Clalb[la][lb][1])<<endl;
+  //       }
+  //   }
   delete[] schica_mas;
   delete[] schica_menos;
   delete[] nonort_schica_mas;
@@ -4279,8 +4309,6 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
     fp.open(parm->fl_amplitudes, std::ios_base::app | std::ios_base::in);
   else
     fp.open(parm->fl_amplitudes,std::ios_base::out);
-  // fp<<"quillo!!"<<endl;
-  // exit(0);
   ofstream fp2(parm->fl_dw);
   ofstream fp3(parm->fl_gf);
   ofstream fp5("dw_out1trans.txt");
@@ -4358,7 +4386,7 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
       restart(Clalb,fp,&la_min);
       fp.clear();
       fp.seekg(0);
-      if(parm->lmax<=la_min+1)
+      if(parm->lmax<la_min+1)
         {
           cout<<"Maximum number of partial waves: "<<parm->lmax<<endl;
           cout<<"Restartin from l=: "<<la_min+1<<endl;
@@ -4467,26 +4495,16 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
                           if(round==0) spectroscopic=Gamma->X[sptrans]+Gamma->Xso1[sptrans]+Gamma->Y[sptrans];
                           if(round==1) spectroscopic=Gamma->X[sptrans]+Gamma->Xso2[sptrans]+Gamma->Y[sptrans];
                           fase=1.;
-                          //fase=pow(-1.,round);
                           c1=sqrt((2.*intS->final_st->j+1.)/((2.*parm->lambda+1.)*(2.*ints->inicial_st->j+1.)));
                           for(K=0;K<=parm->lmax;K++)
                             {
                                c2=Wigner9j(intS->inicial_st->l,0.5,intS->inicial_st->j,intS->final_st->l,0.5,intS->final_st->j,K,0.,K)*
                                  pow(-1.,K)/(2.*K+1.);
-                               // misc3<<Wigner9j(intS->inicial_st->l,0.5,intS->inicial_st->j,intS->final_st->l,0.5,intS->final_st->j,K,0.,K)<<
-                               //    "  "<<pow(-1.,K)<<"  "<<(2.*K+1.)<<endl;
-                              //c2=Wigner9j(0,0.5,0.5,0,0.5,0.5,K,0.,K)*
-                              //pow(-1.,K)/(2.*K+1.);
-                               //for(P=abs(K-parm->lambda);(P<=K+parm->lambda) && (c2!=0.);P++)
                                for(P=0;(P<=parm->lmax) && (c2!=0.) ;P++)
                                 {
                                   c3=Wigner9j(ints->inicial_st->l,0.5,ints->inicial_st->j,ints->final_st->l,0.5,ints->final_st->j,P,0.,P)*
                                     Wigner9j(intS->final_st->j,intS->inicial_st->j,K,intS->final_st->j,ints->final_st->j,parm->lambda,0.,P,P)*
                                     (1./sqrt(2.*P+1.));
-                                  //c3=Wigner9j(0,0.5,0,1,0.5,0.5,P,0.,P)*
-                                  //Wigner9j(0,0,K,0.5,0.5,parm->lambda,0.,P,P)*
-                                  //(1./sqrt(2.*P+1.));
-                                  //for(lc=abs(la-P);(lc<=la+P) && (c3!=0.) && (lc<parm->lmax);lc++)
                                   for(lc=0;(c3!=0.) && (lc<=la+parm->lambda);lc++)
                                     {
                                       c4=Wigner9j(la,lb,parm->lambda,lc,lc,0.,P,K,parm->lambda)*pow(2.*lc+1.,1.5);
@@ -4554,7 +4572,7 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
                 }
             }
           fp<<la<<"  "<<lb<<"  "<<real(Clalb[la][lb][0])<<"  "<<imag(Clalb[la][lb][0])
-            <<"  "<<abs(Clalb[la][lb][0])<<endl;
+            <<"  "<<"  "<<real(Clalb[la][lb][1])<<"  "<<imag(Clalb[la][lb][1])<<endl;
         }
     }
   fp.close();
@@ -7130,7 +7148,8 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 	distorted_wave* f_down= new distorted_wave[1];
 	complejo* delta_up = new complejo[parm->lmax];
 	complejo* delta_down = new complejo[parm->lmax];
-	double costheta, cross_dif_total, cross_dif_nuclear,sum,sum2,escala,k;
+	double costheta, cross_dif_total, cross_dif_nuclear,sum,sum2,
+      sum_coul,escala,k;
 	int sc,len,flag;
 	complejo dif_mas, dif_menos;
 	complejo* fasecoul = new complejo[parm->cross_puntos];
@@ -7146,6 +7165,9 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 	ofstream elastic_relativo("elastic_relativo.txt");
 	ofstream elastic_nuclear("elastic_nuclear.txt");
 	ofstream cross("elastic.txt");
+    ofstream fp5;
+    fp5.open("dsdE.txt", std::ios_base::app);
+
 	cout<< "+++ Computing elastic cross section, spin-orbit version +++"<< endl << endl;
 	k=sqrt(2.*mass*AMU*energy)/HC;
 	for (l = 0; l < parm->lmax; l++) {
@@ -7204,6 +7226,7 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 	}
 	sum=0.;
 	sum2=0.;
+    sum_coul=0.;
 	for (n = 1; n < parm->cross_puntos; n++) {
 		costheta = cos(theta[n]);
 		dif_mas = 0.;
@@ -7237,10 +7260,11 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 //		if(theta[n] * 180. / M_PI>=10) sum+=2.*escala*cross_dif_nuclear*M_PI*M_PI*sin(theta[n])/ double(thpuntos);
 		sum+=2.*escala*cross_dif_nuclear*M_PI*M_PI*sin(theta[n])/ double(parm->cross_puntos);
 		sum2+=2.*escala*cross_dif_total*M_PI*M_PI*sin(theta[n])/ double(parm->cross_puntos);
-
+        sum_coul+=2.*escala*abs(fasecoul[n])*abs(fasecoul[n])*M_PI*M_PI*sin(theta[n])/ double(parm->cross_puntos);
 	}
 	cout<<"Nuclear elastic cross section: "<<sum<<endl;
 	cout<<"Total elastic cross section: "<<sum2<<endl;
+    fp5<<parm->energia_cm<<"  "<<sum2<<"  "<<sum<<"  "<<sum_coul<<"  "<<sum2/sum_coul<<endl;
 }
 void PangPotential(potencial_optico* pot,double E,int N,int Z,int l,double j,string projectile)
 {
