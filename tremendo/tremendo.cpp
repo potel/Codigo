@@ -3169,9 +3169,9 @@ void TwoTrans(struct parametros* parm)
   fp_output<<"                       Starting 2-nucleon transfer calculation"<<endl;
   fp_output<<"********************************************************************************"<<endl;
 
-  succClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
-  simClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
-  nonClalb=tensor_cmpx(parm->lmax,parm->lmax,2);
+  succClalb=tensor_cmpx(parm->lmax+10,parm->lmax+10,2);
+  simClalb=tensor_cmpx(parm->lmax+10,parm->lmax+10,2);
+  nonClalb=tensor_cmpx(parm->lmax+10,parm->lmax+10,2);
   //  HanShiShen(parm->energia_lab+parm->int_Qvalue,parm->T_N+1,parm->T_carga);
   HanShiShen(parm->energia_lab+parm->int_Qvalue,parm->T_N+1,parm->T_carga);
   PangPotential(dumb_pot_opt,parm->energia_lab,parm->T_N,parm->T_carga,0,-1.,"3H");
@@ -3548,7 +3548,7 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
                                 Wigner9j(intS->inicial_st->j,intS->final_st->j,K,intS->inicial_st->j,ints->inicial_st->j,parm->lambda,0.,P,P)*
                                 (1./sqrt(2.*P+1.));
                               //for(lc=abs(la-P);(lc<=la+P) && (c3!=0.) && (lc<parm->lmax);lc++)
-                                for(lc=0;(c3!=0.) && (lc<parm->lmax);lc++)
+                              for(lc=0;(c3!=0.) && (lc<=la+P) && (lc<=lb+K);lc++)
                                 {
                                   c4=Wigner9j(la,lb,parm->lambda,lc,lc,0.,P,K,parm->lambda)*pow(2.*lc+1.,1.5);
                                   if(c4!=0.)
@@ -3609,7 +3609,7 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
                     }
                 }
             }
-          fp<<la<<"  "<<lb<<"  "<<real(Clalb[la][lb][0])<<"  "<<imag(Clalb[la][lb][0])<<"  "<<abs(Clalb[la][lb][0])
+          fp<<la<<"  "<<lb<<"  "<<real(Clalb[la][lb][0])<<"  "<<imag(Clalb[la][lb][0])
             <<"  "<<real(Clalb[la][lb][1])<<"  "<<imag(Clalb[la][lb][1])<<endl;
         }
     }
@@ -4505,7 +4505,7 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
                                   c3=Wigner9j(ints->inicial_st->l,0.5,ints->inicial_st->j,ints->final_st->l,0.5,ints->final_st->j,P,0.,P)*
                                     Wigner9j(intS->final_st->j,intS->inicial_st->j,K,intS->final_st->j,ints->final_st->j,parm->lambda,0.,P,P)*
                                     (1./sqrt(2.*P+1.));
-                                  for(lc=0;(c3!=0.) && (lc<=la+parm->lambda);lc++)
+                                  for(lc=0;(c3!=0.) && (lc<=la+P) && (lc<=lb+K);lc++)
                                     {
                                       c4=Wigner9j(la,lb,parm->lambda,lc,lc,0.,P,K,parm->lambda)*pow(2.*lc+1.,1.5);
                                       if(c4!=0.)
@@ -7142,6 +7142,11 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 	double r;
 	int l,n,m,puntos;
 	double radio,h;
+    complejo strength;
+    double delta,e_res;
+    strength=0.1e3;
+    delta=0.01;
+    e_res=0.190;
 	puntos=opt_up->puntos;
 	radio=opt_up->r[puntos-1];
 	distorted_wave* f_up= new distorted_wave[1];
@@ -7149,7 +7154,7 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 	complejo* delta_up = new complejo[parm->lmax];
 	complejo* delta_down = new complejo[parm->lmax];
 	double costheta, cross_dif_total, cross_dif_nuclear,sum,sum2,
-      sum_coul,escala,k;
+      sum_coul,sum_res,escala,k,cross_res;
 	int sc,len,flag;
 	complejo dif_mas, dif_menos;
 	complejo* fasecoul = new complejo[parm->cross_puntos];
@@ -7159,6 +7164,7 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 	complejo* scattering_amplitude_nuclear_mas = new complejo[parm->cross_puntos];
 	complejo* scattering_amplitude_total_menos = new complejo[parm->cross_puntos];
 	complejo* scattering_amplitude_nuclear_menos = new complejo[parm->cross_puntos];
+    complejo* scattering_amplitude_resonant = new complejo[parm->cross_puntos];
 	ofstream fp2("dw_elastic_down.txt");
 	ofstream fp1("dw_elastic_up.txt");
 	ofstream fp3("phase_shifts.txt");
@@ -7244,6 +7250,8 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 		scattering_amplitude_nuclear_mas[n] = dif_mas;
 		scattering_amplitude_total_menos[n] = fasecoul[n] + dif_menos;
 		scattering_amplitude_nuclear_menos[n] = dif_menos;
+        scattering_amplitude_resonant[n]= fasecoul[n]-strength*delta/(parm->energia_cm-e_res+I*delta);
+        //        scattering_amplitude_resonant[n]= strength*delta/(parm->energia_cm-e_res+I*delta);
 		cross_dif_total = 0.5 * (abs(scattering_amplitude_total_mas[n]) * abs(
 				scattering_amplitude_total_mas[n]) + abs(
 				scattering_amplitude_total_menos[n]) * abs(
@@ -7261,10 +7269,12 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 		sum+=2.*escala*cross_dif_nuclear*M_PI*M_PI*sin(theta[n])/ double(parm->cross_puntos);
 		sum2+=2.*escala*cross_dif_total*M_PI*M_PI*sin(theta[n])/ double(parm->cross_puntos);
         sum_coul+=2.*escala*abs(fasecoul[n])*abs(fasecoul[n])*M_PI*M_PI*sin(theta[n])/ double(parm->cross_puntos);
+        sum_res+=2.*escala*abs(scattering_amplitude_resonant[n])*abs(scattering_amplitude_resonant[n])
+          *M_PI*M_PI*sin(theta[n])/ double(parm->cross_puntos);
 	}
 	cout<<"Nuclear elastic cross section: "<<sum<<endl;
 	cout<<"Total elastic cross section: "<<sum2<<endl;
-    fp5<<parm->energia_cm<<"  "<<sum2<<"  "<<sum<<"  "<<sum_coul<<"  "<<sum2/sum_coul<<endl;
+    fp5<<parm->energia_cm<<"  "<<sum_res<<"  "<<sum_coul<<"  "<<sum_res/sum_coul<<endl;
 }
 void PangPotential(potencial_optico* pot,double E,int N,int Z,int l,double j,string projectile)
 {

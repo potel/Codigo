@@ -57,6 +57,8 @@ void OneTrans(struct parametros* parm)
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_scatt]),parm->m_A,parm->m_b);
   if(parm->phonon) Gamma=new phonon(parm->fl_phonon,parm->m_B/(1.+parm->m_B),parm->Z_B,&(parm->pot[indx_pot_B]),parm->radio,parm->puntos,parm);
   cout<<"Generando el estado del nucleo a"<<endl;
+  // elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,parm->eta,0.);
+  // exit(0);
   /* Genera niveles del n�cleo 'a' */
   for (n=0;n<parm->a_numst;n++)
 	{ 
