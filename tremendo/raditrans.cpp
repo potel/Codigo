@@ -137,6 +137,8 @@ void DirectRadTrans(parametros *parm,complejo ***T)
   ofstream fp3("dw_in.txt");
   ofstream fp_output;
   fp_output.open("radius.txt", std::ios_base::app);
+  ofstream fp_tmatrix;
+  fp_tmatrix.open("t-matrix-test.txt");
   int la,lb,ln,lnp,m,n,indx_st,indx_ingreso,indx_salida,indx_core,indx_transfer,L;
   int mb,mbp,st_a,st_B,Kmax,Kmin,K,P,M,MM,mi,mf;
   float mmf,mmi;
@@ -204,8 +206,9 @@ void DirectRadTrans(parametros *parm,complejo ***T)
     }
   Kmax=(intk->final_st->l+L);
   Kmin=abs(intk->final_st->l-L);
-  deltaEp=1000.;
+  deltaEp=0.1;
   Epinitial=parm->energia_cm+parm->Qvalue;
+  Epinitial=parm->energia_cm+parm->Qvalue-8.;
   for(Ep=Epinitial;Ep<=parm->energia_cm+parm->Qvalue;Ep+=deltaEp)
     {
       Egamma=parm->energia_cm-Ep+parm->Qvalue;
@@ -361,8 +364,9 @@ void DirectRadTrans(parametros *parm,complejo ***T)
       misc3<<"T-1^2: "<<tm1sq<<"\n";
       misc3<<"T1^2: "<<t1sq<<"\n";
       misc3<<"T0^2: "<<t0sq<<"\n";
+      fp_tmatrix<<Egamma<<"  "<<abs(Ttotal)*abs(Ttotal)<<endl;
 
-      exit(0);
+      //exit(0);
       //CrossSectionRadTrans(T,S,parm,intk->inicial_st,intk->final_st,exp_delta_coulomb_i,exp_delta_coulomb_f,Egamma,Ep);
     }
   delete[] Ij;

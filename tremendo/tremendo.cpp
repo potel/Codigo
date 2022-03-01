@@ -3492,8 +3492,8 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
     {
       cout<<"la: "<<la<<endl;
       exp_delta_coulomb_i=exp(I*(deltac(la,eta_i)));
-      Trajectory(&(parm->pot_opt[indx_ingreso]),parm->mu_Aa,parm->Z_A*parm->Z_a,
-                   parm->energia_cm,t,r,phase,la,parm->Qvalue);
+      //Trajectory(&(parm->pot_opt[indx_ingreso]),parm->mu_Aa,parm->Z_A*parm->Z_a,
+      //           parm->energia_cm,t,r,phase,la,parm->Qvalue);
       //cout<<"size: "<<phase.size()<<endl;
       //exit(0);
       /* distorted wave en el canal de entrada con spin up (entrante[0]) y spin down (entrante[1]) */
@@ -3613,12 +3613,12 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
             <<"  "<<real(Clalb[la][lb][1])<<"  "<<imag(Clalb[la][lb][1])<<endl;
         }
     }
-  for(n=0;n<parm->rCc_puntos;n++)
-    {
-      r_Cc = (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
+  //  for(n=0;n<parm->rCc_puntos;n++)
+  //{
+  //r_Cc = (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
       //      misc1<<r_Cc<<" "<<real(at[n])<<" "<<imag(at[n])<<" "<<abs(at[n])
       //   <<" "<<abs(at[n])*abs(at[n])<<endl;
-    }
+      //  }
   // for(la=0;la<parm->lmax;la++)
   //   {
   //     for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
@@ -3684,7 +3684,7 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
   ofstream fp3(parm->fl_gf);
   ofstream fp5("dw_out1trans.txt");
   ofstream fp4("dw_in1trans.txt");
-  ofstream fp6("T-matrix-v1");
+  ofstream fp6("T-matrix-test");
   qeff=-(parm->Z_A+parm->Z_b)/(parm->m_A+parm->m_b);
   cout<<"Effective neutron charge (in units of e): "<<qeff<<"\n";
   factor=qeff*1024*pow(PI,4.5)*parm->mu_Cc*AMU/(HC*HC*parm->k_Aa*parm->k_Cc*parm->k_Bb);
@@ -3744,7 +3744,7 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
   gamma_max=parm->Qvalue+parm->energia_cm;
   gamma_max=10.;
   cout<<"Q-value: "<<parm->Qvalue<<endl;
-  delta_e=0.1;
+  delta_e=0.5;
   gamma_energy=parm->Qvalue;
   //parm->mu_Aa=1000;
   //parm->mu_Bb=1000;
@@ -3865,15 +3865,15 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
                                           //if((intS->inicial_st->l+intS->final_st->l+lc+lb)%2==0)
                                             {
                                               SChica(ints,K,la,lc,schica_mas,schica_menos,nonort_schica_mas,nonort_schica_menos,parm);
-                                              SChicaJosephson(ints,K,P,la,lc,schica_mas2,schica_menos2,parm);
+                                              //SChicaJosephson(ints,K,P,la,lc,schica_mas2,schica_menos2,parm);
                                               //if(la==lb) QuickShape(intS,sgrande_mas,&ints->entrante[0]);
                                               intS->schica_mas=schica_mas;
                                               intS->schica_menos=schica_menos;
                                               SJosephson(intS,K,P,la,lb,lc,sgrande_mas,sgrande_menos,parm);
                                               intS->schica_mas=schica_mas2;
                                               intS->schica_menos=schica_menos2;
-                                              SGrande(intS,K,la,lb,lc,sgrande_mas2,sgrande_menos2,nonort_sgrande_mas,nonort_sgrande_menos,
-                                                nonort_schica_mas,nonort_schica_menos,parm);
+                                              //SGrande(intS,K,la,lb,lc,sgrande_mas2,sgrande_menos2,nonort_sgrande_mas,nonort_sgrande_menos,
+                                              //nonort_schica_mas,nonort_schica_menos,parm);
 
                                               Clalb[la][lb][0]+=fase*pow(I,la-lb)*ints->inicial_st->spec*intS->final_st->spec*
                                               exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor*(*sgrande_mas+*sgrande_mas2);
@@ -7997,6 +7997,9 @@ void restart(complejo*** Clalb,fstream & fp,int* la_min)
   int lb;
   *la_min=0;
   getline(fp,line);
+  sscanf(line.c_str(),"%d %d %f %f %f %f",la_min,&lb,&x1,&x2,&x3,&x4);
+  Clalb[*la_min][lb][0]=double(x1)+I*double(x2);
+  Clalb[*la_min][lb][1]=double(x3)+I*double(x4);
   while(getline(fp,line))
     {
       sscanf(line.c_str(),"%d %d %f %f %f %f",la_min,&lb,&x1,&x2,&x3,&x4);

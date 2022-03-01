@@ -435,13 +435,13 @@ void AmplitudeCapture(struct parametros* parm)
               exp_delta_coulomb_f[lp]=exp(I*(deltac(lp,eta_f)));
               for(ld=abs(l-lp);(ld<=l+lp)&&(ld<parm->lmax);ld++)
                 {
+
                   rhofac=(16.*pow(PI,2.5)*pow(I,ld-lp)*pow(-1.,l)*
                           exp_delta_coulomb_f[lp]*exp_delta_coulomb_i[ld]*sqrt(2.*ld+1.))/(parm->k_Aa*k_p*sqrt(2.*l+1.));
                   fl->energia=parm->energia_cm;
                   fl->l=ld;
                   fl->spin=0.;
                   fl->j=ld;
-
                   S[l]=GeneraDWspin(fl,&(parm->pot_opt[indx_ingreso]),parm->T_carga*parm->P_carga,parm->mu_Aa,
                                     parm->radio,parm->puntos,parm->matching_radio,&fp1);
                   for(n=0;n<dim1->num_puntos;n++){

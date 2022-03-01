@@ -96,7 +96,7 @@ void OneTrans(struct parametros* parm)
   EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
   EscribePotencialOptico(parm->puntos,parm->pot_opt,parm->num_opt,parm);
   elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,parm->eta,0.);
-  exit(0);
+  //exit(0);
   if (parm->phonon==0) AmplitudOneTransSpinless(parm,TSpinless);
   if (parm->phonon==1) AmplitudOneTransSpinless(parm,Gamma);
   delete[] D0;
