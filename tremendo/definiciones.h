@@ -35,6 +35,10 @@ double AcoplamientoAngular(int l1,int l2,int l3,int l4,int K,double coseno1,doub
 void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* sgrande_mas,
              complejo* sgrande_menos,complejo* nonort_mas,complejo* nonort_menos,
              complejo* nonort_chica_mas,complejo* nonort_chica_menos,parametros *parm);
+void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* sgrande_mas,
+             complejo* sgrande_menos,complejo* nonort_mas,complejo* nonort_menos,
+             complejo* nonort_chica_mas,complejo* nonort_chica_menos,parametros *parm,vector <complejo> &at);
+
 int LeeMatrizCoeficientes(const char *fname,double** anm,int dimension);
 void ReadParS(char *s,const char key[20], char *par);
 int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,ifstream & fp);

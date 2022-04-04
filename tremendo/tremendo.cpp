@@ -1274,8 +1274,6 @@ complejo GeneraDW(distorted_wave* funcion,potencial_optico *v, double q1q2, doub
   funcion[1].puntos=puntos;
   funcion[1].radio=radio_max;
   funcion[1].j=funcion[0].l-0.5;
-  if(funcion[1].l==0) spinorbit=funcion[1].j=0.5;
-  //*fp<<"l= "<<funcion[0].l<<"  energy= "<<funcion[0].energia<<"  mass= "<<masa<<"  ******************  j=l+1/2 **************************************"<<endl;
   //********************************************* Solucion regular, j=l+1/2 **********************************************************
   spinorbit = double((funcion[0].l)); //T�rmino de spi-�rbita para j=l+0.5
   /* actualizacion del potencial con los t�rminos de Coulomb, centr�fugo y de spin-�rbita*/
@@ -1296,9 +1294,6 @@ complejo GeneraDW(distorted_wave* funcion,potencial_optico *v, double q1q2, doub
     funcion[0].wf[i+1]=(2.*(1.-0.416666667*dd*(-potencial[i]+funcion[0].energia))
                         *funcion[0].wf[i]-(1.+0.083333333*dd*(-potencial[i-1]+ funcion[0].energia))*funcion[0].wf[i-1])
       /(1.+0.083333333*dd*(-potencial[i+1]+funcion[0].energia));
-    //		*fp<<i<<"  "<<real(funcion->wf[i])<<"   "<<real(2.*(1.-0.416666667*dd*(-potencial[i]+funcion->energia)))
-    //				<<" "<<real(1.+0.083333333*dd*(-potencial[i-1]+ funcion->energia))
-    //				<<"   "<<real(1.+0.083333333*dd*(-potencial[i+1]+funcion->energia))<<endl;
   }
   // Calculo del desfase
   radio_1=radio_match;
@@ -1325,6 +1320,7 @@ complejo GeneraDW(distorted_wave* funcion,potencial_optico *v, double q1q2, doub
     funcion[0].wf[i]=factor*funcion[0].wf[i];
     if(status1 || status2) funcion[0].wf[i]=0.;
     //gsl_sf_coulomb_wave_FG_e(etac,q*funcion[0].r[i],funcion[0].l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
+    //if (funcion[0].l==100) misc4<<funcion[0].r[i]<<"  "<<real(funcion[0].wf[i])<<endl;
     //    *fp<<funcion[0].r[i]<<"  "<<real(funcion[0].wf[i])<<endl;
   }
   //*fp<<"l= "<<funcion[1].l<<"  energ�a= "<<funcion[1].energia<<"  masa= "<<masa<<"  ******************  j=l-1/2 **************************************"<<endl;
@@ -1450,16 +1446,15 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
     funcion->r[i] =delta_r*(i+1.);
     funcion->wf[i]=factor*funcion->wf[i];
     if(status1 || status2) funcion->wf[i]=0.;
-    //*fp<<funcion->r[i]<<"  "<<real(funcion->wf[i]/funcion->r[i] )<<"  "<<imag(funcion->wf[i]/funcion->r[i] )<<"  "<<abs(funcion->wf[i]/funcion->r[i] )<<endl;
   }
-  delta=funcion->PhaseShift();
+  //delta=funcion->PhaseShift();
   funcion->phase_shift=delta;
   delete[] potencial;
   return delta;
 }
 
 /*****************************************************************************
-Funci�n de Green
+Funcion de Green
 *****************************************************************************/
 complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* funcion_irregular,potencial_optico *v, double q1q2,
                              double masa, double radio_max,int puntos,double radio_match,double spin)
@@ -2379,10 +2374,6 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
         *nonort_menos+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_menos*nonort_chica_menos[n1]*angsum)/
 						integrando->coords->r_Bb[n1][n2][n3])*
           (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
-        // at[n1]+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*integrando->schica_mas[n1]*angsum)/
-        //          integrando->coords->r_Bb[n1][n2][n3])*
-        //   (integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3]*((integrando->dim2)->b-(integrando->dim2)->a)*
-        //   ((integrando->dim3)->b-(integrando->dim3)->a)/4.;
         // at[n1]+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_mas*integrando->schica_mas[n1]*angsum)/
         //          integrando->coords->r_Bb[n1][n2][n3])*
         //   (integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3]*((integrando->dim2)->b-(integrando->dim2)->a)*
@@ -2390,14 +2381,14 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
       }
     }
     //cout<<*sgrande_mas<<endl;
-    at[n1]=*sgrande_mas*1e5;
+    at[n1]=*sgrande_mas;
     //misc1<<r_Cc<<"  "<<real(at[n1])<<"  "<<imag(at[n1])<<"  "<<abs(at[n1])<<endl;
     //misc1<<r_Cc<<"  "<<real(*sgrande_mas)<<"  "<<imag(*sgrande_mas)<<"  "<<abs(*sgrande_mas)
-    // <<"  "<<abs(*sgrande_mas)*abs(*sgrande_mas)<<endl;
+    //<<"  "<<abs(*sgrande_mas)*abs(*sgrande_mas)<<endl;
     // misc1<<r_Cc<<"  "<<real(at[n1])<<"  "<<imag(at[n1])<<"  "<<abs(at[n1])
-    //    <<"  "<<abs(at[n1])*abs(at[n1])<<endl;
+    //  <<"  "<<abs(at[n1])*abs(at[n1])<<endl;
   }
-  //  exit(0);
+  //exit(0);
   *sgrande_mas*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
   *sgrande_menos*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
@@ -2407,6 +2398,92 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
   *nonort_menos*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
 }
+
+
+/*****************************************************************************
+Outer integral for successive and non-orthogonal terms, with amplitude
+*****************************************************************************/
+void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* sgrande_mas,
+             complejo* sgrande_menos,complejo* nonort_mas,complejo* nonort_menos,
+             complejo* nonort_chica_mas,complejo* nonort_chica_menos,parametros *parm,vector <complejo> &at)
+{
+  int n1,n2,n3;
+  double r_Cc,rb1,theta,angsum;
+  complejo flb_mas,flb_menos,estado_inicial,
+    estado_final,remnant,potencial, pot_out,pot_intermediate;
+  *sgrande_mas=0.;
+  *sgrande_menos=0.;
+  *nonort_menos=0.;
+  *nonort_mas=0.;
+  //if(la==3 && lb==0) misc3<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+  for (n1 = 0; n1 < integrando->dim1->num_puntos; n1++) {
+    r_Cc = (integrando->dim1->a)+((integrando->dim1->b)-(integrando->dim1->a))*((integrando->dim1->puntos[n1])+1.)/2.;
+    remnant=0.;
+    if (parm->remnant==1 && integrando->prior==1)
+      pot_intermediate=interpola_cmpx(integrando->pot_intermediate->pot,integrando->pot_intermediate->r,r_Cc,integrando->pot_intermediate->puntos);
+    pot_out=interpola_cmpx(integrando->pot_out->pot,integrando->pot_out->r,r_Cc
+                           ,integrando->pot_out->puntos);
+    for (n2 = 0; n2 < integrando->dim2->num_puntos; n2++) {
+      rb1 = (integrando->dim2->a)+((integrando->dim2->b)-(integrando->dim2->a))*((integrando->dim2->puntos[n2])+1.)/2.;
+      estado_inicial=interpola_cmpx(integrando->inicial_st->wf,integrando->inicial_st->r,
+                                    rb1,integrando->inicial_st->puntos);
+      if(integrando->prior==0) potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,rb1,integrando->pot->puntos)+0.*I;
+      for (n3=0;n3<integrando->dim3->num_puntos; n3++) {
+        theta = (integrando->dim3->a)+((integrando->dim3->b)-(integrando->dim3->a))*((integrando->dim3->puntos[n3])+1.)/2.;
+        if(integrando->prior==1) potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,
+                                                         integrando->coords->r_C1[n1][n2][n3],integrando->pot->puntos)+0.*I;
+        if (parm->remnant==1 && integrando->prior==1) remnant=pot_intermediate-pot_out;
+        potencial=potencial-remnant;
+        estado_final=interpola_cmpx(integrando->final_st->wf,integrando->final_st->r,integrando->coords->r_C1[n1][n2][n3],
+                                    integrando->final_st->puntos);
+        flb_mas=interpola_cmpx(integrando->saliente[0].wf,integrando->saliente[0].r,integrando->coords->r_Bb[n1][n2][n3],
+                               integrando->saliente[0].puntos);
+        flb_menos=interpola_cmpx(integrando->saliente[1].wf,integrando->saliente[1].r,integrando->coords->r_Bb[n1][n2][n3],
+                                 integrando->saliente[1].puntos);
+
+        angsum=AcoplamientoAngular(lc,lb,integrando->final_st->l,integrando->inicial_st->l,K,integrando->coords->coseno_r_C1[n1][n2][n3],
+                                   -cos(theta),integrando->coords->coseno_r_Bb[n1][n2][n3]);
+
+        *sgrande_mas+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_mas*integrando->schica_mas[n1]*angsum)/
+                       integrando->coords->r_Bb[n1][n2][n3])*
+          (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+        *sgrande_menos+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_menos*integrando->schica_menos[n1]*angsum)/
+                         integrando->coords->r_Bb[n1][n2][n3])*
+          (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+
+        *nonort_mas+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_mas*nonort_chica_mas[n1]*angsum)/
+                      integrando->coords->r_Bb[n1][n2][n3])*
+          (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+        *nonort_menos+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_menos*nonort_chica_menos[n1]*angsum)/
+						integrando->coords->r_Bb[n1][n2][n3])*
+          (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+         at[n1]+=((r_Cc*rb1*rb1*sin(theta)*potencial*estado_final*estado_inicial*flb_mas*integrando->schica_mas[n1]*angsum)/
+                  integrando->coords->r_Bb[n1][n2][n3])*
+           (integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3]*((integrando->dim2)->b-(integrando->dim2)->a)*
+           ((integrando->dim3)->b-(integrando->dim3)->a)/4.;
+      }
+    }
+    //cout<<*sgrande_mas<<endl;
+    //at[n1]+=*sgrande_mas;
+    //misc1<<r_Cc<<"  "<<real(at[n1])<<"  "<<imag(at[n1])<<"  "<<abs(at[n1])<<endl;
+    //misc1<<r_Cc<<"  "<<real(*sgrande_mas)<<"  "<<imag(*sgrande_mas)<<"  "<<abs(*sgrande_mas)
+    //<<"  "<<abs(*sgrande_mas)*abs(*sgrande_mas)<<endl;
+     // misc1<<r_Cc<<"  "<<real(at[n1])<<"  "<<imag(at[n1])<<"  "<<abs(at[n1])
+     //    <<"  "<<abs(at[n1])*abs(at[n1])<<endl;
+  }
+  *sgrande_mas*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
+    ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
+  *sgrande_menos*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
+    ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
+  *nonort_mas*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
+    ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
+  *nonort_menos*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
+    ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
+}
+
+
+
+
 /*****************************************************************************
 External integral for successive and non-orthogonality. Contains variation of gauge
 angle with time
@@ -3230,7 +3307,7 @@ void TwoTrans(struct parametros* parm)
   EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
   EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
   elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,parm->eta,0.);
-  // exit(0);
+  //exit(0);
   if(parm->form_factor) GeneraFormFactor(parm);
   if(parm->successive && ((!strcmp(parm->a_tipo_fun,"li"))||(!strcmp(parm->B_tipo_fun,"li")))) SuccessiveTipoLi(parm,succClalb,nonClalb);
   if(parm->successive && !(parm->phonon)) {cout<<"Successive..."<<endl; Successive(parm,succClalb,nonClalb);}
@@ -3587,9 +3664,11 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
                                                           parm->puntos,parm->matching_radio,parm->n_spin);
                                       SChica(ints,P,la,lc,schica_mas,schica_menos,nonort_schica_mas,nonort_schica_menos,parm);
                                       SGrande(intS,K,la,lb,lc,sgrande_mas,sgrande_menos,nonort_sgrande_mas,nonort_sgrande_menos,
-                                                  nonort_schica_mas,nonort_schica_menos,parm);
+                                                nonort_schica_mas,nonort_schica_menos,parm);
+                                      // SGrande(intS,K,la,lb,lc,sgrande_mas,sgrande_menos,nonort_sgrande_mas,nonort_sgrande_menos,
+                                      //      nonort_schica_mas,nonort_schica_menos,parm,at);
                                       //SGrandeGauge(intS,K,la,lb,lc,sgrande_mas,sgrande_menos,nonort_sgrande_mas,nonort_sgrande_menos,
-                                      //         nonort_schica_mas,nonort_schica_menos,parm,r,phase,t,at);
+                                      //       nonort_schica_mas,nonort_schica_menos,parm,r,phase,t,at);
                                       //cout<<"S:"<<abs(*sgrande_mas)<<endl;
                                       Clalb[la][lb][0]+=fase*pow(I,la-lb)*ints->inicial_st->spec*intS->final_st->spec*
                                         exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor*(*sgrande_mas);
@@ -3613,20 +3692,12 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
             <<"  "<<real(Clalb[la][lb][1])<<"  "<<imag(Clalb[la][lb][1])<<endl;
         }
     }
-  //  for(n=0;n<parm->rCc_puntos;n++)
-  //{
-  //r_Cc = (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
+  for(n=0;n<parm->rCc_puntos;n++)
+    {
+      r_Cc = (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
       //      misc1<<r_Cc<<" "<<real(at[n])<<" "<<imag(at[n])<<" "<<abs(at[n])
       //   <<" "<<abs(at[n])*abs(at[n])<<endl;
-      //  }
-  // for(la=0;la<parm->lmax;la++)
-  //   {
-  //     for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
-  //       {
-  //         fp<<la<<"  "<<lb<<"  "<<real(Clalb[la][lb][0])<<"  "<<imag(Clalb[la][lb][0])<<"  "<<abs(Clalb[la][lb][0])
-  //           <<"  "<<real(Clalb[la][lb][1])<<"  "<<imag(Clalb[la][lb][1])<<endl;
-  //       }
-  //   }
+    }
   delete[] schica_mas;
   delete[] schica_menos;
   delete[] nonort_schica_mas;
@@ -3647,7 +3718,7 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
   int la,lb,lc,st_a,st_B,n,K,P,indx_ingreso,indx_intermedio,indx_salida;
   double factor,c1,c2,c3,c4,qeff,gamma_energy,gamma_max,
     heavy_density,gamma_density,totalsum,delta_e,
-    Qmax,constante,Qmax_int;
+    Qmax,constante,Qmax_int,r_Cc;
   double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
   double eta_i=parm->eta;
   complejo exp_delta_coulomb_i,exp_delta_coulomb_f,fase,factor_non;
@@ -3656,6 +3727,7 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
   parametros_integral *dim1=new parametros_integral;
   parametros_integral *dim2=new parametros_integral;
   parametros_integral *dim3=new parametros_integral;
+  vector <complejo> at(parm->rCc_puntos,0.);
   coordenadas_successive *coords=new coordenadas_successive;
   if (!ints) Error("No se pudo reservar memoria para ints");
   if (!intS) Error("No se pudo reservar memoria para intS");
@@ -3744,7 +3816,7 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
   gamma_max=parm->Qvalue+parm->energia_cm;
   gamma_max=10.;
   cout<<"Q-value: "<<parm->Qvalue<<endl;
-  delta_e=0.5;
+  delta_e=1000;
   gamma_energy=parm->Qvalue;
   //parm->mu_Aa=1000;
   //parm->mu_Bb=1000;
@@ -3864,17 +3936,18 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
                                                               parm->puntos,parm->matching_radio,parm->n_spin);
                                           //if((intS->inicial_st->l+intS->final_st->l+lc+lb)%2==0)
                                             {
-                                              SChica(ints,K,la,lc,schica_mas,schica_menos,nonort_schica_mas,nonort_schica_menos,parm);
-                                              //SChicaJosephson(ints,K,P,la,lc,schica_mas2,schica_menos2,parm);
+                                              //SChica(ints,K,la,lc,schica_mas,schica_menos,nonort_schica_mas,nonort_schica_menos,parm);
+                                              SChicaJosephson(ints,K,P,la,lc,schica_mas2,schica_menos2,parm);
                                               //if(la==lb) QuickShape(intS,sgrande_mas,&ints->entrante[0]);
                                               intS->schica_mas=schica_mas;
                                               intS->schica_menos=schica_menos;
-                                              SJosephson(intS,K,P,la,lb,lc,sgrande_mas,sgrande_menos,parm);
+                                              //SJosephson(intS,K,P,la,lb,lc,sgrande_mas,sgrande_menos,parm);
                                               intS->schica_mas=schica_mas2;
                                               intS->schica_menos=schica_menos2;
-                                              //SGrande(intS,K,la,lb,lc,sgrande_mas2,sgrande_menos2,nonort_sgrande_mas,nonort_sgrande_menos,
-                                              //nonort_schica_mas,nonort_schica_menos,parm);
-
+                                              // SGrande(intS,K,la,lb,lc,sgrande_mas2,sgrande_menos2,nonort_sgrande_mas,nonort_sgrande_menos,
+                                              // nonort_schica_mas,nonort_schica_menos,parm);
+                                              SGrande(intS,K,la,lb,lc,sgrande_mas2,sgrande_menos2,nonort_sgrande_mas,nonort_sgrande_menos,
+                                                      nonort_schica_mas,nonort_schica_menos,parm,at);
                                               Clalb[la][lb][0]+=fase*pow(I,la-lb)*ints->inicial_st->spec*intS->final_st->spec*
                                               exp_delta_coulomb_i*exp_delta_coulomb_f*c1*c2*c3*c4*factor*(*sgrande_mas+*sgrande_mas2);
                                               //Clalb[la][lb][0]+=fase*pow(I,la-lb)*ints->inicial_st->spec*intS->final_st->spec*
@@ -3908,6 +3981,14 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
             <<"  "<<real(Clalb[la][lb][1])<<"  "<<imag(Clalb[la][lb][1])<<endl;
         }
     }
+  for(n=0;n<parm->rCc_puntos;n++)
+    {
+      r_Cc = (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
+      misc1<<r_Cc<<" "<<real(at[n])<<" "<<imag(at[n])<<" "<<abs(at[n])
+           <<" "<<abs(at[n])*abs(at[n])<<endl;
+    }
+  exit(0);
+
 
   delete[] schica_mas;
   delete[] schica_menos;
@@ -6031,6 +6112,8 @@ complejo***** tensor5_cmpx(int dim1,int dim2,int dim3,int dim4,int dim5)
 
 double deltac(int l,double etac)
 {
+  //int neuler=5000;
+  //l=150;
   int neuler=5000;
   int n,i;
   double euler=0.5772156649;
@@ -6048,10 +6131,12 @@ double deltac(int l,double etac)
     delc[n]=delc[n-1]+etac/(1.+double(l)+double(n))
             -atan(etac/(1.+double(l)+double(n)));
     dif=delc[n]-delc[n-1];
+    //misc3<<n<<"  "<<dif<<endl;
     if (abs(dif)<1.e-4) break;
   }
   dumb=delc[n]+etac*(constante-euler);
   delete[] delc;
+  //exit(0);
   return dumb;
 }
 ///////////////////////////////////////////////////////////////
@@ -6680,7 +6765,7 @@ void PotencialPolarizado(complejo* Up,complejo* ff1,complejo* ff2,double radio, 
 			if (indice2>puntos-1) indice2=puntos-1;
 			sum+=ff2[indice1]*r*gsl_sf_bessel_jl(lp,k0*r)*gsl_sf_legendre_sphPlm(lp,0,1.)*
 					fint*gint*wr[nr];
-			misc4<<R<<"  "<<r<<"  "<<ff2[indice1]<<"  "<<fint<<"  "<<gint<<"  "<<gsl_sf_bessel_jl(lp,k0*r)<<endl;
+			//misc4<<R<<"  "<<r<<"  "<<ff2[indice1]<<"  "<<fint<<"  "<<gint<<"  "<<gsl_sf_bessel_jl(lp,k0*r)<<endl;
 		}
 		Up[nR]=exp(I*k0*R)*PI*ff1[indice2]*sum*(br-ar)*sqrt(2.*lp+1.)/(parm->k_Bb*R);
 	}
@@ -7189,7 +7274,7 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 		f_down->spin=spin;
 		f_down->j=l-spin;
 		if(l==0) f_down->j=spin;
-		delta_up[l]=GeneraDWspin(f_up,opt_up,q1q2,mass,radio,puntos,parm->matching_radio,&fp1);
+        delta_up[l]=GeneraDWspin(f_up,opt_up,q1q2,mass,radio,puntos,parm->matching_radio,&fp1);
 		delta_down[l]=GeneraDWspin(f_down,opt_up,q1q2,mass,radio,puntos,parm->matching_radio,&fp2);
 	}
 	for (l = 0; l < parm->lmax; l++) {
@@ -7244,6 +7329,7 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 			dif_menos+=(exp(2.*I*delta_down[l])-1.)*exp(2.*I
 					*deltac(l,eta))*(2.*l+1.)*gsl_sf_legendre_Pl(l,costheta)
 					/(2.*I*k);
+            //cout<<n<<endl;
 		}
 //		exit(0);
 		scattering_amplitude_total_mas[n] = fasecoul[n] + dif_mas;
@@ -7957,10 +8043,10 @@ complejo estado::PhaseShift()
   gsl_complex deltagsl;
   gsl_sf_result F1, G1, F2, G2, Fp, Gp;
   complejo fu1,fu2,derivada_log;
-  rad1=r[puntos-2];
-  rad2=r[puntos-1];
-  fu1=wf[puntos-2];
-  fu2=wf[puntos-1];
+  rad1=r[puntos-200];
+  rad2=r[puntos-199];
+  fu1=wf[puntos-200];
+  fu2=wf[puntos-199];
   derivada_log=fu1/fu2;
   status1=gsl_sf_coulomb_wave_FG_e(eta,k*rad1,l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
   status2=gsl_sf_coulomb_wave_FG_e(eta,k*rad2,l,0,&F2,&Fp,&G2,&Gp,&ex1,&ex2);
@@ -7977,10 +8063,10 @@ complejo distorted_wave::PhaseShift()
   gsl_complex deltagsl;
   gsl_sf_result F1, G1, F2, G2, Fp, Gp;
   complejo fu1,fu2,derivada_log;
-  rad1=r[puntos-2];
-  rad2=r[puntos-1];
-  fu1=wf[puntos-2];
-  fu2=wf[puntos-1];
+  rad1=r[puntos-200];
+  rad2=r[puntos-199];
+  fu1=wf[puntos-200];
+  fu2=wf[puntos-199];
   derivada_log=fu1/fu2;
   status1=gsl_sf_coulomb_wave_FG_e(eta,k*rad1,l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
   status2=gsl_sf_coulomb_wave_FG_e(eta,k*rad2,l,0,&F2,&Fp,&G2,&Gp,&ex1,&ex2);
