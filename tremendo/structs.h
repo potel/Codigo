@@ -205,6 +205,7 @@ class estado {
   double k;
   double mass;
   complejo phase_shift;
+  double V0; // potential depth after energy adjustment
   char file[100];
   complejo PhaseShift();
 };

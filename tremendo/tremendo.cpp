@@ -58,6 +58,7 @@ int main(int argc,char* argv[])
   const char* input=argv[1];
   string file;
   LeeParametros(input,parm);
+  cout<<"hc: "<<HC<<"   2*amu/hbar^2: "<<2*AMU/(HC*HC)<<endl;
   if(argc==3)
     {
       energy=atof(argv[2]);
@@ -3276,7 +3277,8 @@ void TwoTrans(struct parametros* parm)
 	  if(parm->a_estados[n]==parm->st[m].id) indx_st=m;
 	}
       GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),
-                      parm->radio,parm->puntos,(parm->n1_carga)*parm->Z_b,parm,parm->adjust_potential,parm->m_b/(parm->m_b+1.),D0,rms);
+                      parm->radio,parm->puntos,(parm->n1_carga)*parm->Z_b,
+                      parm,parm->adjust_potential,parm->m_b/(parm->m_b+1.),D0,rms);
       cout<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_a].V<<endl;
     }
   //exit(0);
@@ -3289,7 +3291,8 @@ void TwoTrans(struct parametros* parm)
 	  if(parm->B_estados[n]==parm->st[m].id) indx_st=m;
 	}
       GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),
-                      parm->radio,parm->puntos,(parm->n1_carga)*parm->Z_A,parm,parm->adjust_potential,parm->m_A/(parm->m_A+1.),D0,rms);
+                      parm->radio,parm->puntos,(parm->n1_carga)*parm->Z_A,
+                      parm,parm->adjust_potential,parm->m_A/(parm->m_A+1.),D0,rms);
       cout<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_B].V<<endl;
     }
   //File2Pot(&parm->pot[indx_pot_B],parm);
@@ -3582,6 +3585,7 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
                parm->radio,parm->puntos,parm->matching_radio,&fp4);
       for(lb=abs(la-parm->lambda);lb<=la+parm->lambda && lb<parm->lmax;lb++)
         {
+          cout<<"lb: "<<lb<<endl;
           exp_delta_coulomb_f=exp(I*(deltac(lb,eta_f)));
           /* distorted wave en el canal de salida con spin up (saliente[0]) y spin down (saliente[1]) */
           intS->saliente[0].energia=parm->energia_cm+parm->Qvalue;
@@ -3597,8 +3601,12 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
                   if (parm->a_estados[st_a] == parm->st[n].id) {
                     ints->inicial_st = &(parm->st[n]);
                     intS->inicial_st = &(parm->st[n]);
-                    //ints->final_st = &(parm->st[n]);
-                    //intS->final_st = &(parm->st[n]);
+                    if (parm->prior==0)
+                      {
+                        ints->pot->V=ints->inicial_st->V0;
+                        GeneraPotencialCM(parm,ints->pot);
+                        //cout<<"post potential generated with V0="<<ints->pot->V<<endl;
+                      }
                   }
                 }
               for(st_B=0;(st_B<parm->B_numst);st_B++)
@@ -3607,8 +3615,12 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
                     if (parm->B_estados[st_B] == parm->st[n].id) {
                       ints->final_st = &(parm->st[n]);
                       intS->final_st = &(parm->st[n]);
-                      //ints->inicial_st = &(parm->st[n]);
-                      //intS->inicial_st = &(parm->st[n]);
+                      if (parm->prior==1)
+                        {
+                          ints->pot->V=ints->final_st->V0;
+                          GeneraPotencialCM(parm,ints->pot);
+                          //cout<<"prior potential generated with V0="<<ints->pot->V<<endl;
+                        }
                     }
                   }
                   if((intS->final_st->spec)!=0. && (ints->inicial_st->spec)!=0.)
@@ -3987,7 +3999,7 @@ void NuclearJosephson(struct parametros *parm,complejo*** Clalb)
       misc1<<r_Cc<<" "<<real(at[n])<<" "<<imag(at[n])<<" "<<abs(at[n])
            <<" "<<abs(at[n])*abs(at[n])<<endl;
     }
-  exit(0);
+  //exit(0);
 
 
   delete[] schica_mas;
@@ -6454,6 +6466,8 @@ void GeneraEstadosPI(potencial* pot,estado* st,double radio,int puntos,double ca
 		}
       else File2State(st,parm);
 	}
+  st->V0=pot->V;
+  cout<<"Adjusted depth: "<<pot->V<<endl;
 }
 /////////////////////////////////////////////////////////////////////////
 //                                                                     //
