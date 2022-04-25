@@ -206,6 +206,7 @@ class estado {
   double mass;
   complejo phase_shift;
   double V0; // potential depth after energy adjustment
+  bool use_to_transfer;
   char file[100];
   complejo PhaseShift();
 };
@@ -356,6 +357,7 @@ struct parametros {
   double P_radio_dens;
   double T_radio_dens;
   int koning_delaroche;
+  int use_same_transfer_pot;
   /******************************************/
 
   struct potencial pot[MAX_POTS];

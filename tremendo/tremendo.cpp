@@ -463,6 +463,7 @@ void LeeParametros(const char *fname,struct parametros *x)
       ReadParD(aux,"num_st",&(x->num_st));
       ReadParD(aux,"one_trans",&(x->one_trans));
       ReadParD(aux,"radtrans",&(x->radtrans));
+      ReadParD(aux,"use_same_transfer_pot",&(x->use_same_transfer_pot));
       ReadParD(aux,"nuclear_josephson",&(x->nuclear_josephson));
       ReadParD(aux,"transition_length",&(x->transition_length));
       ReadParD(aux,"cluster_inelastic",&(x->cluster_inelastic));
@@ -623,7 +624,7 @@ void Error(const char *text)
   exit(1);
 }
 /*****************************************************************************
-Lee un n�mero decimal
+Lee numero decimal
 *****************************************************************************/
 void ReadParD(char *s,const char key[20], int *par)
 {
@@ -839,8 +840,6 @@ int LeeEstados(char *s,const char key[100],estado* st,ifstream & fp)
           ReadParF(aux,"spec",&(st[i].spec));
           ReadParF(aux,"energia",&(st[i].energia));
           ReadParS(aux,"file",st[i].file);
-          //cout<<" energia: "<<st[i].energia<<" l: "<<st[i].l<<" spec: "<<st[i].spec<<endl;
-          //informe<<" energia: "<<st[i].energia<<" l: "<<st[i].l<<" spec: "<<st[i].spec<<endl;
           if(!strncmp(aux,flag,3)) i++;
 		}
       cout<<"Leidos "<<i<<" estados monoparticulares"<<endl;
@@ -3242,6 +3241,7 @@ void TwoTrans(struct parametros* parm)
   ifstream fp_phonon;
   phonon* Gamma1;
   ofstream fp_output;
+  double well_depth;
   fp_output.open(parm->fl_output, std::ios_base::app);
   fp_output<<"********************************************************************************"<<endl;
   fp_output<<"                       Starting 2-nucleon transfer calculation"<<endl;
@@ -3250,16 +3250,12 @@ void TwoTrans(struct parametros* parm)
   succClalb=tensor_cmpx(parm->lmax+10,parm->lmax+10,2);
   simClalb=tensor_cmpx(parm->lmax+10,parm->lmax+10,2);
   nonClalb=tensor_cmpx(parm->lmax+10,parm->lmax+10,2);
-  //  HanShiShen(parm->energia_lab+parm->int_Qvalue,parm->T_N+1,parm->T_carga);
   HanShiShen(parm->energia_lab+parm->int_Qvalue,parm->T_N+1,parm->T_carga);
   PangPotential(dumb_pot_opt,parm->energia_lab,parm->T_N,parm->T_carga,0,-1.,"3H");
   CH89(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
   KoningDelaroche(parm->energia_lab+parm->Qvalue,parm->T_N+2,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
-  //KoningDelaroche(20.,126,82,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt_p,dumb_pot_opt_n);
-  //GeneraPotencialOptico(parm,dumb_pot_opt_p,1,208);
-  //EscribePotencialOptico(parm->puntos,dumb_pot_opt_p,1,parm);
-  //exit(0);
   InicializaTwoTrans(parm);
+
   cout<<"Generando potenciales de campo medio en TwoTrans"<<endl;
   for(n=0;n<parm->num_cm;n++)
     {
@@ -3279,9 +3275,19 @@ void TwoTrans(struct parametros* parm)
       GeneraEstadosPI(&(parm->pot[indx_pot_a]),&(parm->st[indx_st]),
                       parm->radio,parm->puntos,(parm->n1_carga)*parm->Z_b,
                       parm,parm->adjust_potential,parm->m_b/(parm->m_b+1.),D0,rms);
-      cout<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_a].V<<endl;
+      cout<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_a].V<<endl<<endl;
+      fp_output<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_a].V<<endl<<endl;
+      if(parm->pot_transfer==parm->st[indx_st].id)
+        {
+          if(parm->prior==1)
+            {
+              cout<<"Error: prior represention but transfer potential corresponds to nucleus a"<<endl;
+              fp_output<<"Error: prior represention but transfer potential corresponds to nucleus a"<<endl;
+              exit(0);
+            }
+          well_depth=parm->pot[indx_pot_a].V;
+        }
     }
-  //exit(0);
   cout<<"Generando niveles nucleo B"<<endl;
   /* Genera niveles del nucleo 'B' */
   for (n=0;n<parm->B_numst;n++)
@@ -3293,7 +3299,28 @@ void TwoTrans(struct parametros* parm)
       GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),
                       parm->radio,parm->puntos,(parm->n1_carga)*parm->Z_A,
                       parm,parm->adjust_potential,parm->m_A/(parm->m_A+1.),D0,rms);
-      cout<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_B].V<<endl;
+      cout<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_B].V<<endl<<endl;
+      fp_output<<"D0: "<<*D0<<"   rms: "<<*rms<<"   potencial: "<<parm->pot[indx_pot_B].V<<endl<<endl;
+      if(parm->pot_transfer==parm->st[indx_st].id)
+        {
+          if(parm->prior==0)
+            {
+              cout<<"Error: post represention but transfer potential corresponds to nucleus B"<<endl;
+              fp_output<<"Error: post represention but transfer potential corresponds to nucleus B"<<endl;
+              exit(0);
+            }
+          well_depth=parm->pot[indx_pot_B].V;
+        }
+    }
+  if(parm->prior==1)
+    {
+      parm->pot[indx_pot_B].V=well_depth;
+      GeneraPotencialCM(parm,&(parm->pot[indx_pot_B]));
+    }
+  if(parm->prior==0)
+    {
+      parm->pot[indx_pot_a].V=well_depth;
+      GeneraPotencialCM(parm,&(parm->pot[indx_pot_a]));
     }
   //File2Pot(&parm->pot[indx_pot_B],parm);
   EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
@@ -3443,7 +3470,8 @@ void InicializaTwoTrans(struct parametros* parm)
 
 void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
 {
-  int la,lb,lc,st_a,st_B,n,K,P,indx_ingreso,indx_intermedio,indx_salida,la_min;
+  int la,lb,lc,st_a,st_B,n,K,P,indx_ingreso,indx_intermedio,indx_salida,la_min
+    ,indx_pot_a,indx_pot_B;
   double factor,c1,c2,c3,c4,r_Cc;
   double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
   double eta_i=parm->eta;
@@ -3533,13 +3561,47 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
   /*Selecciona el potencial de transfer*/
   for(n=0;n<parm->num_cm;n++)
     {
-      if(parm->pot_transfer==parm->pot[n].id)
+      if(parm->a_potcm==parm->pot[n].id) indx_pot_a=n;
+      if(parm->B_potcm==parm->pot[n].id) indx_pot_B=n;
+    }
+  if(parm->prior==1)
+    {
+      ints->pot=&(parm->pot[indx_pot_B]);
+      intS->pot=&(parm->pot[indx_pot_B]);
+      if(parm->pot_transfer >= 0)
         {
-          ints->pot=&(parm->pot[n]);
-          intS->pot=&(parm->pot[n]);
+          cout<<"Implementing the PRIOR representation, the T-matrix will be calculated with potential #"
+              <<indx_pot_B<<" with an adjusted depth V="<<parm->pot[indx_pot_B].V<<endl;
+          fp_output<<"Implementing the PRIOR representation, the T-matrix will be calculated with potential #"
+                   <<indx_pot_B<<" with an adjusted depth V="<<parm->pot[indx_pot_B].V<<endl;
+        }
+      if(parm->pot_transfer < 0)
+        {
+          cout<<"Implementing the PRIOR representation, the T-matrix will be calculated with potentials #"
+              <<indx_pot_B<<" with a depth individually  adjusted to each single-particle transition"<<endl;
+          fp_output<<"Implementing the PRIOR representation, the T-matrix will be calculated with potentials #"
+                   <<indx_pot_B<<" with a depth individually  adjusted to each single-particle transition"<<endl;
         }
     }
-  cout<<ints->pot->pot<<endl;
+  if(parm->prior==0)
+    {
+      ints->pot=&(parm->pot[indx_pot_a]);
+      intS->pot=&(parm->pot[indx_pot_a]);
+      if(parm->pot_transfer >= 0)
+        {
+      cout<<"Implementing the POST representation, the T-matrix will be calculated with potential #"
+          <<indx_pot_a<<" with an adjusted depth V="<<parm->pot[indx_pot_a].V<<endl;
+      cout<<"Implementing the POST representation, the T-matrix will be calculated with potential #"
+          <<indx_pot_a<<" with an adjusted depth V="<<parm->pot[indx_pot_a].V<<endl;
+        }
+      if(parm->pot_transfer < 0)
+        {
+          cout<<"Implementing the POST representation, the T-matrix will be calculated with potentials #"
+              <<indx_pot_a<<" with a depth individually  adjusted to each single-particle transition"<<endl;
+          fp_output<<"Implementing the POST representation, the T-matrix will be calculated with potentials #"
+                   <<indx_pot_a<<" with a depth individually  adjusted to each single-particle transition"<<endl;
+        }
+    }
   ints->prior=parm->prior;
   intS->prior=parm->prior;
   
@@ -3601,11 +3663,10 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
                   if (parm->a_estados[st_a] == parm->st[n].id) {
                     ints->inicial_st = &(parm->st[n]);
                     intS->inicial_st = &(parm->st[n]);
-                    if (parm->prior==0)
+                    if (parm->prior==0 && parm->pot_transfer<0)
                       {
                         ints->pot->V=ints->inicial_st->V0;
                         GeneraPotencialCM(parm,ints->pot);
-                        //cout<<"post potential generated with V0="<<ints->pot->V<<endl;
                       }
                   }
                 }
@@ -3615,11 +3676,10 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
                     if (parm->B_estados[st_B] == parm->st[n].id) {
                       ints->final_st = &(parm->st[n]);
                       intS->final_st = &(parm->st[n]);
-                      if (parm->prior==1)
+                      if (parm->prior==1  && parm->pot_transfer<0)
                         {
                           ints->pot->V=ints->final_st->V0;
                           GeneraPotencialCM(parm,ints->pot);
-                          //cout<<"prior potential generated with V0="<<ints->pot->V<<endl;
                         }
                     }
                   }
@@ -6467,7 +6527,6 @@ void GeneraEstadosPI(potencial* pot,estado* st,double radio,int puntos,double ca
       else File2State(st,parm);
 	}
   st->V0=pot->V;
-  cout<<"Adjusted depth: "<<pot->V<<endl;
 }
 /////////////////////////////////////////////////////////////////////////
 //                                                                     //
