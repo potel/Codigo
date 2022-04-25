@@ -3610,19 +3610,19 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
   if (parm->continuation)
     {
       fp_output<<"\n*********************** continuation run   **********************\n";
-      restart(Clalb,fp,&la_min);
+      restart(Clalb,fp,&la_min,parm->lmax);
       fp.clear();
       fp.seekg(0);
-      if(parm->lmax<la_min+1)
-        {
-          cout<<"Maximum number of partial waves: "<<parm->lmax<<endl;
-          cout<<"Restartin from l=: "<<la_min+1<<endl;
-          cout<<"Trying to restart calculation with too little partial waves: stopping calculation"<<endl;
-          fp_output<<"Maximum number of partial waves: "<<parm->lmax<<endl;
-          fp_output<<"Restartin from l=: "<<la_min+1<<endl;
-          fp_output<<"Trying to restart calculation with too little partial waves: stopping calculation"<<endl;
-          exit(0);
-        }
+      // if(parm->lmax<la_min)
+      //   {
+      //     cout<<"Maximum number of partial waves: "<<parm->lmax<<endl;
+      //     cout<<"Restartin from l=: "<<la_min+1<<endl;
+      //     cout<<"Trying to restart calculation with too little partial waves: stopping calculation"<<endl;
+      //     fp_output<<"Maximum number of partial waves: "<<parm->lmax<<endl;
+      //     fp_output<<"Restartin from l=: "<<la_min+1<<endl;
+      //     fp_output<<"Trying to restart calculation with too little partial waves: stopping calculation"<<endl;
+      //     exit(0);
+      //   }
       cout<<"Restarting calculation from l="<<la_min+1<<endl;
       cout<<"Amplitudes read from file "<<parm->fl_amplitudes<<endl;
       fp_output<<"Restarting calculation from l="<<la_min+1<<endl;
@@ -4536,19 +4536,19 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb,p
   if (parm->continuation)
     {
       fp_output<<"\n*********************** continuation run   **********************\n";
-      restart(Clalb,fp,&la_min);
+      restart(Clalb,fp,&la_min,parm->lmax);
       fp.clear();
       fp.seekg(0);
-      if(parm->lmax<la_min+1)
-        {
-          cout<<"Maximum number of partial waves: "<<parm->lmax<<endl;
-          cout<<"Restartin from l=: "<<la_min+1<<endl;
-          cout<<"Trying to restart calculation with too little partial waves: stopping calculation"<<endl;
-          fp_output<<"Maximum number of partial waves: "<<parm->lmax<<endl;
-          fp_output<<"Restartin from l=: "<<la_min+1<<endl;
-          fp_output<<"Trying to restart calculation with too little partial waves: stopping calculation"<<endl;
-          exit(0);
-        }
+      // if(parm->lmax<la_min+1)
+      //   {
+      //     cout<<"Maximum number of partial waves: "<<parm->lmax<<endl;
+      //     cout<<"Restartin from l=: "<<la_min+1<<endl;
+      //     cout<<"Trying to restart calculation with too little partial waves: stopping calculation"<<endl;
+      //     fp_output<<"Maximum number of partial waves: "<<parm->lmax<<endl;
+      //     fp_output<<"Restartin from l=: "<<la_min+1<<endl;
+      //     fp_output<<"Trying to restart calculation with too little partial waves: stopping calculation"<<endl;
+      //     exit(0);
+      //   }
       cout<<"Restarting calculation from l="<<la_min+1<<endl;
       cout<<"Amplitudes read from file "<<parm->fl_amplitudes<<endl;
       fp_output<<"Restarting calculation from l="<<la_min+1<<endl;
@@ -8149,7 +8149,7 @@ complejo distorted_wave::PhaseShift()
   phase_shift=(gsl_complex_arctan(deltagsl).dat[0]+I*gsl_complex_arctan(deltagsl).dat[1]);
   return phase_shift;
 }
-void restart(complejo*** Clalb,fstream & fp,int* la_min)
+void restart(complejo*** Clalb,fstream & fp,int* la_min,int lmax)
 {
   string line;
   float x1,x2,x3,x4;
@@ -8162,6 +8162,7 @@ void restart(complejo*** Clalb,fstream & fp,int* la_min)
   while(getline(fp,line))
     {
       sscanf(line.c_str(),"%d %d %f %f %f %f",la_min,&lb,&x1,&x2,&x3,&x4);
+      if((*la_min > lmax) || (lb > lmax)) break;
       Clalb[*la_min][lb][0]=double(x1)+I*double(x2);
       Clalb[*la_min][lb][1]=double(x3)+I*double(x4);
       //cout<<*la_min<<"  "<<lb<<"  "<<real(Clalb[*la_min][lb][0])<<"  "<<imag(Clalb[*la_min][lb][0])<<endl;

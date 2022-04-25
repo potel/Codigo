@@ -282,7 +282,7 @@ void Outer1(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* 
 void Outer_rA1(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* outer,parametros *parm);
 void YahfcInput(double* lmenos,double* lmas,double energia_trans,parametros* parm,ofstream* fp,
                 ofstream* fp2,ofstream* fp3,double s,int parity);
-void restart(complejo*** Clalb,fstream& fp,int* la_min);
+void restart(complejo*** Clalb,fstream & fp,int* la_min,int lmax);
 void Trajectory(potencial_optico* pot,double mass,double q1q2,double energy,vector <double> &t
                 ,vector <double> &r,vector <complejo> &phase,double l,double Qval);
 void SGrandeGauge(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* sgrande_mas,
