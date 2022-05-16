@@ -1436,6 +1436,7 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
   derivada_log=fu1/fu2;
   status1=gsl_sf_coulomb_wave_FG_e(etac,q*radio_1,funcion->l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
   status2=gsl_sf_coulomb_wave_FG_e(etac,q*radio_2,funcion->l,0,&F2,&Fp,&G2,&Gp,&ex1,&ex2);
+  //cout<<fu1<<"  "<<fu2<<"  "<<potencial[23]<<"  "<<funcion[0].energia<<endl;
   x=real((F1.val-F2.val*derivada_log)/(-G1.val+G2.val*derivada_log));
   y=imag((F1.val-F2.val*derivada_log)/(-G1.val+G2.val*derivada_log));
   GSL_SET_COMPLEX(&deltagsl,x,y);
@@ -1449,6 +1450,7 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
   }
   //delta=funcion->PhaseShift();
   funcion->phase_shift=delta;
+  //exit(0);
   delete[] potencial;
   return delta;
 }
@@ -5302,7 +5304,7 @@ double Wigner9j(float j1,float j2,float j12,float j3,float j4,float j34,float j1
   if (j1<70 && j2<70 && j3<70 && j4<70)
     {
       cg1=sqrt((2.*j12+1.)*(2.*j34+1.)*(2.*j13+1.)*(2.*j24+1.))*
-    gsl_sf_coupling_9j(int(2.*j1),int(2.*j2),int(2.*j12),int(2.*j3),int(2.*j4),int(2.*j34),int(2.*j13),int(2.*j24),int(2.*j));
+        gsl_sf_coupling_9j(int(2.*j1),int(2.*j2),int(2.*j12),int(2.*j3),int(2.*j4),int(2.*j34),int(2.*j13),int(2.*j24),int(2.*j));
     }
   else
     {
@@ -7347,12 +7349,14 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 		f_down->spin=spin;
 		f_down->j=l-spin;
 		if(l==0) f_down->j=spin;
+        mass=0.9756;
         delta_up[l]=GeneraDWspin(f_up,opt_up,q1q2,mass,radio,puntos,parm->matching_radio,&fp1);
 		delta_down[l]=GeneraDWspin(f_down,opt_up,q1q2,mass,radio,puntos,parm->matching_radio,&fp2);
+
 	}
 	for (l = 0; l < parm->lmax; l++) {
 		fp3<< l << "  " << real(delta_up[l])<< "  " << imag(delta_up[l])
-		<< "  " << abs(exp(2.*I*delta_up[l]))<< "  " << abs(exp(2.*I*delta_up[l])*real(delta_up[l]))<< endl;
+		<< "  " << abs(delta_up[l])<< endl;
 	}
 	len=strlen(parm->unidades);
 	if(!strncmp(parm->unidades,"milib",len)) flag=1;

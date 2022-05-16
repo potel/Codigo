@@ -84,19 +84,19 @@ double wig9j(double a,double b,double c, double d, double e, double f, double g,
   else
     {
       if ((x-xc)<0.) x=xc;
-        {
-          if((x-a-z)<=0.)
-            {
-              if((x-d-h)<=0.)
-                {
-                  if((x-b-f)<=0) s+=(2.*x+1.)*wig6j(a,z,x,h,d,g)*wig6j(b,f,x,d,h,e)*wig6j(a,z,x,f,b,c);
-                  x++;
-                }
-            }
-          else
-            if (s==0.) return 0.;
-            else k=int(2.*(a+b+d+f+h+z));
-        }
+      {
+        if((x-a-z)<=0.)
+          {
+            if((x-d-h)<=0.)
+              {
+                if((x-b-f)<=0) s+=(2.*x+1.)*wig6j(a,z,x,h,d,g)*wig6j(b,f,x,d,h,e)*wig6j(a,z,x,f,b,c);
+                x++;
+              }
+          }
+        else
+          if (s==0.) return 0.;
+          else k=int(2.*(a+b+d+f+h+z));
+      }
     }
   k=int(2.*(a+b+d+f+h+z));
   return phase(k)*s;
