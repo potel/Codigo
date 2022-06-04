@@ -8,6 +8,11 @@
 #else
 #define WINDOWS 0
 #endif
+#ifdef __APPLE__
+#define APPLE 1
+#else
+#define APPLE 0
+#endif
 
 #include <iostream>
 #include <cstdlib>
@@ -38,7 +43,19 @@
 #include <gsl\gsl_errno.h>
 #endif
 #endif
-
+#ifdef __APPLE__
+#include <gsl/gsl_multiroots.h>
+#include <gsl/gsl_math.h>
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_sf.h>
+#include <gsl/gsl_complex.h>
+#include <gsl/gsl_complex_math.h>
+#include <gsl/gsl_deriv.h>
+#include <gsl/gsl_integration.h>
+#include <gsl/gsl_sf_coupling.h>
+#include <gsl/gsl_eigen.h>
+#include <gsl/gsl_errno.h>
+#endif
 #include <cstdio>
 #include <iostream>
 #include <complex>
@@ -49,7 +66,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include <malloc.h>
+//#include <malloc.h>
 #include <math.h>
 #include <string.h>
 #include <iomanip>

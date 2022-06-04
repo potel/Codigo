@@ -744,6 +744,7 @@ int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,ifst
   l = strlen(key);
   l2 = strlen(fin);
   i=0;
+  pot[i].squared=0;
   if (!strncmp(s,key,l))
 	{
       while(strncmp(aux,fin,l2))
@@ -752,6 +753,7 @@ int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,ifst
           getline(fp,line);
           strcpy(aux,line.c_str());
           ReadParD(aux,"id",&(pot[i].id));
+          ReadParD(aux,"squared",&(pot[i].squared));
           ReadParF(aux,"RealVolumen",&(pot[i].V));
           ReadParF(aux,"ImaginarioVolumen",&(pot[i].W));
           ReadParF(aux,"RealSpinOrbita",&(pot[i].Vso));
@@ -3257,7 +3259,17 @@ void TwoTrans(struct parametros* parm)
   CH89(parm->energia_lab,parm->T_N,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
   KoningDelaroche(parm->energia_lab+parm->Qvalue,parm->T_N+2,parm->T_carga,0.,dumb_pot,dumb_pot,0,0.,dumb_pot_opt,dumb_pot_opt);
   InicializaTwoTrans(parm);
-
+  for (n=0;n<parm->num_opt;n++)
+    {
+      if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
+      if(parm->optico_intermedio==parm->pot_opt[n].id) indx_intermedio=n;
+      if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
+    }
+  GeneraPotencialOptico(parm,&(parm->pot_opt[indx_ingreso]),parm->m_A,parm->m_a);
+  GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_A+1,parm->m_a-1);
+  GeneraPotencialOptico(parm,&(parm->pot_opt[indx_salida]),parm->m_B,parm->m_b);
+  elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,parm->eta,0.);
+  //exit(0);
   cout<<"Generando potenciales de campo medio en TwoTrans"<<endl;
   for(n=0;n<parm->num_cm;n++)
     {
@@ -3327,18 +3339,8 @@ void TwoTrans(struct parametros* parm)
   //File2Pot(&parm->pot[indx_pot_B],parm);
   EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
   /*Genera los potenciales opticos (sin terminos coulombiano y spin-orbita) */
-  for (n=0;n<parm->num_opt;n++)
-    {
-      if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
-      if(parm->optico_intermedio==parm->pot_opt[n].id) indx_intermedio=n;
-      if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
-    }
-  GeneraPotencialOptico(parm,&(parm->pot_opt[indx_ingreso]),parm->m_A,parm->m_a);
-  GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_A+1,parm->m_a-1);
-  GeneraPotencialOptico(parm,&(parm->pot_opt[indx_salida]),parm->m_B,parm->m_b);
   EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
   EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
-  elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,parm->eta,0.);
   //exit(0);
   if(parm->form_factor) GeneraFormFactor(parm);
   if(parm->successive && ((!strcmp(parm->a_tipo_fun,"li"))||(!strcmp(parm->B_tipo_fun,"li")))) SuccessiveTipoLi(parm,succClalb,nonClalb);
@@ -5164,7 +5166,7 @@ void SuccessiveTipoLi(struct parametros *parm,complejo*** Clalb,complejo*** Cnon
 void GeneraPotencialOptico(struct parametros *parm,struct potencial_optico *potencial,double m1,double m2)
 {
   int n;
-  double delta_r;
+  double delta_r,fv;
   delta_r=parm->radio/double(parm->puntos);
   if(m1<1. || m2<1.) Error("Masa menor de 1");
   if(m1>3. && m2>3.)
@@ -5194,12 +5196,17 @@ void GeneraPotencialOptico(struct parametros *parm,struct potencial_optico *pote
   for(n=0;n<parm->puntos;n++)
     {
       potencial->r[n]=delta_r*(n+1.);
-      potencial->pot[n]=-potencial->V/(1.+exp((potencial->r[n]-potencial->radioV)/potencial->aV))-I*potencial->W/
-	(1.+exp((potencial->r[n]-potencial->radioW)/potencial->aW))-4.*I*potencial->Wd*
-	exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)/
-	((1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd))
+      fv=1./(1.+exp((potencial->r[n]-potencial->radioV)/potencial->aV));
+      if (potencial->squared !=1) potencial->pot[n]=-potencial->V*fv-I*potencial->W/
+                                    (1.+exp((potencial->r[n]-potencial->radioW)/potencial->aW))-4.*I*potencial->Wd*
+                                    exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)/
+                                    ((1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd))
 	 *(1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)));
-      //misc4<<potencial->r[n]<<"  "<<real(potencial->pot[n])<<"  "<<imag(potencial->pot[n])<<endl;
+      if (potencial->squared==1)  potencial->pot[n]=-potencial->V*fv*fv-I*potencial->W/
+                                    (1.+exp((potencial->r[n]-potencial->radioW)/potencial->aW))-4.*I*potencial->Wd*
+                                    exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)/
+                                    ((1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd))
+                                     *(1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)));
     }
   potencial->puntos=parm->puntos;
 }
@@ -7349,7 +7356,6 @@ void elastic(potencial_optico* opt_up,double q1q2,double mass,double energy,para
 		f_down->spin=spin;
 		f_down->j=l-spin;
 		if(l==0) f_down->j=spin;
-        mass=0.9756;
         delta_up[l]=GeneraDWspin(f_up,opt_up,q1q2,mass,radio,puntos,parm->matching_radio,&fp1);
 		delta_down[l]=GeneraDWspin(f_down,opt_up,q1q2,mass,radio,puntos,parm->matching_radio,&fp2);
 

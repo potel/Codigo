@@ -24,6 +24,7 @@ class potencial_optico {
  public:
   int id;
   int puntos;
+  int squared;
   double radio;
   double r[MAX_PTS];
   complejo pot[MAX_PTS];
