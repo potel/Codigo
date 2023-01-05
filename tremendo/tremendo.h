@@ -66,6 +66,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <chrono>
 //#include <malloc.h>
 #include <math.h>
 #include <string.h>
@@ -74,7 +75,7 @@ typedef complex<double> complejo;
 #define MAX_PTS 6000
 #define MAX_POTS 10
 #define MAX_ST 100
-#define MAX_GAUSS 200
+#define MAX_GAUSS 1000
 #define MIN_ENERGIA -1000
 #define MAX_ENERGIA  1000
 #define MAX_L  200

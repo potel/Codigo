@@ -4,6 +4,7 @@
 #include <armadillo>
 using namespace arma;
 using namespace std;
+using namespace std::chrono;
 #include "tremendo.h"
 #include "structs.h"
 #include "definiciones.h"
@@ -55,6 +56,8 @@ void OneTrans(struct parametros* parm)
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_core]),parm->m_A,parm->m_b);
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_A,parm->m_b);
   GeneraPotencialOptico(parm,&(parm->pot_opt[indx_scatt]),parm->m_A,parm->m_b);
+  elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,parm->eta,0.);
+  //exit(0);
   if(parm->phonon) Gamma=new phonon(parm->fl_phonon,parm->m_B/(1.+parm->m_B),parm->Z_B,&(parm->pot[indx_pot_B]),parm->radio,parm->puntos,parm);
   cout<<"Generando el estado del nucleo a"<<endl;
   // elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,parm->eta,0.);
@@ -83,6 +86,7 @@ void OneTrans(struct parametros* parm)
 		}
       cout<<"reduced mass: "<<parm->m_A/parm->m_B<<endl;
       GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->adjust_potential,parm->m_A/parm->m_B,D0,rms);
+      //GeneraEstadosPI(&(parm->pot[indx_pot_B]),&(parm->st[indx_st]),parm->radio,parm->puntos,0.,parm,parm->adjust_potential,0.92,D0,rms);
       absorcion=Absorcion2(&(parm->pot_opt[indx_intermedio]),&(parm->st[indx_st]));
       cout<<"D0: "<<*D0<<"  rms: "<<*rms<<endl;
       cout<<"Depth of potential well: "<<parm->pot[indx_pot_B].V<<endl;
@@ -95,7 +99,7 @@ void OneTrans(struct parametros* parm)
   EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
   EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
   EscribePotencialOptico(parm->puntos,parm->pot_opt,parm->num_opt,parm);
-  elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,parm->eta,0.);
+  //elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,parm->eta,0.);
   //exit(0);
   if (parm->phonon==0) AmplitudOneTransSpinless(parm,TSpinless);
   if (parm->phonon==1) AmplitudOneTransSpinless(parm,Gamma);
@@ -105,639 +109,638 @@ void OneTrans(struct parametros* parm)
   delete[] TSpinless;
   delete[] dumb_pot;
   delete[]  dumb_pot_opt;
-  delete Gamma;
+  //delete Gamma;
 }
 void InicializaOneTrans(struct parametros* parm)
 {
-	double masa_proyectil,masa_blanco;
-//	parm->m_B=parm->m_A+1.;
-//	parm->m_b=parm->m_a-1.;
-//	if (parm->m_b<1.) Error("m_b menor que 1");
-	if (!strcmp(parm->proyectil,"a")) {masa_proyectil=parm->m_a; masa_blanco=parm->m_A;}
-	if (!strcmp(parm->proyectil,"A")) {masa_proyectil=parm->m_A; masa_blanco=parm->m_a;}
-    cout<<"projectile: "<<parm->proyectil<<endl;
-	if ((strcmp(parm->proyectil,"A")!=0) && ((strcmp(parm->proyectil,"a")!=0))) Error("Proyectil debe ser 'a' o 'A' ");
-	parm->energia_cm=(masa_blanco/(parm->m_a+parm->m_A))*parm->energia_lab;
-	if(-parm->Qvalue>parm->energia_cm) Error("Energ�a de reacci�n insuficiente");
-	parm->mu_Aa=(parm->m_a*parm->m_A)/(parm->m_a+parm->m_A);
-	parm->mu_Bb=(parm->m_b*parm->m_B)/(parm->m_b+parm->m_B);
-	parm->k_Aa=sqrt(2.*parm->mu_Aa*AMU*parm->energia_cm)/HC;
-	parm->k_Bb=sqrt(2.*parm->mu_Bb*AMU*(parm->energia_cm+parm->Qvalue))/HC;
-	parm->eta=parm->Z_a*parm->Z_A*E2HC*parm->mu_Aa*AMU/(HC*parm->k_Aa);
-	cout<<" ma: "<<parm->m_a<<endl;
-	cout<<" mB: "<<parm->m_B<<endl;
-	cout<<" mb: "<<parm->m_b<<endl;
-	cout<<" masa proyectil: "<<masa_proyectil<<endl;
-	cout<<" mA: "<<parm->m_A<<endl;
-	cout<<" masa blanco: "<<masa_blanco<<endl;
-	cout<<" energia laboratorio: "<<parm->energia_lab<<" MeV"<<endl;
-	cout<<" energia CM: "<<parm->energia_cm<<" MeV"<<endl;
-	cout<<" Q-value: "<<parm->Qvalue<<" MeV"<<endl;
-	cout<<" masa reducida canal inicial: "<<parm->mu_Aa<<endl;
-	cout<<" masa reducida canal final: "<<parm->mu_Bb<<endl;
-	cout<<" momento  canal inicial: "<<parm->k_Aa<<" fm^-1"<<endl;
-	cout<<" momento  canal final: "<<parm->k_Bb<<" fm^-1"<<endl;
+  double masa_proyectil,masa_blanco;
+  //	parm->m_B=parm->m_A+1.;
+  //	parm->m_b=parm->m_a-1.;
+  //	if (parm->m_b<1.) Error("m_b menor que 1");
+  if (!strcmp(parm->proyectil,"a")) {masa_proyectil=parm->m_a; masa_blanco=parm->m_A;}
+  if (!strcmp(parm->proyectil,"A")) {masa_proyectil=parm->m_A; masa_blanco=parm->m_a;}
+  cout<<"projectile: "<<parm->proyectil<<endl;
+  if ((strcmp(parm->proyectil,"A")!=0) && ((strcmp(parm->proyectil,"a")!=0))) Error("Proyectil debe ser 'a' o 'A' ");
+  parm->energia_cm=(masa_blanco/(parm->m_a+parm->m_A))*parm->energia_lab;
+  if(-parm->Qvalue>parm->energia_cm) Error("Energ�a de reacci�n insuficiente");
+  parm->mu_Aa=(parm->m_a*parm->m_A)/(parm->m_a+parm->m_A);
+  parm->mu_Bb=(parm->m_b*parm->m_B)/(parm->m_b+parm->m_B);
+  parm->k_Aa=sqrt(2.*parm->mu_Aa*AMU*parm->energia_cm)/HC;
+  parm->k_Bb=sqrt(2.*parm->mu_Bb*AMU*(parm->energia_cm+parm->Qvalue))/HC;
+  parm->eta=parm->Z_a*parm->Z_A*E2HC*parm->mu_Aa*AMU/(HC*parm->k_Aa);
+  cout<<" ma: "<<parm->m_a<<endl;
+  cout<<" mB: "<<parm->m_B<<endl;
+  cout<<" mb: "<<parm->m_b<<endl;
+  cout<<" masa proyectil: "<<masa_proyectil<<endl;
+  cout<<" mA: "<<parm->m_A<<endl;
+  cout<<" masa blanco: "<<masa_blanco<<endl;
+  cout<<" energia laboratorio: "<<parm->energia_lab<<" MeV"<<endl;
+  cout<<" energia CM: "<<parm->energia_cm<<" MeV"<<endl;
+  cout<<" Q-value: "<<parm->Qvalue<<" MeV"<<endl;
+  cout<<" masa reducida canal inicial: "<<parm->mu_Aa<<endl;
+  cout<<" masa reducida canal final: "<<parm->mu_Bb<<endl;
+  cout<<" momento  canal inicial: "<<parm->k_Aa<<" fm^-1"<<endl;
+  cout<<" momento  canal final: "<<parm->k_Bb<<" fm^-1"<<endl;
 }
 void InicializaClusterInelastic(struct parametros* parm)
 {
-	double masa_proyectil,masa_blanco;
-	if (!strcmp(parm->proyectil,"a")) {masa_proyectil=parm->m_a; masa_blanco=parm->m_A;}
-	if (!strcmp(parm->proyectil,"A")) {masa_proyectil=parm->m_A; masa_blanco=parm->m_a;}
-	if ((strcmp(parm->proyectil,"A")!=0) && ((strcmp(parm->proyectil,"a")!=0))) Error("Proyectil debe ser 'a' o 'A' ");
-	parm->energia_cm=(masa_blanco/(parm->m_a+parm->m_A))*parm->energia_lab;
-	if(-parm->Qvalue>parm->energia_cm) Error("Energ�a de reacci�n insuficiente");
-	parm->mu_Aa=(parm->m_a*parm->m_A)/(parm->m_a+parm->m_A);
-	parm->mu_Bb=parm->mu_Aa;
-	parm->k_Aa=sqrt(2.*parm->mu_Aa*AMU*parm->energia_cm)/HC;
-	parm->k_Bb=sqrt(2.*parm->mu_Bb*AMU*(parm->energia_cm+parm->Qvalue))/HC;
-	parm->eta=parm->Z_a*parm->Z_A*E2HC*parm->mu_Aa*AMU/(HC*parm->k_Aa);
-	cout<<" ma: "<<parm->m_a<<endl;
-	cout<<" mB: "<<parm->m_B<<endl;
-	cout<<" mb: "<<parm->m_b<<endl;
-	cout<<" masa proyectil: "<<masa_proyectil<<endl;
-	cout<<" mA: "<<parm->m_A<<endl;
-	cout<<" masa blanco: "<<masa_blanco<<endl;
-	cout<<" energia laboratorio: "<<parm->energia_lab<<" MeV"<<endl;
-	cout<<" energia CM: "<<parm->energia_cm<<" MeV"<<endl;
-	cout<<" Q-value: "<<parm->Qvalue<<" MeV"<<endl;
-	cout<<" masa reducida canal inicial: "<<parm->mu_Aa<<endl;
-	cout<<" masa reducida canal final: "<<parm->mu_Bb<<endl;
-	cout<<" momento  canal inicial: "<<parm->k_Aa<<" fm^-1"<<endl;
-	cout<<" momento  canal final: "<<parm->k_Bb<<" fm^-1"<<endl;
+  double masa_proyectil,masa_blanco;
+  if (!strcmp(parm->proyectil,"a")) {masa_proyectil=parm->m_a; masa_blanco=parm->m_A;}
+  if (!strcmp(parm->proyectil,"A")) {masa_proyectil=parm->m_A; masa_blanco=parm->m_a;}
+  if ((strcmp(parm->proyectil,"A")!=0) && ((strcmp(parm->proyectil,"a")!=0))) Error("Proyectil debe ser 'a' o 'A' ");
+  parm->energia_cm=(masa_blanco/(parm->m_a+parm->m_A))*parm->energia_lab;
+  if(-parm->Qvalue>parm->energia_cm) Error("Energ�a de reacci�n insuficiente");
+  parm->mu_Aa=(parm->m_a*parm->m_A)/(parm->m_a+parm->m_A);
+  parm->mu_Bb=parm->mu_Aa;
+  parm->k_Aa=sqrt(2.*parm->mu_Aa*AMU*parm->energia_cm)/HC;
+  parm->k_Bb=sqrt(2.*parm->mu_Bb*AMU*(parm->energia_cm+parm->Qvalue))/HC;
+  parm->eta=parm->Z_a*parm->Z_A*E2HC*parm->mu_Aa*AMU/(HC*parm->k_Aa);
+  cout<<" ma: "<<parm->m_a<<endl;
+  cout<<" mB: "<<parm->m_B<<endl;
+  cout<<" mb: "<<parm->m_b<<endl;
+  cout<<" masa proyectil: "<<masa_proyectil<<endl;
+  cout<<" mA: "<<parm->m_A<<endl;
+  cout<<" masa blanco: "<<masa_blanco<<endl;
+  cout<<" energia laboratorio: "<<parm->energia_lab<<" MeV"<<endl;
+  cout<<" energia CM: "<<parm->energia_cm<<" MeV"<<endl;
+  cout<<" Q-value: "<<parm->Qvalue<<" MeV"<<endl;
+  cout<<" masa reducida canal inicial: "<<parm->mu_Aa<<endl;
+  cout<<" masa reducida canal final: "<<parm->mu_Bb<<endl;
+  cout<<" momento  canal inicial: "<<parm->k_Aa<<" fm^-1"<<endl;
+  cout<<" momento  canal final: "<<parm->k_Bb<<" fm^-1"<<endl;
 }
 void CrossSectionOneTrans(complejo *****Tlalb,complejo* Sel,struct parametros *parm,
-		struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f)
+                          struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f)
 {
-	double constante,cross,theta,costheta,escala,cleb,m,totalcross,
+  double constante,cross,theta,costheta,escala,cleb,m,totalcross,
 	delta_theta,constante_prob,constante_prob2,black_disk,const_bd,cross_elastic
 	,cross_nuclear,cross_coulomb,const_thom,ja,jb,Ma,MA,Mb,MB;
-	ofstream fp(parm->fl_cross_tot);
-	ofstream fp2("probabilidades.txt");
-	ofstream fp3("cross_elastico.txt");
-	ofstream fp4("cross_relativo.txt");
-	ofstream fp5("cross_nuclear.txt");
-	ofstream fp6("elastic_smatrix.txt");
-	ofstream fp7("smatrix.txt");
-	int li=sti->l;
-	int lf=stf->l;
-	float ji=sti->j;
-	float jf=stf->j;
-	constante=parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(parm->k_Aa*4.*PI*PI*pow(HC,4.)*
-			(2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
-	constante_prob=parm->k_Aa*parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(16.*PI*PI*PI*pow(HC,4.)*
-			(2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
-	constante_prob2=parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(4.*PI*PI*pow(HC,4.)*
-			(2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
-	const_bd=4.*PI*PI*(2.*parm->J_B+1.)/(parm->k_Aa*parm->k_Bb*
-			(2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
-	complejo const_smat=I*parm->mu_Bb*parm->k_Aa*AMU/(2.*pow(PI,1.5)*HC*HC);
-	const_thom=parm->k_Bb*parm->mu_Aa/(parm->k_Aa*parm->mu_Bb);
-	int la,lb,n,K,len,flag,Kmax,Kmin,M,MM,mm,jja,jjb,MMa,MMA,MMb,MMB;
-	len=strlen(parm->unidades);
-	if(!strncmp(parm->unidades,"milib",len)) flag=1;
-	if(!strncmp(parm->unidades,"fm2",len)) flag=2;
-	if(!strncmp(parm->unidades,"b",len)) flag=3;
-	if(!strncmp(parm->unidades,"microb",len)) flag=4;
-	complejo* S=new complejo[parm->lmax];
-	complejo* S_thom=new complejo[parm->lmax];
-	complejo* fcoulomb=new complejo[parm->cross_puntos];
-	complejo**** polar=tensor4_cmpx(2*parm->J_a+2,2*parm->J_A+2,2*parm->J_b+2,2*parm->J_B+2);
-	double* thetavec=new double[parm->cross_puntos];
-	complejo fase,uni,coulomb_amp,nuclear_amp;
-	li=sti->l;
-	lf=stf->l;
-	ji=sti->j;
-	jf=stf->j;
-	Kmax=li+lf;
-	Kmin=abs(li-lf);
-	complejo** amp=matriz_cmpx(2*Kmax+2,long(2*ji+2));
-	switch(flag)
+  ofstream fp(parm->fl_cross_tot);
+  ofstream fp2("probabilidades.txt");
+  ofstream fp3("cross_elastico.txt");
+  ofstream fp4("cross_relativo.txt");
+  ofstream fp5("cross_nuclear.txt");
+  ofstream fp6("elastic_smatrix.txt");
+  ofstream fp7("smatrix.txt");
+  int li=sti->l;
+  int lf=stf->l;
+  float ji=sti->j;
+  float jf=stf->j;
+  constante=parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(parm->k_Aa*4.*PI*PI*pow(HC,4.)*
+                                                                          (2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
+  constante_prob=parm->k_Aa*parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(16.*PI*PI*PI*pow(HC,4.)*
+                                                                                          (2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
+  constante_prob2=parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(4.*PI*PI*pow(HC,4.)*
+                                                                     (2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
+  const_bd=4.*PI*PI*(2.*parm->J_B+1.)/(parm->k_Aa*parm->k_Bb*
+                                       (2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
+  complejo const_smat=I*parm->mu_Bb*parm->k_Aa*AMU/(2.*pow(PI,1.5)*HC*HC);
+  const_thom=parm->k_Bb*parm->mu_Aa/(parm->k_Aa*parm->mu_Bb);
+  int la,lb,n,K,len,flag,Kmax,Kmin,M,MM,mm,jja,jjb,MMa,MMA,MMb,MMB;
+  len=strlen(parm->unidades);
+  if(!strncmp(parm->unidades,"milib",len)) flag=1;
+  if(!strncmp(parm->unidades,"fm2",len)) flag=2;
+  if(!strncmp(parm->unidades,"b",len)) flag=3;
+  if(!strncmp(parm->unidades,"microb",len)) flag=4;
+  complejo* S=new complejo[parm->lmax];
+  complejo* S_thom=new complejo[parm->lmax];
+  complejo* fcoulomb=new complejo[parm->cross_puntos];
+  complejo**** polar=tensor4_cmpx(2*parm->J_a+2,2*parm->J_A+2,2*parm->J_b+2,2*parm->J_B+2);
+  double* thetavec=new double[parm->cross_puntos];
+  complejo fase,uni,coulomb_amp,nuclear_amp;
+  li=sti->l;
+  lf=stf->l;
+  ji=sti->j;
+  jf=stf->j;
+  Kmax=li+lf;
+  Kmin=abs(li-lf);
+  complejo** amp=matriz_cmpx(2*Kmax+2,long(2*ji+2));
+  switch(flag)
 	{
 	case 1:
-		escala=10.;
-		cout<<"Seccion eficaz medida en milibarn"<<endl;
-		break;
+      escala=10.;
+      cout<<"Seccion eficaz medida en milibarn"<<endl;
+      break;
 	case 2:
-		escala=1.;
-		cout<<"Seccion eficaz medida en fm^2"<<endl;
-		break;
+      escala=1.;
+      cout<<"Seccion eficaz medida en fm^2"<<endl;
+      break;
 	case 3:
-		escala=0.01;
-		cout<<"Seccion eficaz medida en barn"<<endl;
-		break;
+      escala=0.01;
+      cout<<"Seccion eficaz medida en barn"<<endl;
+      break;
 	case 4:
-		escala=10000.;
-		cout<<"Seccion eficaz medida en microbarn"<<endl;
-		break;
+      escala=10000.;
+      cout<<"Seccion eficaz medida en microbarn"<<endl;
+      break;
 	default:
-		Error("Unidades desconocidas para la secci�n eficaz");
-		break;
+      Error("Unidades desconocidas para la secci�n eficaz");
+      break;
 	}
-	uni=-1.;
-	totalcross=0.;
-	delta_theta=PI/double(parm->cross_puntos);
-	for(n=0;n<parm->cross_puntos;n++)
+  uni=-1.;
+  totalcross=0.;
+  delta_theta=PI/double(parm->cross_puntos);
+  for(n=0;n<parm->cross_puntos;n++)
 	{
-		theta=PI*double(n)/double(parm->cross_puntos);
-		costheta=cos(theta);
-		for(Ma=-parm->J_a;Ma<=parm->J_a;Ma++)
+      theta=PI*double(n)/double(parm->cross_puntos);
+      costheta=cos(theta);
+      for(Ma=-parm->J_a;Ma<=parm->J_a;Ma++)
 		{
-			MMa=Ma+parm->J_a;
-			for(MA=-parm->J_A;MA<=parm->J_A;MA++)
+          MMa=Ma+parm->J_a;
+          for(MA=-parm->J_A;MA<=parm->J_A;MA++)
 			{
-				MMA=MA+parm->J_A;
-				for(Mb=-parm->J_b;Mb<=parm->J_b;Mb++)
+              MMA=MA+parm->J_A;
+              for(Mb=-parm->J_b;Mb<=parm->J_b;Mb++)
 				{
-					MMb=Mb+parm->J_b;
-					for(MB=-parm->J_B;MB<=parm->J_B;MB++)
+                  MMb=Mb+parm->J_b;
+                  for(MB=-parm->J_B;MB<=parm->J_B;MB++)
 					{
-						MMB=MB+parm->J_B;
-						polar[MMa][MMA][MMb][MMB]=0.;
+                      MMB=MB+parm->J_B;
+                      polar[MMa][MMA][MMb][MMB]=0.;
 					}
 				}
 			}
 		}
-		for(K=Kmin;K<=Kmax;K++)
+      for(K=Kmin;K<=Kmax;K++)
 		{
-			for(la=0;la<parm->lmax;la++){
-				for(lb=abs(la-K);(lb<=la+Kmax) && (lb<parm->lmax);lb++){
-					for(M=-K;M<=K;M++)
-					{
-						MM=M+K;
-						if(abs(M)<=lb)
-						{
-							mm=0;
-							for(m=-ji;m<=ji;m++)
-							{
-								mm=long(m+ji);
-								if((abs(M-m)<=jf))
-								{
-									jja=0;
-									for(ja=abs(la-parm->dw_spinA);ja<=la+parm->dw_spinA;ja++)
-									{
-										jjb=0;
-										for(jb=abs(lb-parm->dw_spinB);jb<=lb+parm->dw_spinB;jb++)
-										{
-											for(Ma=-parm->J_a;Ma<=parm->J_a;Ma++)
-											{
-												MMa=Ma+parm->J_a;
-												for(MA=-parm->J_A;MA<=parm->J_A;MA++)
-												{
-													MMA=MA+parm->J_A;
-													Mb=Ma-m;
-													MMb=Mb+parm->J_b;
-													MB=MA+M-m;
-													MMB=MB+parm->J_B;
-													fase=1.;
-													if((abs(MB)<=parm->J_B) && (abs(Mb)<=parm->J_b))
-													{
-														polar[MMa][MMA][MMb][MMB]+=Tlalb[K][la][lb][jja][jjb]*fase*
-																ClebsGordan(ji,m,jf,M-m,K,M)*ClebsGordan(ji,m,parm->J_b,Mb,parm->J_a,Ma)*
-																ClebsGordan(jf,M-m,parm->J_A,MA,parm->J_B,MB)*
-																ClebsGordan(la,-M,parm->J_a,Ma,ja,-M+Ma)*
-																ClebsGordan(lb,M,parm->J_B,MB,jb,MB+M)*
-																ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
-														if(n==0) misc1<<polar[MMa][MMA][MMb][MMB]<<"  "
+          for(la=0;la<parm->lmax;la++){
+            for(lb=abs(la-K);(lb<=la+Kmax) && (lb<parm->lmax);lb++){
+              for(M=-K;M<=K;M++)
+                {
+                  MM=M+K;
+                  if(abs(M)<=lb)
+                    {
+                      mm=0;
+                      for(m=-ji;m<=ji;m++)
+                        {
+                          mm=long(m+ji);
+                          if((abs(M-m)<=jf))
+                            {
+                              jja=0;
+                              for(ja=abs(la-parm->dw_spinA);ja<=la+parm->dw_spinA;ja++)
+                                {
+                                  jjb=0;
+                                  for(jb=abs(lb-parm->dw_spinB);jb<=lb+parm->dw_spinB;jb++)
+                                    {
+                                      for(Ma=-parm->J_a;Ma<=parm->J_a;Ma++)
+                                        {
+                                          MMa=Ma+parm->J_a;
+                                          for(MA=-parm->J_A;MA<=parm->J_A;MA++)
+                                            {
+                                              MMA=MA+parm->J_A;
+                                              Mb=Ma-m;
+                                              MMb=Mb+parm->J_b;
+                                              MB=MA+M-m;
+                                              MMB=MB+parm->J_B;
+                                              fase=1.;
+                                              if((abs(MB)<=parm->J_B) && (abs(Mb)<=parm->J_b))
+                                                {
+                                                  polar[MMa][MMA][MMb][MMB]+=Tlalb[K][la][lb][jja][jjb]*fase*
+                                                    ClebsGordan(ji,m,jf,M-m,K,M)*ClebsGordan(ji,m,parm->J_b,Mb,parm->J_a,Ma)*
+                                                    ClebsGordan(jf,M-m,parm->J_A,MA,parm->J_B,MB)*
+                                                    ClebsGordan(la,-M,parm->J_a,Ma,ja,-M+Ma)*
+                                                    ClebsGordan(lb,M,parm->J_B,MB,jb,MB+M)*
+                                                    ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
+                                                  if(n==0) misc1<<polar[MMa][MMA][MMb][MMB]<<"  "
 																<<Tlalb[K][la][lb][jja][jjb]<<"  "<<
-																ClebsGordan(ji,m,jf,M-m,K,M)<<"  "<<
-																ClebsGordan(ji,m,parm->J_b,Mb,parm->J_a,Ma)<<"  "<<
-																ClebsGordan(jf,M-m,parm->J_A,MA,parm->J_B,MB)<<"  "<<
-																ClebsGordan(la,-M,parm->J_a,Ma,ja,-M+Ma)<<"  "<<
-																ClebsGordan(lb,M,parm->J_B,MB,jb,MB+M)<<"  "<<
-																ClebsGordan(lb,M,la,0,K,M)<<endl;
-														if(n==0) misc1<<"angs: "<<la<<"  "<<M-m<<"  "<<parm->J_a<<"  "<<Ma<<"  "
+                                                             ClebsGordan(ji,m,jf,M-m,K,M)<<"  "<<
+                                                             ClebsGordan(ji,m,parm->J_b,Mb,parm->J_a,Ma)<<"  "<<
+                                                             ClebsGordan(jf,M-m,parm->J_A,MA,parm->J_B,MB)<<"  "<<
+                                                             ClebsGordan(la,-M,parm->J_a,Ma,ja,-M+Ma)<<"  "<<
+                                                             ClebsGordan(lb,M,parm->J_B,MB,jb,MB+M)<<"  "<<
+                                                             ClebsGordan(lb,M,la,0,K,M)<<endl;
+                                                  if(n==0) misc1<<"angs: "<<la<<"  "<<M-m<<"  "<<parm->J_a<<"  "<<Ma<<"  "
 																<<ja<<"  "<<M-m+Ma<<endl;
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+          }
 		}
-		cross=0.;
-		for(Ma=-parm->J_a;Ma<=parm->J_a;Ma++)
+      cross=0.;
+      for(Ma=-parm->J_a;Ma<=parm->J_a;Ma++)
 		{
-			MMa=Ma+parm->J_a;
-			for(MA=-parm->J_A;MA<=parm->J_A;MA++)
+          MMa=Ma+parm->J_a;
+          for(MA=-parm->J_A;MA<=parm->J_A;MA++)
 			{
-				MMA=MA+parm->J_A;
-				for(Mb=-parm->J_b;Mb<=parm->J_b;Mb++)
+              MMA=MA+parm->J_A;
+              for(Mb=-parm->J_b;Mb<=parm->J_b;Mb++)
 				{
-					MMb=Mb+parm->J_b;
-					for(MB=-parm->J_B;MB<=parm->J_B;MB++)
+                  MMb=Mb+parm->J_b;
+                  for(MB=-parm->J_B;MB<=parm->J_B;MB++)
 					{
-						MMB=MB+parm->J_B;
-						cross+=abs(polar[MMa][MMA][MMb][MMB])*abs(polar[MMa][MMA][MMb][MMB])*constante*escala;
+                      MMB=MB+parm->J_B;
+                      cross+=abs(polar[MMa][MMA][MMb][MMB])*abs(polar[MMa][MMA][MMb][MMB])*constante*escala;
 					}
 				}
 			}
 		}
-		fp<<theta*180./PI<<"  "<<cross<<endl;
-		totalcross+=cross*sin(theta)*2.*PI*delta_theta;
+      fp<<theta*180./PI<<"  "<<cross<<endl;
+      totalcross+=cross*sin(theta)*2.*PI*delta_theta;
 	}
-	cout<<"Seccion eficaz total: "<<totalcross<<endl;
-	totalcross=0.;
-	black_disk=0.;
-	for(la=0;la<=parm->lmax;la++)
+  cout<<"Seccion eficaz total: "<<totalcross<<endl;
+  totalcross=0.;
+  black_disk=0.;
+  for(la=0;la<=parm->lmax;la++)
 	{
-		fp2<<la<<"  "<<constante_prob*abs(S[la])*abs(S[la])<<endl;
-		totalcross+=constante*abs(S[la])*abs(S[la])*escala;
-		black_disk+=const_bd*escala*constante_prob*abs(S[la])*abs(S[la])*(2.*la+1.);
+      fp2<<la<<"  "<<constante_prob*abs(S[la])*abs(S[la])<<endl;
+      totalcross+=constante*abs(S[la])*abs(S[la])*escala;
+      black_disk+=const_bd*escala*constante_prob*abs(S[la])*abs(S[la])*(2.*la+1.);
 	}
-	cout<<"Seccion eficaz total (sumando matriz S): "<<totalcross<<endl;
-	cout<<"Seccion eficaz de disco absorbente: "<<black_disk<<endl;
-	fp.close();
-	fp2.close();
-	fp3.close();
-	fp4.close();
-	fp5.close();
-	fp6.close();
-	fp7.close();
-	delete[] fcoulomb;
-	delete[] S;
-	delete[] thetavec;
+  cout<<"Seccion eficaz total (sumando matriz S): "<<totalcross<<endl;
+  cout<<"Seccion eficaz de disco absorbente: "<<black_disk<<endl;
+  fp.close();
+  fp2.close();
+  fp3.close();
+  fp4.close();
+  fp5.close();
+  fp6.close();
+  fp7.close();
+  delete[] fcoulomb;
+  delete[] S;
+  delete[] thetavec;
 }
 void CrossSectionOneTransSpinless(complejo ***Tlalb,complejo* Sel,struct parametros *parm,
-		struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f)
+                                  struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f)
 {
-	double constante,cross,theta,costheta,escala,cleb,m,totalcross,
+  double constante,cross,theta,costheta,escala,cleb,m,totalcross,
 	delta_theta,constante_prob,constante_prob2,black_disk,const_bd,cross_elastic
 	,cross_nuclear,cross_coulomb,const_thom,thetamin,thetamax,gamma,energia,energia_res,
 	lorentz, thetacross;
-	bool less,more;
-    double epsilon_i,epsilon_k,Gamma_lambda,homega_lambda,Omega_lambda,tau,Phi,damping,L,modalpha;
-    epsilon_i=0.07;  
-    epsilon_k=-0.5;
-    Gamma_lambda=0.2;
-    homega_lambda=3.37;
-    L=3.;
-    tau=(L/HC)*sqrt(AMU/(2.*parm->energia_lab));
-    Omega_lambda=epsilon_i-homega_lambda-epsilon_k;
-    Phi=Omega_lambda*tau;
-    damping=Gamma_lambda*tau;
-    modalpha=(1.+exp(-2.*damping)-2.*exp(-2.*damping)*cos(Phi))/(Omega_lambda*Omega_lambda+Gamma_lambda*Gamma_lambda);
-	ofstream fp(parm->fl_cross_tot);
-	ofstream fp2("probabilidades.txt");
-	ofstream fp3("cross_elastico.txt");
-	ofstream fp4("cross_relativo.txt");
-	ofstream fp5("cross_nuclear.txt");
-	ofstream fp6("elastic_smatrix.txt");
-	ofstream fp7("smatrix.txt");
-	ofstream fp8("resonance.txt");   
-    ofstream fp9;
-    fp9.open("dsdE.txt", std::ios_base::app);
-    int li=sti->l;
-	int lf=stf->l;
-	float ji=sti->j;
-	float jf=stf->j;
-	constante=parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(parm->k_Aa*4.*PI*PI*pow(HC,4.)*
-			(2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
-	constante_prob=parm->k_Aa*parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(16.*PI*PI*PI*pow(HC,4.)*
-			(2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
-	constante_prob2=parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(4.*PI*PI*pow(HC,4.)*
-			(2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
-	const_bd=4.*PI*PI*(2.*parm->J_B+1.)/(parm->k_Aa*parm->k_Bb*
-			(2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
-	complejo const_smat=I*parm->mu_Bb*parm->k_Aa*AMU/(2.*pow(PI,1.5)*HC*HC);
-	const_thom=parm->k_Bb*parm->mu_Aa/(parm->k_Aa*parm->mu_Bb);
-	int la,lb,n,K,len,flag,Kmax,Kmin,M,MM,mm;
-	len=strlen(parm->unidades);
-	if(!strncmp(parm->unidades,"milib",len)) flag=1;
-	if(!strncmp(parm->unidades,"fm2",len)) flag=2;
-	if(!strncmp(parm->unidades,"b",len)) flag=3;
-	if(!strncmp(parm->unidades,"microb",len)) flag=4;
-	complejo* S=new complejo[parm->lmax];
-	complejo* S_thom=new complejo[parm->lmax];
-	complejo* fcoulomb=new complejo[parm->cross_puntos];
-	double* thetavec=new double[parm->cross_puntos];
-	complejo fase,uni,coulomb_amp,nuclear_amp;
-	li=sti->l;
-	lf=stf->l;
-	ji=sti->j;
-	jf=stf->j;
-	Kmax=li+lf;
-	Kmin=abs(li-lf);
-	complejo** amp=matriz_cmpx(2*Kmax+2,long(2*ji+2));
-	switch(flag)
+  bool less,more;
+  double epsilon_i,epsilon_k,Gamma_lambda,homega_lambda,Omega_lambda,tau,Phi,damping,L,modalpha;
+  epsilon_i=0.07;
+  epsilon_k=-0.5;
+  Gamma_lambda=0.2;
+  homega_lambda=3.37;
+  L=3.;
+  tau=(L/HC)*sqrt(AMU/(2.*parm->energia_lab));
+  Omega_lambda=epsilon_i-homega_lambda-epsilon_k;
+  Phi=Omega_lambda*tau;
+  damping=Gamma_lambda*tau;
+  modalpha=(1.+exp(-2.*damping)-2.*exp(-2.*damping)*cos(Phi))/(Omega_lambda*Omega_lambda+Gamma_lambda*Gamma_lambda);
+  ofstream fp(parm->fl_cross_tot);
+  ofstream fp2("probabilidades.txt");
+  ofstream fp3("cross_elastico.txt");
+  ofstream fp4("cross_relativo.txt");
+  ofstream fp5("cross_nuclear.txt");
+  ofstream fp6("elastic_smatrix.txt");
+  ofstream fp7("smatrix.txt");
+  ofstream fp8("resonance.txt");
+  ofstream fp9;
+  fp9.open("dsdE.txt", std::ios_base::app);
+  int li=sti->l;
+  int lf=stf->l;
+  float ji=sti->j;
+  float jf=stf->j;
+  constante=parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(parm->k_Aa*4.*PI*PI*pow(HC,4.)*
+                                                                          (2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
+  constante_prob=parm->k_Aa*parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(16.*PI*PI*PI*pow(HC,4.)*
+                                                                                          (2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
+  constante_prob2=parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(4.*PI*PI*pow(HC,4.)*
+                                                                     (2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
+  const_bd=4.*PI*PI*(2.*parm->J_B+1.)/(parm->k_Aa*parm->k_Bb*
+                                       (2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
+  complejo const_smat=I*parm->mu_Bb*parm->k_Aa*AMU/(2.*pow(PI,1.5)*HC*HC);
+  const_thom=parm->k_Bb*parm->mu_Aa/(parm->k_Aa*parm->mu_Bb);
+  int la,lb,n,K,len,flag,Kmax,Kmin,M,MM,mm;
+  len=strlen(parm->unidades);
+  if(!strncmp(parm->unidades,"milib",len)) flag=1;
+  if(!strncmp(parm->unidades,"fm2",len)) flag=2;
+  if(!strncmp(parm->unidades,"b",len)) flag=3;
+  if(!strncmp(parm->unidades,"microb",len)) flag=4;
+  complejo* S=new complejo[parm->lmax];
+  complejo* S_thom=new complejo[parm->lmax];
+  complejo* fcoulomb=new complejo[parm->cross_puntos];
+  double* thetavec=new double[parm->cross_puntos];
+  complejo fase,uni,coulomb_amp,nuclear_amp;
+  li=sti->l;
+  lf=stf->l;
+  ji=sti->j;
+  jf=stf->j;
+  Kmax=li+lf;
+  Kmin=abs(li-lf);
+  complejo** amp=matriz_cmpx(2*Kmax+2,long(2*ji+2));
+  switch(flag)
 	{
 	case 1:
-		escala=10.;
-		cout<<"Seccion eficaz medida en milibarn"<<endl;
-		break;
+      escala=10.;
+      cout<<"Seccion eficaz medida en milibarn"<<endl;
+      break;
 	case 2:
-		escala=1.;
-		cout<<"Seccion eficaz medida en fm^2"<<endl;
-		break;
+      escala=1.;
+      cout<<"Seccion eficaz medida en fm^2"<<endl;
+      break;
 	case 3:
-		escala=0.01;
-		cout<<"Seccion eficaz medida en barn"<<endl;
-		break;
+      escala=0.01;
+      cout<<"Seccion eficaz medida en barn"<<endl;
+      break;
 	case 4:
-		escala=10000.;
-		cout<<"Seccion eficaz medida en microbarn"<<endl;
-		break;
+      escala=10000.;
+      cout<<"Seccion eficaz medida en microbarn"<<endl;
+      break;
 	default:
-		Error("Unidades desconocidas para la sección eficaz");
-		break;
+      Error("Unidades desconocidas para la sección eficaz");
+      break;
 	}
-	cout<<"ji: "<<ji<<"   "<<"jf: "<<jf<<endl;
-	uni=-1.;
-	totalcross=0.;
-	delta_theta=PI/double(parm->cross_puntos);
-	//File2Smatrix(S_thom,"C:/Gregory/workspace/wfGenerator/smatrix_thompson1.txt");
-	for(la=0;la<parm->lmax;la++)
+  cout<<"ji: "<<ji<<"   "<<"jf: "<<jf<<endl;
+  uni=-1.;
+  totalcross=0.;
+  delta_theta=PI/double(parm->cross_puntos);
+  //File2Smatrix(S_thom,"C:/Gregory/workspace/wfGenerator/smatrix_thompson1.txt");
+  for(la=0;la<parm->lmax;la++)
 	{
-		fp6<<la<<"  "<<real(Sel[la])<<"  "<<imag(Sel[la])<<"  "<<abs(Sel[la])<<endl;
-		S[la]=pow(I,2.*la)*const_smat*Tlalb[la][la][0]*fase_coulomb_i[0]*fase_coulomb_f[0]/
-				(sqrt(2.*la+1.)*fase_coulomb_i[la]*fase_coulomb_f[la]);
-		fp7<<la<<"  "<<real(S[la])<<"  "<<imag(S[la])<<"  "<<abs(S[la])<<endl;
-        // misc2<<la<<"  "<<abs(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))*
-        //   abs(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<endl;
-        // misc2<<la<<"  "<<abs(Tlalb[la][la][0])*
-        //   abs(Tlalb[la][la][0])<<endl; 
+      fp6<<la<<"  "<<real(Sel[la])<<"  "<<imag(Sel[la])<<"  "<<abs(Sel[la])<<endl;
+      S[la]=pow(I,2.*la)*const_smat*Tlalb[la][la][0]*fase_coulomb_i[0]*fase_coulomb_f[0]/
+        (sqrt(2.*la+1.)*fase_coulomb_i[la]*fase_coulomb_f[la]);
+      fp7<<la<<"  "<<real(S[la])<<"  "<<imag(S[la])<<"  "<<abs(S[la])<<endl;
+      // misc2<<la<<"  "<<abs(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))*
+      //   abs(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<endl;
+      // misc2<<la<<"  "<<abs(Tlalb[la][la][0])*
+      //   abs(Tlalb[la][la][0])<<endl;
 	}
-	cout<<"constante de matriz S: "<<const_smat<<endl;
+  cout<<"constante de matriz S: "<<const_smat<<endl;
 
-	for (n=0;n<parm->cross_puntos;n++) {
-		thetavec[n]=PI*double(n)/double(parm->cross_puntos);
-	}
-	fcoul(thetavec,fcoulomb,parm->eta,parm->cross_puntos,parm->k_Aa);
-	for(n=0;n<parm->cross_puntos;n++)
+  for (n=0;n<parm->cross_puntos;n++) {
+    thetavec[n]=PI*double(n)/double(parm->cross_puntos);
+  }
+  fcoul(thetavec,fcoulomb,parm->eta,parm->cross_puntos,parm->k_Aa);
+  for(n=0;n<parm->cross_puntos;n++)
 	{
-		theta=PI*double(n)/double(parm->cross_puntos);
-		costheta=cos(theta);
-		nuclear_amp=0.;
-		for(la=0;la<parm->lmax;la++){
-			nuclear_amp+=(Sel[la]- 1.)*exp(2.*I*deltac(la,parm->eta)) *sqrt(2.*la+1.)
-					*gsl_sf_legendre_sphPlm(la,0.,costheta)*sqrt(PI)/(I*parm->k_Aa);
-		}
-		cross_elastic=abs(nuclear_amp+fcoulomb[n])*abs(nuclear_amp+fcoulomb[n]);
-		cross_nuclear=abs(nuclear_amp)*abs(nuclear_amp);
-		cross_coulomb=abs(fcoulomb[n])*abs(fcoulomb[n]);
-		fp3<<theta*180./PI<<"  "<<cross_elastic*escala<<endl;
-		fp4<<theta*180./PI<<"  "<<cross_elastic/cross_coulomb<<endl;
-		fp5<<theta*180./PI<<"  "<<cross_nuclear*escala<<endl;
+      theta=PI*double(n)/double(parm->cross_puntos);
+      costheta=cos(theta);
+      nuclear_amp=0.;
+      for(la=0;la<parm->lmax;la++){
+        nuclear_amp+=(Sel[la]- 1.)*exp(2.*I*deltac(la,parm->eta)) *sqrt(2.*la+1.)
+          *gsl_sf_legendre_sphPlm(la,0.,costheta)*sqrt(PI)/(I*parm->k_Aa);
+      }
+      cross_elastic=abs(nuclear_amp+fcoulomb[n])*abs(nuclear_amp+fcoulomb[n]);
+      cross_nuclear=abs(nuclear_amp)*abs(nuclear_amp);
+      cross_coulomb=abs(fcoulomb[n])*abs(fcoulomb[n]);
+      fp3<<theta*180./PI<<"  "<<cross_elastic*escala<<endl;
+      fp4<<theta*180./PI<<"  "<<cross_elastic/cross_coulomb<<endl;
+      fp5<<theta*180./PI<<"  "<<cross_nuclear*escala<<endl;
 	}
-	thetamin=0.;
-	thetamax=180.;
-	thetacross=6.3;
-	for(n=0;n<parm->cross_puntos;n++)
+  thetamin=0.;
+  thetamax=180.;
+  thetacross=6.3;
+  for(n=0;n<parm->cross_puntos;n++)
 	{
-		theta=PI*double(n)/double(parm->cross_puntos);
-		costheta=cos(theta);
-		for(M=0;M<=2.*Kmax+1;M++)
+      theta=PI*double(n)/double(parm->cross_puntos);
+      costheta=cos(theta);
+      for(M=0;M<=2.*Kmax+1;M++)
 		{
-			for(mm=0;mm<=long(2*ji+1);mm++)
+          for(mm=0;mm<=long(2*ji+1);mm++)
 			{
-				amp[M][mm]=0.;
+              amp[M][mm]=0.;
 			}
 		}
 
-		for(K=Kmin;K<=Kmax;K++)
+      for(K=Kmin;K<=Kmax;K++)
 		{
-			for(la=0;la<parm->lmax;la++){
-              //              if(n==0) cout<<"la: "<<la<<endl;
-				for(lb=abs(la-K);(lb<=la+Kmax) && (lb<parm->lmax);lb++){
-					for(M=-K;M<=K;M++)
-					{
-						MM=M+K;
-						if(abs(M)<=lb)
-						{
-							mm=0;
-							for(m=-ji;m<=ji;m++)
-							{
-								mm=long(m+ji);
-								if((abs(M-m)<=jf))
-								{
-									fase=1.;
-									amp[MM][mm]+=Tlalb[la][lb][K]*fase*ClebsGordan(ji,m,jf,M-m,K,M)*
-											ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
-                                    //cout<<abs(amp[MM][mm])<<"  "<<abs(Tlalb[la][lb][K])<<"  "<<abs(ClebsGordan(ji,m,jf,M-m,K,M)*
-									//		ClebsGordan(lb,M,la,0,K,M))<<"  "<<abs(gsl_sf_legendre_sphPlm(lb,abs(M),costheta))<<"\n";
-                                    //cout<<" lb: "<<lb<<" "<<M<<"  "<<costheta<<"  "<<gsl_sf_legendre_sphPlm(lb,abs(M),costheta)<<"\n";
-                                    //exit(0);
-                                    //if(n==1) misc3<<m<<"  "<<M<<"  "<<abs(amp[MM][mm])<<endl;
-								}
-							}
-						}
-					}
-				}
-			}
+          for(la=0;la<parm->lmax;la++){
+            //              if(n==0) cout<<"la: "<<la<<endl;
+            for(lb=abs(la-K);(lb<=la+Kmax) && (lb<parm->lmax);lb++){
+              for(M=-K;M<=K;M++)
+                {
+                  MM=M+K;
+                  if(abs(M)<=lb)
+                    {
+                      mm=0;
+                      for(m=-ji;m<=ji;m++)
+                        {
+                          mm=long(m+ji);
+                          if((abs(M-m)<=jf))
+                            {
+                              fase=1.;
+                              amp[MM][mm]+=Tlalb[la][lb][K]*fase*ClebsGordan(ji,m,jf,M-m,K,M)*
+                                ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
+                              //cout<<abs(amp[MM][mm])<<"  "<<abs(Tlalb[la][lb][K])<<"  "<<abs(ClebsGordan(ji,m,jf,M-m,K,M)*
+                              //		ClebsGordan(lb,M,la,0,K,M))<<"  "<<abs(gsl_sf_legendre_sphPlm(lb,abs(M),costheta))<<"\n";
+                              //cout<<" lb: "<<lb<<" "<<M<<"  "<<costheta<<"  "<<gsl_sf_legendre_sphPlm(lb,abs(M),costheta)<<"\n";
+                              //exit(0);
+                              //if(n==1) misc3<<m<<"  "<<M<<"  "<<abs(amp[MM][mm])<<endl;
+                            }
+                        }
+                    }
+                }
+            }
+          }
 		}
 
-		cross=0.;
-		for(M=0;M<=2.*Kmax+1;M++)
+      cross=0.;
+      for(M=0;M<=2.*Kmax+1;M++)
 		{
-			for(mm=0;mm<=long(2*ji+1);mm++)
+          for(mm=0;mm<=long(2*ji+1);mm++)
 			{
               cross+=abs(amp[M][mm])*abs(amp[M][mm])*constante*escala;
 			}
 		}
-        // for(la=0;la<parm->lmax;la++)
-        //   {
-        //     if(n==0) misc2<<la<<"  "<<real(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<"  "<<imag(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))
-        //                   <<"  "<<abs(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<endl;
-        //   }
-		fp<<theta*180./PI<<"  "<<cross<<endl;
-		if(((theta*180./PI)>=thetamin) && ((theta*180./PI)<=thetamax)) totalcross+=cross*sin(theta)*2.*PI*delta_theta;
-		less=((thetacross-delta_theta*180./PI)<theta*180./PI);
-		more=((thetacross+delta_theta*180./PI)>theta*180./PI);
-		if((less==true) && (more==true))
-			cout<<"Cross section at "<<theta*180./PI<<": "<<cross<<" cond: "<<
-			((less==true)&&(more==true))<<endl;
-//		cout<<theta*180./PI<<"  "<<less<<"  "<<more<<"  "<<((less==true)&&(more==true))<<endl;
+      // for(la=0;la<parm->lmax;la++)
+      //   {
+      //     if(n==0) misc2<<la<<"  "<<real(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<"  "<<imag(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))
+      //                   <<"  "<<abs(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<endl;
+      //   }
+      fp<<theta*180./PI<<"  "<<cross<<endl;
+      if(((theta*180./PI)>=thetamin) && ((theta*180./PI)<=thetamax)) totalcross+=cross*sin(theta)*2.*PI*delta_theta;
+      less=((thetacross-delta_theta*180./PI)<theta*180./PI);
+      more=((thetacross+delta_theta*180./PI)>theta*180./PI);
+      if((less==true) && (more==true))
+        cout<<"Cross section at "<<theta*180./PI<<": "<<cross<<" cond: "<<
+          ((less==true)&&(more==true))<<endl;
+      //		cout<<theta*180./PI<<"  "<<less<<"  "<<more<<"  "<<((less==true)&&(more==true))<<endl;
 	}
-	cout<<"Seccion eficaz total entre "<<thetamin<<" y "<<thetamax<<": "<<totalcross<<endl;
-    fp9<<parm->energia_lab<<"  "<<totalcross<<endl;
-	energia_res=26.6;
-	gamma=0.076;
-	for(energia=energia_res-5.*gamma;energia<=energia_res+5.*gamma;energia+=0.01*gamma)
+  cout<<"Seccion eficaz total entre "<<thetamin<<" y "<<thetamax<<": "<<totalcross<<endl;
+  fp9<<parm->energia_lab<<"  "<<totalcross<<endl;
+  energia_res=26.6;
+  gamma=0.076;
+  for(energia=energia_res-5.*gamma;energia<=energia_res+5.*gamma;energia+=0.01*gamma)
 	{
-		lorentz=gamma/(PI*((energia-energia_res)*(energia-energia_res)+gamma*gamma));
-		fp8<<energia<<"  "<<lorentz*totalcross<<endl;
+      lorentz=gamma/(PI*((energia-energia_res)*(energia-energia_res)+gamma*gamma));
+      fp8<<energia<<"  "<<lorentz*totalcross<<endl;
 	}
-//	totalcross=0.;
-//	black_disk=0.;
-//	for(la=0;la<=parm->lmax;la++)
-//	{
-//		fp2<<la<<"  "<<constante_prob*abs(S[la])*abs(S[la])<<endl;
-//		totalcross+=constante*abs(S[la])*abs(S[la])*escala;
-//		black_disk+=const_bd*escala*constante_prob*abs(S[la])*abs(S[la])*(2.*la+1.);
-//	}
-//	cout<<"Seccion eficaz total (sumando matriz S): "<<totalcross<<endl;
-//	cout<<"Seccion eficaz de disco absorbente: "<<black_disk<<endl;
-	fp.close();
-	fp2.close();
-	fp3.close();
-	fp4.close();
-	fp5.close();
-	fp6.close();
-	fp7.close();
-	fp8.close();
-	delete[] fcoulomb;
-	delete[] S;
-	delete[] thetavec;
+  //	totalcross=0.;
+  //	black_disk=0.;
+  //	for(la=0;la<=parm->lmax;la++)
+  //	{
+  //		fp2<<la<<"  "<<constante_prob*abs(S[la])*abs(S[la])<<endl;
+  //		totalcross+=constante*abs(S[la])*abs(S[la])*escala;
+  //		black_disk+=const_bd*escala*constante_prob*abs(S[la])*abs(S[la])*(2.*la+1.);
+  //	}
+  //	cout<<"Seccion eficaz total (sumando matriz S): "<<totalcross<<endl;
+  //	cout<<"Seccion eficaz de disco absorbente: "<<black_disk<<endl;
+  fp.close();
+  fp2.close();
+  fp3.close();
+  fp4.close();
+  fp5.close();
+  fp6.close();
+  fp7.close();
+  fp8.close();
+  delete[] fcoulomb;
+  delete[] S;
+  delete[] thetavec;
 }
 double CrossSectionOneTransSpinless(complejo ***Tlalb,struct parametros *parm,
-		struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f)
+                                    struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f)
 {
-	double constante,cross,theta,costheta,escala,cleb,m,totalcross,
+  double constante,cross,theta,costheta,escala,cleb,m,totalcross,
 	delta_theta,constante_prob,constante_prob2,black_disk,const_bd,cross_elastic
 	,cross_nuclear,cross_coulomb,const_thom,thetamin,thetamax,gamma,energia,energia_res,
-      lorentz, thetacross;
-	bool less,more;
-	ofstream fp(parm->fl_cross_tot);
-	ofstream fp3("cross_elastico.txt");
-	ofstream fp4("cross_relativo.txt");
-	ofstream fp5("cross_nuclear.txt");
-	ofstream fp8("resonance.txt");   
-    int li=sti->l;
-	int lf=stf->l;
-	float ji=sti->j;
-	float jf=stf->j;
-	constante=parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(parm->k_Aa*4.*PI*PI*pow(HC,4.)*
-			(2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
-    if (parm->phonon) constante=parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(parm->k_Aa*4.*PI*PI*pow(HC,4.)*
-			(2.)*(2.*parm->J_A+1.));
-	complejo const_smat=I*parm->mu_Bb*parm->k_Aa*AMU/(2.*pow(PI,1.5)*HC*HC);
-	const_thom=parm->k_Bb*parm->mu_Aa/(parm->k_Aa*parm->mu_Bb);
-	int la,lb,n,K,len,flag,Kmax,Kmin,M,MM,mm;
-	len=strlen(parm->unidades);
-	if(!strncmp(parm->unidades,"milib",len)) flag=1;
-	if(!strncmp(parm->unidades,"fm2",len)) flag=2;
-	if(!strncmp(parm->unidades,"b",len)) flag=3;
-	if(!strncmp(parm->unidades,"microb",len)) flag=4;
-	complejo* S=new complejo[parm->lmax];
-	complejo* S_thom=new complejo[parm->lmax];
-	complejo* fcoulomb=new complejo[parm->cross_puntos];
-	double* thetavec=new double[parm->cross_puntos];
-	complejo fase,uni,coulomb_amp,nuclear_amp;
-	li=sti->l;
-	lf=stf->l;
-	ji=sti->j;
-	jf=stf->j;
-	Kmax=li+lf;
-	Kmin=abs(li-lf);
-    if (parm->phonon) {Kmin=0; Kmax=10;}
-	complejo** amp=matriz_cmpx(2*Kmax+2,long(2*ji+2));
-	switch(flag)
+    lorentz, thetacross;
+  bool less,more;
+  ofstream fp(parm->fl_cross_tot);
+  ofstream fp3("cross_elastico.txt");
+  ofstream fp4("cross_relativo.txt");
+  ofstream fp5("cross_nuclear.txt");
+  ofstream fp8("resonance.txt");
+  int li=sti->l;
+  int lf=stf->l;
+  float ji=sti->j;
+  float jf=stf->j;
+  constante=parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(parm->k_Aa*4.*PI*PI*pow(HC,4.)*
+                                                                          (2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
+  if (parm->phonon) constante=parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(parm->k_Aa*4.*PI*PI*pow(HC,4.)*
+                                                                                            (2.)*(2.*parm->J_A+1.));
+  complejo const_smat=I*parm->mu_Bb*parm->k_Aa*AMU/(2.*pow(PI,1.5)*HC*HC);
+  const_thom=parm->k_Bb*parm->mu_Aa/(parm->k_Aa*parm->mu_Bb);
+  int la,lb,n,K,len,flag,Kmax,Kmin,M,MM,mm;
+  len=strlen(parm->unidades);
+  if(!strncmp(parm->unidades,"milib",len)) flag=1;
+  if(!strncmp(parm->unidades,"fm2",len)) flag=2;
+  if(!strncmp(parm->unidades,"b",len)) flag=3;
+  if(!strncmp(parm->unidades,"microb",len)) flag=4;
+  complejo* S=new complejo[parm->lmax];
+  complejo* S_thom=new complejo[parm->lmax];
+  complejo* fcoulomb=new complejo[parm->cross_puntos];
+  double* thetavec=new double[parm->cross_puntos];
+  complejo fase,uni,coulomb_amp,nuclear_amp;
+  li=sti->l;
+  lf=stf->l;
+  ji=sti->j;
+  jf=stf->j;
+  Kmax=li+lf;
+  Kmin=abs(li-lf);
+  if (parm->phonon) {Kmin=0; Kmax=10;}
+  complejo** amp=matriz_cmpx(2*Kmax+2,long(2*ji+2));
+  switch(flag)
 	{
 	case 1:
-		escala=10.;
-		cout<<"Seccion eficaz medida en milibarn"<<endl;
-		break;
+      escala=10.;
+      cout<<"Seccion eficaz medida en milibarn"<<endl;
+      break;
 	case 2:
-		escala=1.;
-		cout<<"Seccion eficaz medida en fm^2"<<endl;
-		break;
+      escala=1.;
+      cout<<"Seccion eficaz medida en fm^2"<<endl;
+      break;
 	case 3:
-		escala=0.01;
-		cout<<"Seccion eficaz medida en barn"<<endl;
-		break;
+      escala=0.01;
+      cout<<"Seccion eficaz medida en barn"<<endl;
+      break;
 	case 4:
-		escala=10000.;
-		cout<<"Seccion eficaz medida en microbarn"<<endl;
-		break;
+      escala=10000.;
+      cout<<"Seccion eficaz medida en microbarn"<<endl;
+      break;
 	default:
-		Error("Unidades desconocidas para la sección eficaz");
-		break;
+      Error("Unidades desconocidas para la sección eficaz");
+      break;
 	}
-	uni=-1.;
-	totalcross=0.;
-	delta_theta=PI/double(parm->cross_puntos);
-	for (n=0;n<parm->cross_puntos;n++) {
-		thetavec[n]=PI*double(n)/double(parm->cross_puntos);
-	}
-	fcoul(thetavec,fcoulomb,parm->eta,parm->cross_puntos,parm->k_Aa);
-	thetamin=0.;
-	thetamax=180.;
-	thetacross=6.3;
-	for(n=0;n<parm->cross_puntos;n++)
+  uni=-1.;
+  totalcross=0.;
+  delta_theta=PI/double(parm->cross_puntos);
+  for (n=0;n<parm->cross_puntos;n++) {
+    thetavec[n]=PI*double(n)/double(parm->cross_puntos);
+  }
+  fcoul(thetavec,fcoulomb,parm->eta,parm->cross_puntos,parm->k_Aa);
+  thetamin=0.;
+  thetamax=180.;
+  thetacross=6.3;
+  for(n=0;n<parm->cross_puntos;n++)
 	{
-		theta=PI*double(n)/double(parm->cross_puntos);
-		costheta=cos(theta);
-		for(M=0;M<=2.*Kmax+1;M++)
+      theta=PI*double(n)/double(parm->cross_puntos);
+      costheta=cos(theta);
+      for(M=0;M<=2.*Kmax+1;M++)
 		{
-			for(mm=0;mm<=long(2*ji+1);mm++)
+          for(mm=0;mm<=long(2*ji+1);mm++)
 			{
-				amp[M][mm]=0.;
+              amp[M][mm]=0.;
 			}
 		}
 
-		for(K=Kmin;K<=Kmax;K++)
+      for(K=Kmin;K<=Kmax;K++)
 		{
-			for(la=0;la<parm->lmax;la++){
-              //              if(n==0) cout<<"la: "<<la<<endl;
-				for(lb=abs(la-K);(lb<=la+Kmax) && (lb<parm->lmax);lb++){
-					for(M=-K;M<=K;M++)
-					{
-						MM=M+K;
-						if(abs(M)<=lb)
-						{
-							mm=0;
-							for(m=-ji;m<=ji;m++)
-							{
-								mm=long(m+ji);
-								if((abs(M-m)<=jf))
-								{
-									fase=1.;
-									if(abs(Tlalb[la][lb][K])>0.) amp[MM][mm]+=Tlalb[la][lb][K]*fase*ClebsGordan(ji,m,jf,M-m,K,M)*
-											ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
-                                    //if(n==1) misc3<<la<<"  "<<lb<<"  "<<K<<"  "<<real(Tlalb[la][lb][K])<<"  "<<imag(Tlalb[la][lb][K])
-                                    //            <<"  "<<abs(amp[MM][mm])<<endl;
-								}
-							}
-						}
-					}
-				}
-			}
+          for(la=0;la<parm->lmax;la++){
+            //              if(n==0) cout<<"la: "<<la<<endl;
+            for(lb=abs(la-K);(lb<=la+Kmax) && (lb<parm->lmax);lb++){
+              for(M=-K;M<=K;M++)
+                {
+                  MM=M+K;
+                  if(abs(M)<=lb)
+                    {
+                      mm=0;
+                      for(m=-ji;m<=ji;m++)
+                        {
+                          mm=long(m+ji);
+                          if((abs(M-m)<=jf))
+                            {
+                              fase=1.;
+                              if(abs(Tlalb[la][lb][K])>0.) amp[MM][mm]+=Tlalb[la][lb][K]*fase*ClebsGordan(ji,m,jf,M-m,K,M)*
+                                                             ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
+                              //if(n==1) misc3<<la<<"  "<<lb<<"  "<<K<<"  "<<real(Tlalb[la][lb][K])<<"  "<<imag(Tlalb[la][lb][K])
+                              //            <<"  "<<abs(amp[MM][mm])<<endl;
+                            }
+                        }
+                    }
+                }
+            }
+          }
 		}
 
-		cross=0.;
-		for(M=0;M<=2.*Kmax+1;M++)
+      cross=0.;
+      for(M=0;M<=2.*Kmax+1;M++)
 		{
-			for(mm=0;mm<=long(2*ji+1);mm++)
+          for(mm=0;mm<=long(2*ji+1);mm++)
 			{
               cross+=abs(amp[M][mm])*abs(amp[M][mm])*constante*escala;
 			}
 		}
-        // for(la=0;la<parm->lmax;la++)
-        //   {
-        //     if(n==0) misc2<<la<<"  "<<real(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<"  "<<imag(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))
-        //                   <<"  "<<abs(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<endl;
-        //   }
-		fp<<theta*180./PI<<"  "<<cross<<endl;
-		if(((theta*180./PI)>=parm->angle0) && ((theta*180./PI)<=parm->angle1)) totalcross+=cross*sin(theta)*2.*PI*delta_theta;
-		less=((thetacross-delta_theta*180./PI)<theta*180./PI);
-		more=((thetacross+delta_theta*180./PI)>theta*180./PI);
-		if((less==true) && (more==true))
-			cout<<"Cross section at "<<theta*180./PI<<": "<<cross<<" cond: "<<
-			((less==true)&&(more==true))<<endl;
-//		cout<<theta*180./PI<<"  "<<less<<"  "<<more<<"  "<<((less==true)&&(more==true))<<endl;
+      // for(la=0;la<parm->lmax;la++)
+      //   {
+      //     if(n==0) misc2<<la<<"  "<<real(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<"  "<<imag(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))
+      //                   <<"  "<<abs(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<endl;
+      //   }
+      fp<<theta*180./PI<<"  "<<cross<<endl;
+      if(((theta*180./PI)>=parm->angle0) && ((theta*180./PI)<=parm->angle1)) totalcross+=cross*sin(theta)*2.*PI*delta_theta;
+      // less=((thetacross-delta_theta*180./PI)<theta*180./PI);
+      // more=((thetacross+delta_theta*180./PI)>theta*180./PI);
+      // if((less==true) && (more==true))
+      // 	cout<<"Cross section at "<<theta*180./PI<<": "<<cross<<" cond: "<<
+      // 	((less==true)&&(more==true))<<endl;
+      //		cout<<theta*180./PI<<"  "<<less<<"  "<<more<<"  "<<((less==true)&&(more==true))<<endl;
 	}
-	cout<<"Seccion eficaz total entre "<<parm->angle0<<" y "<<parm->angle1<<": "<<totalcross<<endl;
-	energia_res=26.6;
-	gamma=0.076;
-	for(energia=energia_res-5.*gamma;energia<=energia_res+5.*gamma;energia+=0.01*gamma)
-	{
-		lorentz=gamma/(PI*((energia-energia_res)*(energia-energia_res)+gamma*gamma));
-		fp8<<energia<<"  "<<lorentz*totalcross<<endl;
-	}
-
-	fp.close();
-	fp3.close();
-	fp4.close();
-	fp5.close();
-	fp8.close();
-	delete[] fcoulomb;
-	delete[] S;
-	delete[] thetavec;
-    return totalcross;
+  cout<<"Seccion eficaz total entre "<<parm->angle0<<" y "<<parm->angle1<<": "<<totalcross<<endl;
+  // energia_res=26.6;
+  // gamma=0.076;
+  // for(energia=energia_res-5.*gamma;energia<=energia_res+5.*gamma;energia+=0.01*gamma)
+  // {
+  // 	lorentz=gamma/(PI*((energia-energia_res)*(energia-energia_res)+gamma*gamma));
+  // 	fp8<<energia<<"  "<<lorentz*totalcross<<endl;
+  // }
+  fp.close();
+  fp3.close();
+  fp4.close();
+  fp5.close();
+  fp8.close();
+  delete[] fcoulomb;
+  delete[] S;
+  delete[] thetavec;
+  return totalcross;
 }
 
 /////////////////////////////////////////////////////
@@ -747,111 +750,111 @@ double CrossSectionOneTransSpinless(complejo ***Tlalb,struct parametros *parm,
 double CrossSectionOneCollective(complejo ****Tlalb,struct parametros *parm,
                                  complejo *fase_coulomb_i,complejo *fase_coulomb_f)
 {
-	double constante,cross,theta,costheta,escala,cleb,m,totalcross,
+  double constante,cross,theta,costheta,escala,cleb,m,totalcross,
 	delta_theta,constante_prob,constante_prob2,black_disk,const_bd,cross_elastic
 	,cross_nuclear,cross_coulomb,const_thom,thetamin,thetamax,gamma,energia,energia_res,
-      lorentz, thetacross;
-	bool less,more;
-	ofstream fp(parm->fl_cross_tot);
-    constante=parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(parm->k_Aa*4.*PI*PI*pow(HC,4.)*
-			(2.)*(2.*parm->J_A+1.));;
-	int la,lb,n,K,len,flag,Kmax,Kmin,M,MM,mm;
-	len=strlen(parm->unidades);
-	if(!strncmp(parm->unidades,"milib",len)) flag=1;
-	if(!strncmp(parm->unidades,"fm2",len)) flag=2;
-	if(!strncmp(parm->unidades,"b",len)) flag=3;
-	if(!strncmp(parm->unidades,"microb",len)) flag=4;
-	complejo fase,uni,coulomb_amp,nuclear_amp;
-    Kmin=0;
-    Kmax=10;
-	complejo** amp=matriz_cmpx(2*Kmax+2,4);
-	switch(flag)
+    lorentz, thetacross;
+  bool less,more;
+  ofstream fp(parm->fl_cross_tot);
+  constante=parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(parm->k_Aa*4.*PI*PI*pow(HC,4.)*
+                                                                          (2.)*(2.*parm->J_A+1.));;
+  int la,lb,n,K,len,flag,Kmax,Kmin,M,MM,mm;
+  len=strlen(parm->unidades);
+  if(!strncmp(parm->unidades,"milib",len)) flag=1;
+  if(!strncmp(parm->unidades,"fm2",len)) flag=2;
+  if(!strncmp(parm->unidades,"b",len)) flag=3;
+  if(!strncmp(parm->unidades,"microb",len)) flag=4;
+  complejo fase,uni,coulomb_amp,nuclear_amp;
+  Kmin=0;
+  Kmax=10;
+  complejo** amp=matriz_cmpx(2*Kmax+2,4);
+  switch(flag)
 	{
 	case 1:
-		escala=10.;
-		cout<<"Seccion eficaz medida en milibarn"<<endl;
-		break;
+      escala=10.;
+      cout<<"Seccion eficaz medida en milibarn"<<endl;
+      break;
 	case 2:
-		escala=1.;
-		cout<<"Seccion eficaz medida en fm^2"<<endl;
-		break;
+      escala=1.;
+      cout<<"Seccion eficaz medida en fm^2"<<endl;
+      break;
 	case 3:
-		escala=0.01;
-		cout<<"Seccion eficaz medida en barn"<<endl;
-		break;
+      escala=0.01;
+      cout<<"Seccion eficaz medida en barn"<<endl;
+      break;
 	case 4:
-		escala=10000.;
-		cout<<"Seccion eficaz medida en microbarn"<<endl;
-		break;
+      escala=10000.;
+      cout<<"Seccion eficaz medida en microbarn"<<endl;
+      break;
 	default:
-		Error("Unidades desconocidas para la sección eficaz");
-		break;
+      Error("Unidades desconocidas para la sección eficaz");
+      break;
 	}
-	totalcross=0.;
-	delta_theta=PI/double(parm->cross_puntos);
-	thetamin=parm->angle0;
-	thetamax=parm->angle1;
-	for(n=0;n<parm->cross_puntos;n++)
+  totalcross=0.;
+  delta_theta=PI/double(parm->cross_puntos);
+  thetamin=parm->angle0;
+  thetamax=parm->angle1;
+  for(n=0;n<parm->cross_puntos;n++)
 	{
-		theta=PI*double(n)/double(parm->cross_puntos);
-		costheta=cos(theta);
-		for(M=0;M<=2.*Kmax+1;M++)
+      theta=PI*double(n)/double(parm->cross_puntos);
+      costheta=cos(theta);
+      for(M=0;M<=2.*Kmax+1;M++)
 		{
-			for(mm=0;mm<=3;mm++)
+          for(mm=0;mm<=3;mm++)
 			{
               amp[M][mm]=0.;
 			}
 		}
 
-		for(K=Kmin;K<=Kmax;K++)
-          {
-			for(la=0;la<parm->lmax;la++){
-              //              if(n==0) cout<<"la: "<<la<<endl;
-              for(lb=abs(la-K);(lb<=la+Kmax) && (lb<parm->lmax);lb++){
-                for(M=-K;M<=K;M++)
-                  {
-                    MM=M+K;
-                    if(abs(M)<=lb)
-                      {
-                        mm=0;
-                        for(m=-0.5;m<=0.5;m++)
-                          {
-                            mm=long(m+0.5);
-                            fase=1.;
-                             if(abs(Tlalb[la][lb][K][0])>0.) amp[MM][mm]+=Tlalb[la][lb][K][0]*fase*ClebsGordan(0.5,m,K+0.5,M-m,K,M)*
-                                                               ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
-                             if(abs(Tlalb[la][lb][K][1])>0.) amp[MM][mm]+=Tlalb[la][lb][K][1]*fase*ClebsGordan(0.5,m,abs(K-0.5),M-m,K,M)*
-                                                               ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
-                            //if(n==1) misc3<<la<<"  "<<lb<<"  "<<K<<"  "<<real(Tlalb[la][lb][K])<<"  "<<imag(Tlalb[la][lb][K])
-                            //            <<"  "<<abs(amp[MM][mm])<<endl;
-                          }
-                      }
-                  }
-              }
-			}
+      for(K=Kmin;K<=Kmax;K++)
+        {
+          for(la=0;la<parm->lmax;la++){
+            //              if(n==0) cout<<"la: "<<la<<endl;
+            for(lb=abs(la-K);(lb<=la+Kmax) && (lb<parm->lmax);lb++){
+              for(M=-K;M<=K;M++)
+                {
+                  MM=M+K;
+                  if(abs(M)<=lb)
+                    {
+                      mm=0;
+                      for(m=-0.5;m<=0.5;m++)
+                        {
+                          mm=long(m+0.5);
+                          fase=1.;
+                          if(abs(Tlalb[la][lb][K][0])>0.) amp[MM][mm]+=Tlalb[la][lb][K][0]*fase*ClebsGordan(0.5,m,K+0.5,M-m,K,M)*
+                                                            ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
+                          if(abs(Tlalb[la][lb][K][1])>0.) amp[MM][mm]+=Tlalb[la][lb][K][1]*fase*ClebsGordan(0.5,m,abs(K-0.5),M-m,K,M)*
+                                                            ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
+                          //if(n==1) misc3<<la<<"  "<<lb<<"  "<<K<<"  "<<real(Tlalb[la][lb][K])<<"  "<<imag(Tlalb[la][lb][K])
+                          //            <<"  "<<abs(amp[MM][mm])<<endl;
+                        }
+                    }
+                }
+            }
           }
+        }
 
-		cross=0.;
-		for(M=0;M<=2.*Kmax+1;M++)
+      cross=0.;
+      for(M=0;M<=2.*Kmax+1;M++)
 		{
-			for(mm=0;mm<=2;mm++)
+          for(mm=0;mm<=2;mm++)
 			{
               cross+=abs(amp[M][mm])*abs(amp[M][mm])*constante*escala;
 			}
 		}
-        // for(la=0;la<parm->lmax;la++)
-        //   {
-        //     if(n==0) misc2<<la<<"  "<<real(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<"  "<<imag(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))
-        //                   <<"  "<<abs(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<endl;
-        //   }
-		fp<<theta*180./PI<<"  "<<cross<<endl;
-		if(((theta*180./PI)>=parm->angle0) && ((theta*180./PI)<=parm->angle1)) totalcross+=cross*sin(theta)*2.*PI*delta_theta;
-        //if(n==136 || n==146) totalcross+=cross*4.*PI*0.0056;
+      // for(la=0;la<parm->lmax;la++)
+      //   {
+      //     if(n==0) misc2<<la<<"  "<<real(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<"  "<<imag(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))
+      //                   <<"  "<<abs(Tlalb[la][la][0]*ClebsGordan(la,0,la,0,0,0))<<endl;
+      //   }
+      fp<<theta*180./PI<<"  "<<cross<<endl;
+      if(((theta*180./PI)>=parm->angle0) && ((theta*180./PI)<=parm->angle1)) totalcross+=cross*sin(theta)*2.*PI*delta_theta;
+      //if(n==136 || n==146) totalcross+=cross*4.*PI*0.0056;
 	}
-	cout<<"Seccion eficaz total entre "<<parm->angle0<<" y "<<parm->angle1<<": "<<totalcross<<endl;
-	fp.close();
-    delete amp;
-    return totalcross;
+  cout<<"Seccion eficaz total entre "<<parm->angle0<<" y "<<parm->angle1<<": "<<totalcross<<endl;
+  fp.close();
+  delete amp;
+  return totalcross;
 }
 
 
@@ -865,280 +868,283 @@ double CrossSectionOneCollective(complejo ****Tlalb,struct parametros *parm,
 /* C�lculo de la secci�n eficaz de transferencia de una particula. La amplitud T[ma][map][mbp] depende de las polarizaciones
  * iniciales y finales de las
  * part�culas a, b. Los �ndices son tales que ma=0->ma=-1/2, ma=1->ma=1/2, etc.
-*/
+ */
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void AmplitudOneTrans(parametros *parm,complejo *****T)
 {
-	complejo** Ij;
-	double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
-	double eta_i=parm->eta;
-	complejo c1,fase;
-	complejo* exp_delta_coulomb_i=new complejo[parm->lmax];
-	complejo* exp_delta_coulomb_f=new complejo[parm->lmax];
-	complejo* S=new complejo[parm->lmax];
-	integrando_onept *intk=new integrando_onept;
-	parametros_integral *dim1=new parametros_integral;
-	parametros_integral *dim2=new parametros_integral;
-	parametros_integral *dim3=new parametros_integral;
-	coordenadas_onept *coords=new coordenadas_onept;
-	distorted_wave *dumbdw=new distorted_wave[1];
-	ofstream fp1("some_dw.txt");
-	if (!intk) Error("No se pudo reservar memoria para intk");
-	if (!coords) Error("No se pudo reservar memoria para coords");
-	ofstream fp(parm->fl_amplitudes);
-	ofstream fp2(parm->fl_dw);
-	Ij=matriz_cmpx(3,3);
-	int la,lb,ln,lnp,jap,m,n,indx_st,indx_ingreso,indx_salida,indx_transfer,jja,jjb,Kmax,Kmin;
-	int ma,map,mb,mbp,st_a,st_B,K;
-	double energia_aA,energia_bB,cos_b,factor;
-	float ja,jb;
-	complejo integral,phase_shift;
-	factor=32.*sqrt(2.*parm->n_spin+1.)*pow(PI,3)/((parm->k_Aa)*(parm->k_Bb));
-	/*Par�metros num�ricos para la integral */
-	intk->dim1=dim1;
-	intk->dim2=dim2;
-	intk->dim3=dim3;
-	intk->coords=coords;
-	intk->dim1->a=parm->r_Ccmin;
-	intk->dim1->b=parm->r_Ccmax;
-	intk->dim1->num_puntos=parm->rCc_puntos;
-	intk->dim2->a=parm->r_A2min;
-	intk->dim2->b=parm->r_A2max;
-	intk->dim2->num_puntos=parm->rA2_puntos;
-	intk->dim3->a=0.;
-	intk->dim3->b=PI;
-	intk->dim3->num_puntos=parm->theta_puntos;
-	intk->spinA=parm->dw_spinA;
-	intk->spinB=parm->dw_spinB;
-	intk->prior=parm->prior;
-	GaussLegendre(intk->dim1->puntos,intk->dim1->pesos,intk->dim1->num_puntos);
-	GaussLegendre(intk->dim2->puntos,intk->dim2->pesos,intk->dim2->num_puntos);
-	GaussLegendre(intk->dim3->puntos,intk->dim3->pesos,intk->dim3->num_puntos);
-	GeneraCoordenadasOneTrans(parm,coords,intk->dim1,intk->dim2,intk->dim3);
-	/*Selecciona los potenciales opticos en los distintos canales*/
-	for (n=0;n<parm->num_opt;n++)
+  complejo** Ij;
+  double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
+  double eta_i=parm->eta;
+  complejo c1,fase;
+  complejo* exp_delta_coulomb_i=new complejo[parm->lmax];
+  complejo* exp_delta_coulomb_f=new complejo[parm->lmax];
+  complejo* S=new complejo[parm->lmax];
+  integrando_onept *intk=new integrando_onept;
+  parametros_integral *dim1=new parametros_integral;
+  parametros_integral *dim2=new parametros_integral;
+  parametros_integral *dim3=new parametros_integral;
+  coordenadas_onept *coords=new coordenadas_onept;
+  distorted_wave *dumbdw=new distorted_wave[1];
+  ofstream fp1("some_dw.txt");
+  if (!intk) Error("No se pudo reservar memoria para intk");
+  if (!coords) Error("No se pudo reservar memoria para coords");
+  ofstream fp(parm->fl_amplitudes);
+  ofstream fp2(parm->fl_dw);
+  Ij=matriz_cmpx(3,3);
+  int la,lb,ln,lnp,jap,m,n,indx_st,indx_ingreso,indx_salida,indx_transfer,jja,jjb,Kmax,Kmin;
+  int ma,map,mb,mbp,st_a,st_B,K;
+  double energia_aA,energia_bB,cos_b,factor;
+  float ja,jb;
+  complejo integral,phase_shift;
+  factor=32.*sqrt(2.*parm->n_spin+1.)*pow(PI,3)/((parm->k_Aa)*(parm->k_Bb));
+  /*Par�metros num�ricos para la integral */
+  intk->dim1=dim1;
+  intk->dim2=dim2;
+  intk->dim3=dim3;
+  intk->coords=coords;
+  intk->dim1->a=parm->r_Ccmin;
+  intk->dim1->b=parm->r_Ccmax;
+  intk->dim1->num_puntos=parm->rCc_puntos;
+  intk->dim2->a=parm->r_A2min;
+  intk->dim2->b=parm->r_A2max;
+  intk->dim2->num_puntos=parm->rA2_puntos;
+  intk->dim3->a=0.;
+  intk->dim3->b=PI;
+  intk->dim3->num_puntos=parm->theta_puntos;
+  intk->spinA=parm->dw_spinA;
+  intk->spinB=parm->dw_spinB;
+  intk->prior=parm->prior;
+  GaussLegendre(intk->dim1->puntos,intk->dim1->pesos,intk->dim1->num_puntos);
+  GaussLegendre(intk->dim2->puntos,intk->dim2->pesos,intk->dim2->num_puntos);
+  GaussLegendre(intk->dim3->puntos,intk->dim3->pesos,intk->dim3->num_puntos);
+  GeneraCoordenadasOneTrans(parm,coords,intk->dim1,intk->dim2,intk->dim3);
+  /*Selecciona los potenciales opticos en los distintos canales*/
+  for (n=0;n<parm->num_opt;n++)
 	{
-		if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
-		if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
+      if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
+      if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
 	}
-	/*Selecciona el potencial de transfer*/
-	for(n=0;n<parm->num_cm;n++)
+  /*Selecciona el potencial de transfer*/
+  for(n=0;n<parm->num_cm;n++)
 	{
-		if(parm->pot_transfer==parm->pot[n].id) {intk->pot=&(parm->pot[n]);indx_transfer=n;}
+      if(parm->pot_transfer==parm->pot[n].id) {intk->pot=&(parm->pot[n]);indx_transfer=n;}
 	}
-	cout<<"Energia de centro de masa: "<<parm->energia_cm<<endl;
-	/*Calculo de las amplitudes de transferencia**************************************************************************/
-	for(la=0;la<parm->lmax;la++)
+  cout<<"Energia de centro de masa: "<<parm->energia_cm<<endl;
+  /*Calculo de las amplitudes de transferencia**************************************************************************/
+  for(la=0;la<parm->lmax;la++)
 	{
-		exp_delta_coulomb_i[la]=exp(I*(deltac(la,eta_i)));
-		exp_delta_coulomb_f[la]=exp(I*(deltac(la,eta_f)));
+      exp_delta_coulomb_i[la]=exp(I*(deltac(la,eta_i)));
+      exp_delta_coulomb_f[la]=exp(I*(deltac(la,eta_f)));
 	}
-	st_a=0;
-	st_B=0;
-	for(n=0;n<parm->num_st;n++)
+  st_a=0;
+  st_B=0;
+  for(n=0;n<parm->num_st;n++)
 	{
-		if (parm->a_estados[st_a] == parm->st[n].id) {
-			intk->inicial_st = &(parm->st[n]);
-		}
+      if (parm->a_estados[st_a] == parm->st[n].id) {
+        intk->inicial_st = &(parm->st[n]);
+      }
 	}
-	for (n = 0; n < parm->num_st; n++) {
-		if (parm->B_estados[st_B] == parm->st[n].id) {
-			intk->final_st = &(parm->st[n]);
-		}
-	}
-	Kmax=(intk->final_st->l+intk->inicial_st->l);
-	Kmin=abs(intk->final_st->l-intk->inicial_st->l);
-	for(la=0;la<parm->lmax;la++)
+  for (n = 0; n < parm->num_st; n++) {
+    if (parm->B_estados[st_B] == parm->st[n].id) {
+      intk->final_st = &(parm->st[n]);
+    }
+  }
+  Kmax=(intk->final_st->l+intk->inicial_st->l);
+  Kmin=abs(intk->final_st->l-intk->inicial_st->l);
+  for(la=0;la<parm->lmax;la++)
 	{
-		cout<<"la: "<<la<<endl;
-		intk->la=la;
-		/* distorted wave en el canal de entrada con spin up (entrante[0]) y spin down (entrante[1]) */
-		jja=0;
-		for(ja=abs(la-parm->dw_spinA);ja<=la+parm->dw_spinA;ja++)
+      cout<<"la: "<<la<<endl;
+      intk->la=la;
+      /* distorted wave en el canal de entrada con spin up (entrante[0]) y spin down (entrante[1]) */
+      jja=0;
+      for(ja=abs(la-parm->dw_spinA);ja<=la+parm->dw_spinA;ja++)
 		{
-			intk->faA[jja].energia=parm->energia_cm;
-			intk->faA[jja].l=la;
-			intk->faA[jja].spin=parm->dw_spinA;
-			intk->faA[jja].j=ja;
-			GeneraDWspin(&(intk->faA[jja]),&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,
-					parm->radio,parm->puntos,parm->matching_radio,&fp2);
-			jja++;
+          intk->faA[jja].energia=parm->energia_cm;
+          intk->faA[jja].l=la;
+          intk->faA[jja].spin=parm->dw_spinA;
+          intk->faA[jja].j=ja;
+          GeneraDWspin(&(intk->faA[jja]),&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,
+                       parm->radio,parm->puntos,parm->matching_radio,&fp2);
+          jja++;
 		}
-		for(K=Kmin;K<=Kmax;K++)
+      for(K=Kmin;K<=Kmax;K++)
 		{
-			c1=Wigner9j(intk->final_st->l,parm->n_spin,intk->final_st->j,intk->inicial_st->l,
-					parm->n_spin,intk->inicial_st->j,K,0,K)/(2.*K+1.);
-			for(lb=abs(la-K);lb<=la+K && lb<parm->lmax;lb++)
+          c1=Wigner9j(intk->final_st->l,parm->n_spin,intk->final_st->j,intk->inicial_st->l,
+                      parm->n_spin,intk->inicial_st->j,K,0,K)/(2.*K+1.);
+          for(lb=abs(la-K);lb<=la+K && lb<parm->lmax;lb++)
 			{
-//				cout<<"lb: "<<lb<<endl;
-				intk->lb=lb;
-				/* distorted wave en el canal de salida con spin up (saliente[0]) y spin down (saliente[1]) */
-				jjb=0;
-				for(jb=abs(lb-parm->dw_spinB);jb<=lb+parm->dw_spinB;jb++)
+              //				cout<<"lb: "<<lb<<endl;
+              intk->lb=lb;
+              /* distorted wave en el canal de salida con spin up (saliente[0]) y spin down (saliente[1]) */
+              jjb=0;
+              for(jb=abs(lb-parm->dw_spinB);jb<=lb+parm->dw_spinB;jb++)
 				{
-					intk->fbB[jjb].energia=parm->energia_cm+parm->Qvalue;
-					intk->fbB[jjb].l=lb;
-					intk->fbB[jjb].spin=parm->dw_spinB;
-					intk->fbB[jjb].j=jb;
-					GeneraDWspin(&(intk->fbB[jjb]),&(parm->pot_opt[indx_salida]),parm->Z_A*parm->Z_a,parm->mu_Bb,
-							parm->radio,parm->puntos,parm->matching_radio,&fp2);
-					jjb++;
+                  intk->fbB[jjb].energia=parm->energia_cm+parm->Qvalue;
+                  intk->fbB[jjb].l=lb;
+                  intk->fbB[jjb].spin=parm->dw_spinB;
+                  intk->fbB[jjb].j=jb;
+                  GeneraDWspin(&(intk->fbB[jjb]),&(parm->pot_opt[indx_salida]),parm->Z_A*parm->Z_a,parm->mu_Bb,
+                               parm->radio,parm->puntos,parm->matching_radio,&fp2);
+                  jjb++;
 				}
-				if((intk->final_st->spec)!=0. && (intk->inicial_st->spec)!=0.)
+              if((intk->final_st->spec)!=0. && (intk->inicial_st->spec)!=0.)
 				{
-					fase=pow(I,la-lb);
-					jja=0;
-					for(ja=abs(la-parm->dw_spinA);ja<=la+parm->dw_spinA;ja++){
-						jjb=0;
-						for(jb=abs(lb-parm->dw_spinB);jb<=lb+parm->dw_spinB;jb++){
-							if(c1!=0.)
-							{
-								fase=pow(I,la-lb);
-								IntegralOneTrans(intk,Ij,K);
-								T[K][la][lb][jja][jjb]+=c1*sqrt(2.*lb+1.)*sqrt(2.*la+1.)*fase*intk->inicial_st->spec*intk->final_st->spec*
-										exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb]*factor*Ij[jja][jjb];
-//								misc1<<la<<"  "<<lb<<"  "<<real(c1*sqrt(2.*lb+1.)*sqrt(2.*la+1.)*fase*intk->inicial_st->spec*intk->final_st->spec*
-//										exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb])
-//												<<"  "<<factor<<"  "<<real(Ij[jja][jjb])<<endl;
-							}
-						}
-					}
+                  fase=pow(I,la-lb);
+                  jja=0;
+                  for(ja=abs(la-parm->dw_spinA);ja<=la+parm->dw_spinA;ja++){
+                    jjb=0;
+                    for(jb=abs(lb-parm->dw_spinB);jb<=lb+parm->dw_spinB;jb++){
+                      if(c1!=0.)
+                        {
+                          fase=pow(I,la-lb);
+                          IntegralOneTrans(intk,Ij,K);
+                          T[K][la][lb][jja][jjb]+=c1*sqrt(2.*lb+1.)*sqrt(2.*la+1.)*fase*intk->inicial_st->spec*intk->final_st->spec*
+                            exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb]*factor*Ij[jja][jjb];
+                          //								misc1<<la<<"  "<<lb<<"  "<<real(c1*sqrt(2.*lb+1.)*sqrt(2.*la+1.)*fase*intk->inicial_st->spec*intk->final_st->spec*
+                          //										exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb])
+                          //												<<"  "<<factor<<"  "<<real(Ij[jja][jjb])<<endl;
+                        }
+                    }
+                  }
 				}
 			}
 		}
 	}
-	CrossSectionOneTrans(T,S,parm,intk->inicial_st,intk->final_st,exp_delta_coulomb_i,exp_delta_coulomb_f);
-	delete[] Ij;
-	delete intk;
-	delete dim1;
-	delete dim2;
-	delete dim3;
-	delete coords;
+  CrossSectionOneTrans(T,S,parm,intk->inicial_st,intk->final_st,exp_delta_coulomb_i,exp_delta_coulomb_f);
+  delete[] Ij;
+  delete intk;
+  delete dim1;
+  delete dim2;
+  delete dim3;
+  delete coords;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* 
  * One particle transfer amplitude
-*/
+ */
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 {
-	complejo* Ij=new complejo[1];
-    complejo* I1=new complejo[1];
-	double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
-	double eta_i=parm->eta;
-	complejo c1,fase,c2;
-	integrando_onept *intk=new integrando_onept;
-	distorted_wave *dumbdw=new distorted_wave[1];
-	parametros_integral *dim1=new parametros_integral;
-	parametros_integral *dim2=new parametros_integral;
-	parametros_integral *dim3=new parametros_integral;
-    parametros_integral *dim4=new parametros_integral;
-	coordenadas_onept *coords=new coordenadas_onept;
-	potencial_optico *optico=new potencial_optico;
-	potencial_optico *core=new potencial_optico;
-	complejo* S=new complejo[parm->lmax];
-	complejo* exp_delta_coulomb_i=new complejo[parm->lmax];
-	complejo* exp_delta_coulomb_f=new complejo[parm->lmax];
-	complejo* trial=new complejo[parm->puntos];
-	double* r=new double[parm->puntos];
-	if (!intk) Error("No se pudo reservar memoria para intk");
-	if (!coords) Error("No se pudo reservar memoria para coords");
-	ofstream fp(parm->fl_amplitudes);
-	ofstream fp1("some_dw.txt");
-	ofstream fp2(parm->fl_dw);
-	ofstream fp4("dw_out.txt");
-	ofstream fp3("dw_in.txt");
-	int la,lb,ln,lnp,m,n,indx_st,indx_ingreso,indx_salida,indx_core,indx_transfer;
-	int mb,mbp,st_a,st_B,Kmax,Kmin,K;
-	double energia_aA,energia_bB,cos_b,factor,q,absorcion,
-      start_An,Rmax;
-	complejo integral,suma,c_phase;
-	complejo* fourier=new complejo[1];
-    ofstream fp9;
-    fp9.open("dsdE.txt", std::ios_base::app);
-    ofstream fp10;
-    fp10.open("convergence.txt", std::ios_base::app);
-    double epsilon_i,epsilon_k,Gamma_lambda,homega_lambda,Omega_lambda,tau,Phi,damping,L,modalpha,totalcross;
-    epsilon_i=0.07;  
-    epsilon_k=-0.5;
-    Gamma_lambda=0.5;
-    homega_lambda=3.5;
-    L=10.;
-    Omega_lambda=abs(epsilon_i-homega_lambda-epsilon_k);
-	factor=32.*sqrt(2.*parm->n_spin+1.)*pow(PI,3)/((parm->k_Aa)*(parm->k_Bb));
-	cout<<"Masa reducida entrante: "<<parm->mu_Aa<<", masa reducida saliente: "<<parm->mu_Bb<<endl;
-	cout<<"  Momentos-> KaA: "<<parm->k_Aa<<",   KbB: "<<parm->k_Bb<<endl;
-	/*Par�metros num�ricos para la integral */
-	intk->dim1=dim1;
-	intk->dim2=dim2;
-	intk->dim3=dim3;
-	intk->coords=coords;
-	intk->dim1->a=parm->r_Ccmin;
-	intk->dim1->b=parm->r_Ccmax;
-	intk->dim1->num_puntos=parm->rCc_puntos;
-	intk->dim2->a=parm->r_A2min;
-	intk->dim2->b=parm->r_A2max;
-	intk->dim2->num_puntos=parm->rA2_puntos;
-	intk->dim3->a=0.;
-	intk->dim3->b=PI;
-	intk->dim3->num_puntos=parm->theta_puntos;
+  complejo* Ij=new complejo[1];
+  complejo* I1=new complejo[1];
+  double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
+  double eta_i=parm->eta;
+  complejo c1,fase,c2;
+  integrando_onept *intk=new integrando_onept;
+  distorted_wave *dumbdw=new distorted_wave[1];
+  parametros_integral *dim1=new parametros_integral;
+  parametros_integral *dim2=new parametros_integral;
+  parametros_integral *dim3=new parametros_integral;
+  parametros_integral *dim4=new parametros_integral;
+  coordenadas_onept *coords=new coordenadas_onept;
+  potencial_optico *optico=new potencial_optico;
+  potencial_optico *core=new potencial_optico;
+  complejo* S=new complejo[parm->lmax];
+  complejo* exp_delta_coulomb_i=new complejo[parm->lmax];
+  complejo* exp_delta_coulomb_f=new complejo[parm->lmax];
+  complejo* trial=new complejo[parm->puntos];
+  vector <complejo> at(parm->rCc_puntos,0.);
+  vector <complejo> bt(parm->rCc_puntos,0.);
+  double* r=new double[parm->puntos];
+  if (!intk) Error("No se pudo reservar memoria para intk");
+  if (!coords) Error("No se pudo reservar memoria para coords");
+  ofstream fp(parm->fl_amplitudes);
+  ofstream fp1("some_dw.txt");
+  ofstream fp2(parm->fl_dw);
+  ofstream fp4("dw_out.txt");
+  ofstream fp3("dw_in.txt");
+  ofstream fp5("diagnostic1.txt");
+  ofstream fp6("diagnostic2.txt");
+  int la,lb,ln,lnp,m,n,indx_st,indx_ingreso,indx_salida,indx_core,indx_transfer;
+  int mb,mbp,st_a,st_B,Kmax,Kmin,K;
+  double energia_aA,energia_bB,cos_b,factor,q,absorcion,
+    start_An,Rmax,r_Cc;
+  complejo integral,suma,c_phase;
+  complejo* fourier=new complejo[1];
+  ofstream fp9;
+  fp9.open("dsdE.txt", std::ios_base::app);
+  ofstream fp10;
+  fp10.open("convergence.txt", std::ios_base::app);
+  double epsilon_i,epsilon_k,Gamma_lambda,homega_lambda,Omega_lambda,tau,Phi,damping,L,modalpha,totalcross;
+  epsilon_i=0.07;
+  epsilon_k=-0.5;
+  Gamma_lambda=0.5;
+  homega_lambda=3.5;
+  L=10.;
+  Omega_lambda=abs(epsilon_i-homega_lambda-epsilon_k);
+  factor=32.*sqrt(2.*parm->n_spin+1.)*pow(PI,3)/((parm->k_Aa)*(parm->k_Bb));
+  cout<<"Masa reducida entrante: "<<parm->mu_Aa<<", masa reducida saliente: "<<parm->mu_Bb<<endl;
+  cout<<"  Momentos-> KaA: "<<parm->k_Aa<<",   KbB: "<<parm->k_Bb<<endl;
+  /*Par�metros num�ricos para la integral */
+  intk->dim1=dim1;
+  intk->dim2=dim2;
+  intk->dim3=dim3;
+  intk->coords=coords;
+  intk->dim1->a=parm->r_Ccmin;
+  intk->dim1->b=parm->r_Ccmax;
+  intk->dim1->num_puntos=parm->rCc_puntos;
+  intk->dim2->a=parm->r_A2min;
+  intk->dim2->b=parm->r_A2max;
+  intk->dim2->num_puntos=parm->rA2_puntos;
+  intk->dim3->a=0.;
+  intk->dim3->b=PI;
+  intk->dim3->num_puntos=parm->theta_puntos;
 
-    dim4->num_puntos=parm->vf_points;
-    dim4->a=0.;
-    dim4->b=parm->vf_max;
-	GaussLegendre(intk->dim1->puntos,intk->dim1->pesos,intk->dim1->num_puntos);
-	GaussLegendre(intk->dim2->puntos,intk->dim2->pesos,intk->dim2->num_puntos);
-	GaussLegendre(intk->dim3->puntos,intk->dim3->pesos,intk->dim3->num_puntos);
-    GaussLegendre(dim4->puntos,dim4->pesos,dim4->num_puntos);
-	GeneraCoordenadasOneTrans(parm,coords,intk->dim1,intk->dim2,intk->dim3);
+  dim4->num_puntos=parm->vf_points;
+  dim4->a=0.;
+  dim4->b=parm->vf_max;
+  GaussLegendre(intk->dim1->puntos,intk->dim1->pesos,intk->dim1->num_puntos);
+  GaussLegendre(intk->dim2->puntos,intk->dim2->pesos,intk->dim2->num_puntos);
+  GaussLegendre(intk->dim3->puntos,intk->dim3->pesos,intk->dim3->num_puntos);
+  GaussLegendre(dim4->puntos,dim4->pesos,dim4->num_puntos);
+  GeneraCoordenadasOneTrans(parm,coords,intk->dim1,intk->dim2,intk->dim3);
 
 
-	/*Selecciona los potenciales opticos en los distintos canales*/
-	for (n=0;n<parm->num_opt;n++)
+  /*Selecciona los potenciales opticos en los distintos canales*/
+  for (n=0;n<parm->num_opt;n++)
 	{
-		if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
-		if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
-		if(parm->core_pot==parm->pot_opt[n].id) indx_core=n;
+      if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
+      if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
+      if(parm->core_pot==parm->pot_opt[n].id) indx_core=n;
 	}
-    intk->faA[0].pot=&(parm->pot_opt[indx_ingreso]);
-	/*Selecciona el potencial de transfer*/
-	for(n=0;n<parm->num_cm;n++)
+  intk->faA[0].pot=&(parm->pot_opt[indx_ingreso]);
+  /*Selecciona el potencial de transfer*/
+  for(n=0;n<parm->num_cm;n++)
 	{
-		if(parm->pot_transfer==parm->pot[n].id) {intk->pot=&(parm->pot[n]);indx_transfer=n;}
+      if(parm->pot_transfer==parm->pot[n].id) {intk->pot=&(parm->pot[n]);indx_transfer=n;}
 	}
-	intk->core=core;
-	intk->opt=optico;
-	cout<<"Energia de centro de masa: "<<parm->energia_cm<<endl;
-	intk->prior=parm->prior;
-	intk->remnant=parm->remnant;
-	/*Calculo de las amplitudes de transferencia**************************************************************************/
-	for(n=0;n<parm->num_st;n++)
+  intk->core=core;
+  intk->opt=optico;
+  cout<<"Energia de centro de masa: "<<parm->energia_cm<<endl;
+  intk->prior=parm->prior;
+  intk->remnant=parm->remnant;
+  /*Calculo de las amplitudes de transferencia**************************************************************************/
+  for(n=0;n<parm->num_st;n++)
 	{
-		if (parm->a_estados[0] == parm->st[n].id) intk->inicial_st = &(parm->st[n]);
-		if (parm->B_estados[0] == parm->st[n].id) intk->final_st = &(parm->st[n]);
+      if (parm->a_estados[0] == parm->st[n].id) intk->inicial_st = &(parm->st[n]);
+      if (parm->B_estados[0] == parm->st[n].id) intk->final_st = &(parm->st[n]);
 	}
-	for(la=0;la<parm->lmax;la++)
+  for(la=0;la<parm->lmax;la++)
 	{
-		exp_delta_coulomb_i[la]=exp(I*(deltac(la,eta_i)));
-		exp_delta_coulomb_f[la]=exp(I*(deltac(la,eta_f)));
+      exp_delta_coulomb_i[la]=exp(I*(deltac(la,eta_i)));
+      exp_delta_coulomb_f[la]=exp(I*(deltac(la,eta_f)));
 	}
-	if(parm->remnant==0) {
-		intk->core=&parm->pot_opt[indx_core];
-		intk->opt=&parm->pot_opt[indx_salida];
-	}
+  if(parm->remnant==0) {
+    intk->core=&parm->pot_opt[indx_core];
+    intk->opt=&parm->pot_opt[indx_salida];
+  }
 
-	Kmax=(intk->final_st->l+intk->inicial_st->l);
-	Kmin=abs(intk->final_st->l-intk->inicial_st->l);
-	c2=1.;
-	if(parm->remnant==1 && parm->prior==1) {
-      GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_core],parm->Z_A*parm->Z_a,parm->Z_A*parm->Z_a
-                    ,0.,0.,parm->mu_Aa,1.);
-	}
-	if(parm->remnant==1 && parm->prior==0) {
-      GeneraRemnant(optico,core,&parm->pot_opt[indx_salida],&parm->pot_opt[indx_core],parm->Z_A*parm->Z_a,parm->Z_A*parm->Z_a
-                    ,0.,0.,parm->mu_Bb,1.);
-	}
-    cout<<parm->r_Ccmax<<endl;
+  Kmax=(intk->final_st->l+intk->inicial_st->l);
+  Kmin=abs(intk->final_st->l-intk->inicial_st->l);
+  c2=1.;
+  if(parm->remnant==1 && parm->prior==1) {
+    GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],&parm->pot_opt[indx_core],parm->Z_A*parm->Z_a,parm->Z_A*parm->Z_a
+                  ,0.,0.,parm->mu_Aa,1.);
+  }
+  if(parm->remnant==1 && parm->prior==0) {
+    GeneraRemnant(optico,core,&parm->pot_opt[indx_salida],&parm->pot_opt[indx_core],parm->Z_A*parm->Z_a,parm->Z_A*parm->Z_a
+                  ,0.,0.,parm->mu_Bb,1.);
+  }
     intk->dim1=dim1;
 	intk->dim2=dim2;
 	intk->dim3=dim3;
@@ -1198,8 +1204,9 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 				if((intk->final_st->spec)!=0. && (intk->inicial_st->spec)!=0.)
                   {
                     fase=pow(I,la-lb);
-                    IntegralOneTransSpinless(intk,Ij,K);
-                    if(parm->vf_convergence) VFintegral(intk,I1,K,Rmax,parm,dim4);
+                    //IntegralOneTransSpinless(intk,Ij,K,at,bt);
+                    FastIntegralOneTransSpinless(intk,Ij,K,at,bt);
+                    //if(parm->vf_convergence) VFintegral(intk,I1,K,Rmax,parm,dim4);
                     T[la][lb][K]+=c1*sqrt(2.*lb+1.)*sqrt(2.*la+1.)*fase*intk->inicial_st->spec*intk->final_st->spec*
                       exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb]*factor*(*Ij+*I1);
                     // misc1<<abs(T[la][lb][K])<<"  "<<abs(intk->inicial_st->spec*intk->final_st->spec*
@@ -1214,10 +1221,20 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 		{
           for(lb=0;lb<parm->lmax;lb++)
 			{
-              fp<<la<<"  "<<lb<<"  "<<K<<"  "<<real(T[la][lb][K])<<"  "<<imag(T[la][lb][K])<<endl;
+              fp<<la<<"  "<<lb<<"  "<<K<<"  "<<real(T[la][lb][K])<<"  "<<imag(T[la][lb][K])
+                <<"  "<<abs(T[la][lb][K])<<endl;
 			}
 		}
 	}
+    for(n=0;n<parm->rCc_puntos;n++)
+      {
+        r_Cc = (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
+        fp5<<r_Cc<<" "<<real(at[n])<<" "<<imag(at[n])<<" "<<abs(at[n])
+             <<" "<<abs(at[n])*abs(at[n])<<endl;
+        fp6<<r_Cc<<" "<<real(bt[n])<<" "<<imag(bt[n])<<" "<<abs(bt[n])
+             <<" "<<abs(bt[n])*abs(bt[n])<<endl;
+      }
+
 	//CrossSectionOneTransSpinless(T,S,parm,intk->inicial_st,intk->final_st,exp_delta_coulomb_i,exp_delta_coulomb_f);
     totalcross=CrossSectionOneTransSpinless(T,parm,intk->inicial_st,intk->final_st,exp_delta_coulomb_i,exp_delta_coulomb_f);
     fp9<<parm->energia_lab<<"  "<<modalpha<<"  "<<totalcross<<"  "<<modalpha*totalcross<<endl;
@@ -1499,7 +1516,6 @@ void GeneraCoordenadasOneTrans(parametros *parm_rec, coordenadas_onept* coords,
 {
 	int n1,n2,n3;
 	double r_An,theta,coseno,seno,r_bnx,r_bnz,r_aAx,r_aAz,r_bB,raA_max,r_bAz,r_bAx;
-	cout<<"   ma: "<<parm_rec->m_a<<"   mA: "<<parm_rec->m_A<<"   mb: "<<parm_rec->m_b<<"   mB: "<<parm_rec->m_B<<endl;
 	raA_max=0.;
 	for (n1 = 0; n1 < dim_R->num_puntos; n1++) {
 		r_bB = dim_R->a+(dim_R->b-dim_R->a)*(dim_R->puntos[n1]+1.)/2.;
@@ -1530,6 +1546,8 @@ void GeneraCoordenadasOneTrans(parametros *parm_rec, coordenadas_onept* coords,
 	}
 	cout<<"Valor maximo de raA: "<<raA_max<<endl;
 }
+
+
 void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
 {
   int n1,n2,n3;
@@ -1587,6 +1605,185 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K)
   *Ij*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
   delete[] parcial;
+}
+
+
+void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K, vector <complejo> &at, vector <complejo> &bt)
+{
+  int n1,n2,n3;
+  double r_bB,r_An,theta,potencial,angsum,coseno,seno;
+  complejo fr_aA;
+  complejo fr_bB,estado_inicial,estado_final,remnant,optico,core;
+  complejo kernel,partial_sum;
+  complejo *parcial=new complejo[integrando->dim2->num_puntos];
+  auto start = high_resolution_clock::now();
+  for (n2 = 0; n2 < integrando->dim2->num_puntos; n2++) {
+    parcial[n2]=0.;
+  }
+  partial_sum=0.;
+  *Ij=0.;
+  for (n1 = 0; n1 < integrando->dim1->num_puntos; n1++) {
+    r_bB = (integrando->dim1->a)+((integrando->dim1->b)-(integrando->dim1->a))*((integrando->dim1->puntos[n1])+1.)/2.;
+    fr_bB=interpola_cmpx(integrando->fbB[0].wf,integrando->fbB[0].r,r_bB,
+                       integrando->fbB[0].puntos);
+    if(integrando->prior==0 && integrando->remnant==1) optico=interpola_cmpx(integrando->opt->pot,integrando->opt->r,r_bB,
+                                                   integrando->opt->puntos);
+    for (n2 = 0; n2 < integrando->dim2->num_puntos; n2++) {
+      r_An = (integrando->dim2->a)+((integrando->dim2->b)-(integrando->dim2->a))*((integrando->dim2->puntos[n2])+1.)/2.;
+      estado_final=interpola_cmpx(integrando->final_st->wf,integrando->final_st->r,r_An,integrando->final_st->puntos);
+      if(integrando->prior==1) potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,r_An,integrando->pot->puntos);
+      for (n3=0;n3<integrando->dim3->num_puntos; n3++) {
+        theta = (integrando->dim3->a)+((integrando->dim3->b)-(integrando->dim3->a))*((integrando->dim3->puntos[n3])+1.)/2.;
+        coseno=cos(theta);
+        seno=sin(theta);
+        if(integrando->prior==1 && integrando->remnant==1) optico=interpola_cmpx(integrando->opt->pot,integrando->opt->r,
+                                                 integrando->coords->r_aA[n1][n2][n3],integrando->opt->puntos);
+        core=interpola_cmpx(integrando->core->pot,integrando->core->r,integrando->coords->r_bA[n1][n2][n3],
+                            integrando->core->puntos);
+        remnant=optico-core;
+
+        if(integrando->remnant==0) remnant=0.;
+        angsum=-AcoplamientoAngular(integrando->lb,integrando->la,integrando->final_st->l
+                                    ,integrando->inicial_st->l,K,coseno,integrando->coords->coseno_r_bn[n1][n2][n3],
+                                    integrando->coords->coseno_r_aA[n1][n2][n3]);
+        if(integrando->prior==0)
+          potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,integrando->coords->r_bn[n1][n2][n3],
+                                  integrando->pot->puntos);
+        estado_inicial=interpola_cmpx(integrando->inicial_st->wf,integrando->inicial_st->r,
+                                      integrando->coords->r_bn[n1][n2][n3],integrando->inicial_st->puntos);
+        fr_aA=interpola_cmpx(integrando->faA[0].wf,integrando->faA[0].r,integrando->coords->r_aA[n1][n2][n3],
+                             integrando->faA[0].puntos);
+        kernel=((r_bB*r_An*r_An*seno*(potencial-remnant)*estado_inicial*estado_final*angsum*fr_aA*fr_bB)/
+                integrando->coords->r_aA[n1][n2][n3])*
+          (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+        parcial[n2]+=((r_bB*seno*(potencial-remnant)*estado_inicial*angsum*fr_aA*fr_bB)/
+                      integrando->coords->r_aA[n1][n2][n3])*(integrando->dim1)->pesos[n1]*(integrando->dim3)->pesos[n3]*
+          ((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim3)->b-(integrando->dim3)->a)/4.;
+        *Ij+=kernel;
+        at[n1]+=((r_bB*r_An*r_An*seno*(potencial-remnant)*estado_inicial*estado_final*angsum*fr_aA*fr_bB)/
+                 integrando->coords->r_aA[n1][n2][n3]);
+      }
+    }
+    bt[n1]+=*Ij*((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
+      ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
+  }
+  auto stop = high_resolution_clock::now();
+  auto duration = duration_cast<milliseconds>(stop - start);
+  *Ij*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
+    ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
+  cout<<"duration: "<<duration.count()<<" milliseconds"<<endl;
+  delete[] parcial;
+}
+void FastIntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K, vector <complejo> &at, vector <complejo> &bt)
+{
+  int n1,n2,n3,index1,index2,index3;
+  double r_bB,r_An,theta,potencial,angsum,coseno,seno
+    ,step1,step2,step3,error1;
+  complejo fr_aA;
+  complejo fr_bB,estado_inicial,estado_final,remnant,optico,core;
+  complejo kernel,partial_sum;
+  complejo *parcial=new complejo[integrando->dim2->num_puntos];
+  auto start = high_resolution_clock::now();
+  for (n2 = 0; n2 < integrando->dim2->num_puntos; n2++) {
+    parcial[n2]=0.;
+  }
+  partial_sum=0.;
+  *Ij=0.;
+  step1=integrando->fbB[0].radio/integrando->fbB[0].puntos;
+  step2=integrando->opt->radio/integrando->opt->puntos;
+  step3=integrando->final_st->radio/integrando->final_st->puntos;
+  for (n1 = 0; n1 < integrando->dim1->num_puntos; n1++) {
+    r_bB = (integrando->dim1->a)+((integrando->dim1->b)-(integrando->dim1->a))*((integrando->dim1->puntos[n1])+1.)/2.;
+    index1=ceil(r_bB/step1)-1;
+    index2=ceil(r_bB/step2)-1;
+    if (index1<0) index1=0;
+    if (index2<0) index2=0;
+    fr_bB=integrando->fbB[0].wf[index1];
+    //error1=(abs(fr_bB)-abs(integrando->fbB[0].wf[index1]))
+    //  /(0.5*(abs(fr_bB)+abs(integrando->fbB[0].wf[index1])));
+    // cout<<r_bB<<"  index: "<<index1<<"  points: "<<integrando->fbB[0].puntos<<"  radius: "<<
+    //   integrando->fbB[0].radio<<"  step: "<<step1<<"   f1: "<<fr_bB<<"   f2: "<<integrando->fbB[0].wf[index1-1]<<endl;
+    // misc1<<r_bB<<"  "<<imag(fr_bB)<<"   "<<imag(integrando->fbB[0].wf[index1])<<"   "<<error1<<endl;
+      //exit(0);
+    if(integrando->prior==0 && integrando->remnant==1) optico=integrando->opt->pot[index2];
+    //optico=interpola_cmpx(integrando->opt->pot,integrando->opt->r,r_bB,
+    //                                             integrando->opt->puntos);
+    // error1=(abs(optico)-abs(integrando->opt->pot[index2]))
+    //  /(0.5*(abs(optico)+abs(integrando->opt->pot[index2])));
+    // error1=abs(optico)-abs(integrando->opt->pot[index2]);
+    // misc1<<r_bB<<"  "<<real(optico)<<"   "<<real(integrando->opt->pot[index2])<<"   "<<error1<<endl;
+    for (n2 = 0; n2 < integrando->dim2->num_puntos; n2++) {
+      r_An = (integrando->dim2->a)+((integrando->dim2->b)-(integrando->dim2->a))*((integrando->dim2->puntos[n2])+1.)/2.;
+      index1=ceil(r_An/step3)-1;
+      if (index1<0) index1=0;
+      index2=ceil(r_An/step2)-1;
+      if (index2<0) index2=0;
+      //estado_final=interpola_cmpx(integrando->final_st->wf,integrando->final_st->r,r_An,integrando->final_st->puntos);
+      estado_final=integrando->final_st->wf[index1];
+      if(integrando->prior==1) potencial=integrando->pot->pot[index2];
+        // potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,r_An,integrando->pot->puntos);
+      for (n3=0;n3<integrando->dim3->num_puntos; n3++) {
+        theta = (integrando->dim3->a)+((integrando->dim3->b)-(integrando->dim3->a))*((integrando->dim3->puntos[n3])+1.)/2.;
+        coseno=cos(theta);
+        seno=sin(theta);
+        index1=ceil(integrando->coords->r_aA[n1][n2][n3]/step2)-1;
+        if (index1<0) index1=0;
+        if(integrando->prior==1 && integrando->remnant==1) optico=integrando->opt->pot[index1];
+
+          //optico=interpola_cmpx(integrando->opt->pot,integrando->opt->r,
+          //                                     integrando->coords->r_aA[n1][n2][n3],integrando->opt->puntos);
+        index1=ceil(integrando->coords->r_bA[n1][n2][n3]/step2)-1;
+        if (index1<0) index1=0;
+        //core=interpola_cmpx(integrando->core->pot,integrando->core->r,integrando->coords->r_bA[n1][n2][n3],
+        //                  integrando->core->puntos);
+        core=integrando->core->pot[index1];
+        remnant=optico-core;
+
+        if(integrando->remnant==0) remnant=0.;
+                angsum=-AcoplamientoAngular(integrando->lb,integrando->la,integrando->final_st->l
+                              ,integrando->inicial_st->l,K,coseno,integrando->coords->coseno_r_bn[n1][n2][n3],
+                              integrando->coords->coseno_r_aA[n1][n2][n3]);
+        //    angsum=1.;
+        index1=ceil(integrando->coords->r_bn[n1][n2][n3]/step2)-1;
+        if (index1<0) index1=0;
+        if(integrando->prior==0) potencial=integrando->pot->pot[index1];
+        // potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,integrando->coords->r_bn[n1][n2][n3],
+        //                        integrando->pot->puntos);
+        index1=ceil(integrando->coords->r_bn[n1][n2][n3]/step3)-1;
+        if (index1<0) index1=0;
+        estado_inicial=integrando->inicial_st->wf[index1];
+        //estado_inicial=interpola_cmpx(integrando->inicial_st->wf,integrando->inicial_st->r,
+        //                            integrando->coords->r_bn[n1][n2][n3],integrando->inicial_st->puntos);
+
+        index1=ceil(integrando->coords->r_aA[n1][n2][n3]/step1)-1;
+        if (index1<0) index1=0;
+        fr_aA=integrando->faA[0].wf[index1];
+        //fr_aA=interpola_cmpx(integrando->faA[0].wf,integrando->faA[0].r,integrando->coords->r_aA[n1][n2][n3],
+        //                   integrando->faA[0].puntos);
+        kernel=((r_bB*r_An*r_An*seno*(potencial-remnant)*estado_inicial*estado_final*angsum*fr_aA*fr_bB)/
+                integrando->coords->r_aA[n1][n2][n3])*
+          (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
+        parcial[n2]+=((r_bB*seno*(potencial-remnant)*estado_inicial*angsum*fr_aA*fr_bB)/
+                      integrando->coords->r_aA[n1][n2][n3])*(integrando->dim1)->pesos[n1]*(integrando->dim3)->pesos[n3]*
+          ((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim3)->b-(integrando->dim3)->a)/4.;
+        *Ij+=kernel;
+        at[n1]+=((r_bB*r_An*r_An*seno*(potencial-remnant)*estado_inicial*estado_final*angsum*fr_aA*fr_bB)/
+                 integrando->coords->r_aA[n1][n2][n3]);
+        // misc1<<r_bB<<"  "<<integrando->coords->r_bn[n1][n2][n3]<<"  "<<real(estado_inicial)<<"  "<<r_An<<"  "<<real(estado_final)<<endl;
+        // misc2<<r_bB<<"  "<<r_An<<"   "<<real(potencial-remnant)<<"  "<<real(estado_inicial)<<"  "
+        //      <<real(estado_final)<<"   "<<real(estado_final*estado_inicial*(potencial-remnant))<<"  "<<real(at[n1])<<endl;
+      }
+    }
+    bt[n1]+=*Ij*((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
+      ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
+  }
+  auto stop = high_resolution_clock::now();
+  auto duration = duration_cast<milliseconds>(stop - start);
+  *Ij*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
+    ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
+  //cout<<"duration: "<<duration.count()<<" milliseconds"<<endl;
+  delete[] parcial;
+  //exit(0);
 }
 
 

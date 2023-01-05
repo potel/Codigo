@@ -370,11 +370,11 @@ void DirectRadTrans(parametros *parm,complejo ***T)
       //CrossSectionRadTrans(T,S,parm,intk->inicial_st,intk->final_st,exp_delta_coulomb_i,exp_delta_coulomb_f,Egamma,Ep);
     }
   delete[] Ij;
-  delete[] intk;
-  delete[] dim1;
-  delete[] dim3;
-  delete[] dim2;
-  delete[] coords;
+  delete intk;
+  delete dim1;
+  delete dim3;
+  delete dim2;
+  delete coords;
 }
 /**
    Integral for calculation of dipole

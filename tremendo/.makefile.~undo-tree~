@@ -1,0 +1,24 @@
+(undo-tree-save-format-version . 1)
+"4041bf51ae12330d2cb0c3f708dc75e4f38b50c2"
+[nil nil nil nil (25242 40543 904994 0) 0 nil]
+([nil nil ((#("#OBJ= tremendo_milano.o capture_milano.o knockout_milano.o onetrans_milano.o raditrans_milano.o racah_algebra_milano.o
+#OBJ= tremendo_restart.o capture.o knockout.o onetrans.o raditrans.o racah_algebra.o
+#OBJ= tremendo_a_paco.o capture.o knockout.o onetrans.o raditrans.o racah_algebra.o
+" 0 1 (fontified t face font-lock-comment-delimiter-face) 1 119 (fontified t face font-lock-comment-face) 119 120 (fontified t face font-lock-comment-delimiter-face) 120 204 (fontified t face font-lock-comment-face) 204 205 (fontified t face font-lock-comment-delimiter-face) 205 288 (fontified t face font-lock-comment-face)) . -84) (undo-tree-id13 . -288) (undo-tree-id14 . -288) 372 (t 25218 47480 951696 804000)) nil (25242 40543 904993 0) 0 nil])
+([nil nil ((#("#CFLAGS= -std=c++14  -funroll-loops  -O3  -ansi  -I.:/usr/local/include -L$(LIBDIR) -lgsl -lgslcblas -larmadillo" 0 1 (fontified t face font-lock-comment-delimiter-face) 1 76 (fontified t face font-lock-comment-face) 76 82 (fontified t face (font-lock-variable-name-face font-lock-comment-face)) 82 112 (fontified t face font-lock-comment-face)) . -192) (undo-tree-id11 . -112) (undo-tree-id12 . -112) 304) nil (25242 40543 904991 0) 0 nil])
+([nil nil ((#("
+" 0 1 (fontified t)) . -191) (undo-tree-id9 . -1) (undo-tree-id10 . -1) 192) nil (25242 40543 904989 0) 0 nil])
+([nil nil ((#("#DEPS= structs_milano.h definiciones_milano.h tremendo.h" 0 1 (fontified t face font-lock-comment-delimiter-face) 1 56 (fontified t face font-lock-comment-face)) . 234) (undo-tree-id6 . -56) (undo-tree-id7 . -56) (undo-tree-id8 . -56)) nil (25242 40543 904987 0) 0 nil])
+([nil nil ((#("
+" 0 1 (fontified t)) . -233) (undo-tree-id0 . -1) (undo-tree-id1 . -1) (undo-tree-id2 . -1) (undo-tree-id3 . -1) (undo-tree-id4 . -1) (undo-tree-id5 . -1) 234) nil (25242 40543 904982 0) 0 nil])
+([nil nil ((284 . 286) (t 25242 40543 909172 317000)) nil (25242 40624 881772 0) 0 nil])
+([nil nil ((191 . 192)) nil (25242 40651 971798 0) 0 nil] [nil nil ((#("	" 0 1 (ws-butler-chg chg fontified nil)) . -303) (nil rear-nonsticky nil 334 . 335) (nil fontified nil 333 . 335) (nil fontified nil 327 . 333) (nil fontified nil 323 . 327) (nil fontified nil 320 . 323) (nil fontified nil 316 . 320) (nil fontified nil 315 . 316) (nil fontified nil 314 . 315) (nil fontified nil 308 . 314) (nil fontified nil 306 . 308) (nil fontified nil 300 . 306) (nil fontified nil 297 . 300) (nil fontified nil 293 . 297) (nil fontified nil 285 . 293) (285 . 335)) ((#("tremendo: $(OBJ) 
+	$(CC)  -o $@  $(OBJ) $(CFLAGS)
+" 0 8 (ws-butler-chg chg fontified nil face (makefile-targets)) 8 12 (ws-butler-chg chg fontified nil) 12 15 (ws-butler-chg chg fontified nil face (font-lock-variable-name-face)) 15 18 (ws-butler-chg chg fontified nil) 18 19 (ws-butler-chg chg fontified nil) 19 20 (fontified nil) 20 21 (ws-butler-chg chg fontified nil) 21 23 (ws-butler-chg chg fontified nil face (font-lock-variable-name-face)) 23 29 (ws-butler-chg chg fontified nil) 29 30 (ws-butler-chg chg fontified nil face (makefile-targets)) 30 31 (ws-butler-chg chg fontified nil face (font-lock-constant-face makefile-targets)) 31 35 (ws-butler-chg chg fontified nil) 35 38 (ws-butler-chg chg fontified nil face (font-lock-variable-name-face)) 38 42 (ws-butler-chg chg fontified nil) 42 48 (ws-butler-chg chg fontified nil face (font-lock-variable-name-face)) 48 49 (ws-butler-chg chg fontified nil) 49 50 (ws-butler-chg chg rear-nonsticky nil fontified nil)) . 285) (undo-tree-id15 . -18) (undo-tree-id16 . -10) (undo-tree-id17 . -8) (undo-tree-id18 . -8) (undo-tree-id19 . -9) (undo-tree-id20 . -15) (undo-tree-id21 . -21) (undo-tree-id22 . -18) (undo-tree-id23 . -19) (undo-tree-id24 . -49) (undo-tree-id25 . -50) (nil fontified t 300 . 303) (nil rear-nonsticky t 334 . 335) (nil ws-butler-chg delete 304 . 305) (303 . 304)) (25242 40624 417661 0) 0 nil])
+([nil nil ((nil rear-nonsticky nil 276 . 277) (nil fontified nil 247 . 277) (nil fontified nil 241 . 247) (nil fontified nil 198 . 241) (nil fontified nil 192 . 198) (192 . 277)) nil (25242 40651 971797 0) 0 nil])
+([nil nil ((234 . 235)) ((#("#" 0 1 (fontified t ws-butler-chg chg face font-lock-comment-delimiter-face)) . 234)) (25242 40623 651594 0) 0 nil])
+([nil nil ((106 . 107)) nil (25242 40651 971795 0) 0 nil])
+([nil nil ((253 . 254)) ((#("#" 0 1 (fontified t ws-butler-chg chg face font-lock-comment-delimiter-face)) . 253)) (25242 40623 651500 0) 0 nil])
+([nil current ((#("-I.:/usr/local/include -L$(LIBDIR)" 0 27 (ws-butler-chg chg fontified t) 27 33 (ws-butler-chg chg fontified t face (font-lock-variable-name-face)) 33 34 (ws-butler-chg chg fontified t)) . -215) (undo-tree-id26 . -34) (undo-tree-id27 . -34) (undo-tree-id28 . 1) (undo-tree-id29 . -34) (undo-tree-id30 . 8) (undo-tree-id31 . -27) 249) nil (25242 40651 971792 0) 0 nil])
+nil
+nil

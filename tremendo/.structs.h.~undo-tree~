@@ -1,0 +1,16 @@
+(undo-tree-save-format-version . 1)
+"e64a38c8d03d847a6f98830a1049c994ce560089"
+[nil nil nil nil (25242 44260 314010 0) 0 nil]
+([nil nil ((316 . 319) (t 25218 47480 952872 959000)) nil (25242 44267 705697 0) 0 nil] [nil nil ((#("int puntos;" 0 2 (fontified t face font-lock-type-face) 2 3 (fontified t c-type c-decl-id-start face font-lock-type-face) 3 4 (fontified t) 4 10 (fontified t face font-lock-variable-name-face) 10 11 (fontified t)) . -305) (undo-tree-id11 . -11) (undo-tree-id12 . -11) (undo-tree-id13 . -11) 316 (t 25218 47480 952872 959000)) ((305 . 316)) (25242 44259 928102 0) 0 nil])
+([nil nil ((#("
+" 0 1 (fontified t ws-butler-chg chg)) . -316) (undo-tree-id23 . -1) (#(" " 0 1 (fontified t ws-butler-chg chg)) . -317) (undo-tree-id24 . -1) (#(" " 0 1 (fontified t ws-butler-chg chg)) . -318) (undo-tree-id25 . -1) 319) nil (25242 44286 918412 0) 0 nil] [nil nil ((319 . 353)) ((#(" cmake -DALLOW_OPENBLAS_MACOS=ON ." 0 34 (fontified t ws-butler-chg chg)) . 319) (undo-tree-id16 . -34)) (25242 44267 705150 0) 0 nil])
+([nil nil ((303 . 306) (#("  " 0 2 (fontified nil)) . 303) (undo-tree-id0 . -2) (undo-tree-id1 . -2) (undo-tree-id2 . -2) (undo-tree-id3 . -2) (undo-tree-id4 . -2) (undo-tree-id5 . -2) (undo-tree-id6 . -2) (undo-tree-id7 . -2) (undo-tree-id8 . -2) (undo-tree-id9 . -2) (undo-tree-id10 . -2) 305) ((nil ws-butler-chg delete 305 . 306) (303 . 305) (#("
+  " 0 3 (fontified t ws-butler-chg chg)) . 303) (undo-tree-id14 . -3) (undo-tree-id15 . -1)) (25242 44259 927452 0) 0 nil])
+([nil nil ((316 . 319)) nil (25242 44286 918409 0) 0 nil])
+nil
+nil
+([nil nil ((nil rear-nonsticky nil 329 . 330) (nil fontified nil 329 . 330) (nil fontified nil 323 . 329) (nil fontified nil 322 . 323) (nil fontified nil 321 . 322) (nil fontified nil 319 . 321) (319 . 330)) nil (25242 44286 918408 0) 0 nil])
+([nil nil ((#("o" 0 1 (ws-butler-chg chg fontified t face font-lock-variable-name-face)) . -327) (undo-tree-id21 . -1) (#("s" 0 1 (ws-butler-chg chg fontified t face font-lock-variable-name-face)) . -328) (undo-tree-id22 . -1) 329) nil (25242 44286 918407 0) 0 nil])
+([nil nil ((#("p" 0 1 (ws-butler-chg chg fontified t face font-lock-variable-name-face)) . -323) (undo-tree-id17 . -1) (#("u" 0 1 (ws-butler-chg chg fontified t face font-lock-variable-name-face)) . -324) (undo-tree-id18 . -1) (#("n" 0 1 (ws-butler-chg chg fontified t face font-lock-variable-name-face)) . -325) (undo-tree-id19 . -1) (#("t" 0 1 (ws-butler-chg chg fontified t face font-lock-variable-name-face)) . -326) (undo-tree-id20 . -1) 327) nil (25242 44286 918403 0) 0 nil])
+([nil current ((323 . 330)) nil (25242 44286 918392 0) 0 nil])
+nil

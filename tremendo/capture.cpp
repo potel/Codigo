@@ -315,7 +315,7 @@ void AmplitudeCapture(struct parametros* parm)
   double deltaE=0.;
 
   r_F=1000.;
-  cout<<"Radio de fusi�n: "<<r_F<<" fm"<<endl;
+  cout<<"Fusion radius: "<<r_F<<" fm"<<endl;
   e_res=st_fin->energia;
   for(n=0;n<parm->cross_puntos;n++)
     {
@@ -544,7 +544,6 @@ void AmplitudeCapture(struct parametros* parm)
                     {
                       inc_break_lmas[l]+=sigma_const*escala*rhoE*cross_up[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
                       inc_break_lmenos[l]+=sigma_const*escala*rhoE*cross_down[l]*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-                      
                     }
                 }
             }
@@ -1113,8 +1112,8 @@ void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* o
 		T[l][m][lp]=4.*PI*(suma[m]*((dim->b)-(dim->a))*0.5)/(kn*redfac);
 	}
 	delete[] suma;
-	delete[] chi_lup;
-	delete[] chi_ldown;
+	delete chi_lup;
+	delete chi_ldown;
 }
 complejo NeutronWaveResonantTest(complejo* phi,complejo* rho, estado* st,double En, double E, double absorcion,
 		parametros_integral* dim,parametros* parm,double rBn)
@@ -1181,7 +1180,7 @@ double Absorcion2(potencial_optico* pot,estado* wf)
 		suma+=-R*R*imag(pot_int)*abs(st)*abs(st)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 //		cout<<R<<"  "<<suma<<"  "<<pot_int<<"  "<<st<<endl;
 	}
-	delete[] dim;
+	delete dim;
 	return suma;
 }
 double AbsorcionPrior(double* direct,double* non_orth,double* cross,
@@ -1374,9 +1373,9 @@ complejo FuncionAngular(int lp,int ld,int l,int m,int K,int M,double costheta, d
 	if (m>lp) Error("m>lp en FuncionAngular");
 	int mlp;
 	complejo suma=0.;
-	if ((M>=0)&&(abs(M<=ld))) suma+=ClebsGordan(lp,0,ld,M,K,M)*gsl_sf_legendre_sphPlm(lp,0,costheta)*
+	if ((M>=0)&&(abs(M)<=ld)) suma+=ClebsGordan(lp,0,ld,M,K,M)*gsl_sf_legendre_sphPlm(lp,0,costheta)*
 			gsl_sf_legendre_sphPlm(ld,M,costheta_d);
-	if ((M<0)&&(abs(M<=ld))) suma+=pow(-1.,M)*ClebsGordan(lp,0,ld,M,K,M)*gsl_sf_legendre_sphPlm(lp,0,costheta)*
+	if ((M<0)&&(abs(M)<=ld)) suma+=pow(-1.,M)*ClebsGordan(lp,0,ld,M,K,M)*gsl_sf_legendre_sphPlm(lp,0,costheta)*
 			gsl_sf_legendre_sphPlm(ld,M,costheta_d);
 	for (mlp=1;mlp<=lp;mlp++)
 	{

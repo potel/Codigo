@@ -37,8 +37,8 @@ void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo*
              complejo* nonort_chica_mas,complejo* nonort_chica_menos,parametros *parm);
 void SGrande(integrando_sgrande *integrando,int K,int la,int lb,int lc,complejo* sgrande_mas,
              complejo* sgrande_menos,complejo* nonort_mas,complejo* nonort_menos,
-             complejo* nonort_chica_mas,complejo* nonort_chica_menos,parametros *parm,vector <complejo> &at);
-
+             complejo* nonort_chica_mas,complejo* nonort_chica_menos,parametros *parm,
+             vector <complejo> &at,vector <complejo> &bt );
 int LeeMatrizCoeficientes(const char *fname,double** anm,int dimension);
 void ReadParS(char *s,const char key[20], char *par);
 int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,ifstream & fp);
@@ -133,6 +133,8 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 		int puntos,double radio_match,ofstream* fp);
 void AmplitudOneTransSpinless(parametros *parm,complejo ***T);
 void AmplitudOneTransSpinless(parametros *parm,phonon* Gamma);
+void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K,vector <complejo> &at,vector <complejo> &bt);
+void FastIntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K, vector <complejo> &at, vector <complejo> &bt);
 void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K);
 void CrossSectionOneTransSpinless(complejo ***Tlalb,complejo* Sel,struct parametros *parm,
 		struct estado *sti,struct estado *stf,complejo *fase_coulomb_i,complejo *fase_coulomb_f);

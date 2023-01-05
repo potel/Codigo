@@ -60,7 +60,7 @@ void KnockOut(parametros *parm)
 	EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
 //	EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
 //	TestKnockOut(parm);
-	if((parm->eikonal+parm->twonuceikonal)>1) Error("Error en el fichero de parámetros: eikonal+twonuceikonal>1");
+	if((parm->eikonal+parm->twonuceikonal)>1) Error("Error en el fichero de parametros: eikonal+twonuceikonal>1");
 	if(parm->twonuceikonal==1) CalculoKnockOutEikonal2(parm);
 	if(parm->eikonal==1) CalculoKnockOutEikonal(parm);
 	if(parm->pot_opt[indx_ingreso].Vso==0. && parm->pot_opt[indx_intermedio].Vso==0.
@@ -264,11 +264,11 @@ void CalculoKnockOut(parametros *parm)
 	}
 	delete[] T;
 	delete[] Ij;
-	delete[] intk;
-	delete[] dim1;
-	delete[] dim2;
-	delete[] dim3;
-	delete[] coords;
+	delete intk;
+	delete dim1;
+	delete dim2;
+	delete dim3;
+	delete coords;
 	delete[] exp_delta_coulomb_la;
 	delete[] exp_delta_coulomb_lap;
 	delete[] exp_delta_coulomb_lbp;
@@ -862,11 +862,11 @@ void CalculoKnockOutNoSo(parametros *parm)
 //		misc3<<parm->rCc_puntos<<"  "<<abs(sigma)<<endl;
 	}
 	delete[] T;
-	delete[] intk;
-	delete[] dim1;
-	delete[] dim2;
-	delete[] dim3;
-	delete[] coords;
+	delete intk;
+	delete dim1;
+	delete dim2;
+	delete dim3;
+	delete coords;
 	delete[] exp_delta_coulomb_la;
 	delete[] exp_delta_coulomb_lap;
 	delete[] exp_delta_coulomb_lbp;
@@ -1152,7 +1152,7 @@ void Lab2CMClasica(double *momento_lab,double *momento_CM,double *theta_lab,doub
  *****************************************************************************************************/
 void CalculoKnockOutEikonal(parametros *parm)
 {
-	cout<<"*************************** Cálculo del knockout en la aproximación eikonal	********************************"<<endl;
+	cout<<"*************************** Calculo del knockout en la aproximacion eikonal	********************************"<<endl;
 	ofstream matrizSn("matrizSn.txt");
 	ofstream matrizSc("matrizSc.txt");
 	ofstream integrando("integrando.txt");
@@ -1268,7 +1268,7 @@ void CalculoKnockOutEikonal(parametros *parm)
 		cout<<"Seccion eficaz medida en microbarn"<<endl;
 		break;
 	default:
-		Error("Unidades desconocidas para la sección eficaz");
+		Error("Unidades desconocidas para la seccion eficaz");
 		break;
 	}
 
@@ -1320,9 +1320,9 @@ void CalculoKnockOutEikonal(parametros *parm)
 //		misc3<<b<<"  "<<escala*2.*PI*b*TotalDif(Sc,Sn,b,&parm->st[indx_st],parm,armonico)<<endl;
 	}
 	cout<<"Seccion eficaz de stripping: "<<escala*suma_strip<<endl;
-	cout<<"Seccion eficaz de difracción: "<<escala*suma_dif<<endl;
-	cout<<"Aportación máxima de stripping para b="<<bmax_strip<<" fm"<<endl;
-	cout<<"Aportación máxima de difusión para b="<<bmax_dif<<" fm"<<endl;
+	cout<<"Seccion eficaz de difraccion: "<<escala*suma_dif<<endl;
+	cout<<"Aportacion maxima de stripping para b="<<bmax_strip<<" fm"<<endl;
+	cout<<"Aportacion maxima de difusion para b="<<bmax_dif<<" fm"<<endl;
 	step=parm->radio/parm->puntos;
 	double bc,bn;
 	complejo Sc_interpolada,Sn_interpolada,estado_interpolado;
@@ -1393,8 +1393,8 @@ void CalculoKnockOutEikonal(parametros *parm)
 		suma_dif+=escala*sigma_dif*deltak;
 		suma_strip+=escala*sigma_strip*deltak;
 	}
-	cout<<"Integración de sigma_dif: "<<2.*suma_dif<<endl;
-	cout<<"Integración de suma_strip: "<<2.*suma_strip<<endl;
+	cout<<"Integracion de sigma_dif: "<<2.*suma_dif<<endl;
+	cout<<"Integracion de suma_strip: "<<2.*suma_strip<<endl;
 	delete[] Sn;
 	delete[] Sc;
 	delete[] dw_strip;
@@ -1416,7 +1416,7 @@ void CalculoKnockOutEikonal(parametros *parm)
  *****************************************************************************************************/
 void CalculoKnockOutEikonal2(parametros *parm)
 {
-	cout<<"*************************** Cálculo del knockout de 2 nucleones en la aproximación eikonal	********************************"<<endl;
+	cout<<"*************************** Calculo del knockout de 2 nucleones en la aproximacion eikonal	********************************"<<endl;
 	ofstream matrizSn("matrizSn.txt");
 	ofstream matrizSc("matrizSc.txt");
 	int n,indx_nucleon,indx_core,indx_cm,l,indx_st,indx_strip,indx_dif,
@@ -1694,7 +1694,7 @@ void CalculoKnockOutEikonal2(parametros *parm)
 			}
 		}
 	}
-	cout<<"Número de factores de forma: "<<ffactors<<endl;
+	cout<<"Numero de factores de forma: "<<ffactors<<endl;
 
 	GaussLegendre(puntos_gauss_k_t,pesos_gauss_k_t,parm->k_t_puntos);
 	GaussLegendre(puntos_gauss_b,pesos_gauss_b,parm->b_puntos);
@@ -1781,7 +1781,7 @@ void CalculoKnockOutEikonal2(parametros *parm)
 		cout<<"Seccion eficaz medida en microbarn"<<endl;
 		break;
 	default:
-		Error("Unidades desconocidas para la sección eficaz");
+		Error("Unidades desconocidas para la seccion eficaz");
 		break;
 	}
 	cout<<"Seccion eficaz de stripping: "<<escala*sigma_strip<<endl;
@@ -1859,8 +1859,8 @@ void MatrizSFolding(complejo* S,parametros *parm,double* thick_p,double* thick_t
 	gamma=1./sqrt(1.-beta*beta);
 	energia_por_nucleon=AMU*(gamma-1.);
 	step=parm->radio/double(parm->puntos);
-	cout<<"Energía cinética: "<<parm->energia_lab<<"    beta: "<<beta<<"    gamma: "<<
-			gamma<<"    Energía cinética por nucleón: "<<energia_por_nucleon<<endl;
+	cout<<"Energia cinetica: "<<parm->energia_lab<<"    beta: "<<beta<<"    gamma: "<<
+			gamma<<"    Energia cinetica por nucleon: "<<energia_por_nucleon<<endl;
 	cout<<"Calculo de matrices S a partir de los potenciales de folding"<<endl;
 	Ap=Np+Zp;
 	At=Nt+Zt;
@@ -2005,7 +2005,7 @@ double SigmaReaccion(complejo* S,parametros *parm)
 	step=parm->radio/double(parm->puntos);
 	k=sqrt(2.*parm->P_masa*parm->energia_lab)/HC;
 	eta=parm->P_carga*parm->T_carga*E2HC*parm->P_masa/(HC*k);
-	cout<<"Parámetro de Sommerfeld: "<<eta<<endl;
+	cout<<"Parametro de Sommerfeld: "<<eta<<endl;
 	for (n=0;n<parm->puntos;n++)
 	{
 		b[n]=(n+1.)*step;
@@ -3018,11 +3018,11 @@ void TestKnockOut(parametros *parm)
 		misc3<<momento[4]*cos(theta[4])<<"  "<<abs(sigma*phase_space)<<endl;
 	}
 	delete[] T;
-	delete[] intk;
-	delete[] dim1;
-	delete[] dim2;
-	delete[] dim3;
-	delete[] coords;
+	delete intk;
+	delete dim1;
+	delete dim2;
+	delete dim3;
+	delete coords;
 	delete[] exp_delta_coulomb_la;
 	delete[] exp_delta_coulomb_lap;
 	delete[] exp_delta_coulomb_lbp;
@@ -3212,7 +3212,7 @@ void FileDens(double* densidad,double* thick,double radio_max,int puntos,double 
 		fp>>rr[num_puntos];
 		fp>>ddens[num_puntos];
 		num_puntos++;
-		if(num_puntos>=MAX_PTS) {cout<<"Número de puntos en "<<file_dens<<" mayor que MAX_PTS"<<endl; exit(0);}
+		if(num_puntos>=MAX_PTS) {cout<<"Numero de puntos en "<<file_dens<<" mayor que MAX_PTS"<<endl; exit(0);}
 	}
 	for(n=0;n<puntos;n++)
 	{
@@ -3322,7 +3322,7 @@ void GaussDensNorm(double* densidad,double* thick,double A,double msq,double rad
 void InicializaKnockOut(struct parametros* parm)
 {
 	parm->energia_cm=(parm->T_masa/(parm->P_masa+parm->T_masa))*parm->energia_lab;
-	if(-parm->Qvalue>parm->energia_cm) Error("Energía de reacción insuficiente");
+	if(-parm->Qvalue>parm->energia_cm) Error("Energia de reaccion insuficiente");
 	parm->mu_Aa=(parm->T_masa*parm->P_masa)/((parm->T_masa+parm->P_masa));
 	parm->k_Aa=sqrt(2.*parm->mu_Aa*AMU*parm->energia_cm)/HC;
 	parm->k_Bb=sqrt(2.*parm->mu_Bb*AMU*(parm->energia_cm+parm->Qvalue))/HC;
