@@ -60,7 +60,7 @@ void OneTrans(struct parametros* parm)
   //exit(0);
   if(parm->phonon) Gamma=new phonon(parm->fl_phonon,parm->m_B/(1.+parm->m_B),parm->Z_B,&(parm->pot[indx_pot_B]),parm->radio,parm->puntos,parm);
   cout<<"Generando el estado del nucleo a"<<endl;
-  // elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,parm->eta,0.);
+  elastic(&(parm->pot_opt[indx_ingreso]),parm->Z_A*parm->Z_a,parm->mu_Aa,parm->energia_cm,parm,parm->eta,0.);
   // exit(0);
   /* Genera niveles del n�cleo 'a' */
   for (n=0;n<parm->a_numst;n++)
@@ -921,7 +921,7 @@ void AmplitudOneTrans(parametros *parm,complejo *****T)
   /*Selecciona los potenciales opticos en los distintos canales*/
   for (n=0;n<parm->num_opt;n++)
 	{
-      if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
+      if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n; 
       if(parm->optico_salida==parm->pot_opt[n].id) indx_salida=n;
 	}
   /*Selecciona el potencial de transfer*/
@@ -1204,8 +1204,8 @@ void AmplitudOneTransSpinless(parametros *parm,complejo ***T)
 				if((intk->final_st->spec)!=0. && (intk->inicial_st->spec)!=0.)
                   {
                     fase=pow(I,la-lb);
-                    //IntegralOneTransSpinless(intk,Ij,K,at,bt);
-                    FastIntegralOneTransSpinless(intk,Ij,K,at,bt);
+                    IntegralOneTransSpinless(intk,Ij,K,at,bt);
+                    //FastIntegralOneTransSpinless(intk,Ij,K,at,bt);
                     //if(parm->vf_convergence) VFintegral(intk,I1,K,Rmax,parm,dim4);
                     T[la][lb][K]+=c1*sqrt(2.*lb+1.)*sqrt(2.*la+1.)*fase*intk->inicial_st->spec*intk->final_st->spec*
                       exp_delta_coulomb_i[la]*exp_delta_coulomb_f[lb]*factor*(*Ij+*I1);
@@ -1671,7 +1671,7 @@ void IntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K, v
   auto duration = duration_cast<milliseconds>(stop - start);
   *Ij*=((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
     ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
-  cout<<"duration: "<<duration.count()<<" milliseconds"<<endl;
+  //cout<<"duration: "<<duration.count()<<" milliseconds"<<endl;
   delete[] parcial;
 }
 void FastIntegralOneTransSpinless(integrando_onept *integrando,complejo *Ij,int K, vector <complejo> &at, vector <complejo> &bt)

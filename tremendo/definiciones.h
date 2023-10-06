@@ -293,3 +293,4 @@ void SGrandeGauge(integrando_sgrande *integrando,int K,int la,int lb,int lc,comp
                   vector <double> &r,vector <complejo> &gauge,vector <double> &t,vector <complejo> &at);
 complejo interpola_cmpx(vector <complejo> &funcion,vector <double>  &r,double posicion,int puntos);
 void AngularGamma(complejo ***Csucc,struct parametros *parm);
+void T_coefficients(double *lmenos, double *lmas, double energia_trans, parametros *parm, ofstream *fp14,ofstream *fp15, double s, int parity);

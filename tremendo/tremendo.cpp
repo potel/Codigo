@@ -19,7 +19,7 @@ ofstream informe("informe.txt");
 
 
 double distorted_wave::absorption(double mass) {
-  int regla_r,nr;
+  int regla_r,nr;   
   double ar, br, norma, rp,k;
   regla_r = 60;
   double* wr = new double[regla_r];
@@ -27,7 +27,7 @@ double distorted_wave::absorption(double mass) {
   complejo sum = 0.;
   complejo dwint,potint;
   k=sqrt(2.*mass*AMU*energia)/(HC*HC);
-  ar = 0.;
+  ar = 0.; 
   br = radio;
   GaussLegendre(absr, wr, regla_r);
   for (nr = 0; nr < regla_r; nr++) {
@@ -1682,7 +1682,6 @@ void SChica(integrando_schica *integrando,int P,int la,int lc,complejo* schica_m
     for (n2 = 0; n2 <integrando->dim2->num_puntos; n2++) {
       rA2 = (integrando->dim2->a)+((integrando->dim2->b)-(integrando->dim2->a))*(integrando->dim2->puntos[n2]+1.)/2.;
       estado_final=interpola_cmpx(integrando->final_st->wf,integrando->final_st->r,rA2,integrando->final_st->puntos);
-      //misc1<<rA2<<"  "<<real(estado_final)<<endl;
       if(integrando->prior==1) potencial=interpola_dbl(integrando->pot->pot,integrando->pot->r,rA2,integrando->pot->puntos)+0.*I;
       for (n3 = 0; n3 <integrando->dim3->num_puntos; n3++) {
         theta =integrando->dim3->a+((integrando->dim3->b)-(integrando->dim3->a))*(integrando->dim3->puntos[n3]+1.)/2.;
@@ -1701,7 +1700,9 @@ void SChica(integrando_schica *integrando,int P,int la,int lc,complejo* schica_m
                                  integrando->entrante[1].puntos);
         angsum=AcoplamientoAngular(lc,la,integrando->final_st->l,integrando->inicial_st->l,P,-cos(theta),
                                  integrando->coords->coseno_r_c2[n1][n2][n3],integrando->coords->coseno_r_Aa[n1][n2][n3]);
-        //angsum=1.;
+        //angsum=1.; 
+        //misc3<<rA2<<"  "<<real(potencial)<<"  "<<real(estado_final)<<"  "<<imag(estado_final)<<endl;
+        //misc4<<integrando->coords->r_c2[n1][n2][n3]<<"  "<<real(potencial)<<"  "<<real(estado_inicial)<<"  "<<imag(estado_inicial)<<endl;
         sumafmas[n1]+=((r_Cc*rA2*rA2*sin(theta)*potencial*estado_final*estado_inicial*fla_mas*flc_mas[n1]*angsum)/
                        integrando->coords->r_Aa[n1][n2][n3])*
           (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
@@ -1723,7 +1724,6 @@ void SChica(integrando_schica *integrando,int P,int la,int lc,complejo* schica_m
           (integrando->dim1)->pesos[n1]*(integrando->dim2)->pesos[n2]*(integrando->dim3)->pesos[n3];
       }
     }
-    //exit(0);
     nonort_mas[n1]=r_Cc*sum_nonort_mas*((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
       ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
     nonort_menos[n1]=r_Cc*sum_nonort_menos*((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
@@ -1731,11 +1731,14 @@ void SChica(integrando_schica *integrando,int P,int la,int lc,complejo* schica_m
 
     if(n1>0)
       {
-        sumafmas[n1]+=sumafmas[n1-1];
+        sumafmas[n1]+=sumafmas[n1-1]; 
         sumafmenos[n1]+=sumafmenos[n1-1];
-        sumaPmas[n1]+=sumaPmas[n1-1];
-        sumaPmenos[n1]+=sumaPmenos[n1-1];
+        sumaPmas[n1]+=sumaPmas[n1-1]; 
+        sumaPmenos[n1]+=sumaPmenos[n1-1]; 
       }
+ //      misc3<<r_Cc<<"  "<<real(sumaPmas[n1])<<"  "<<"  "<<imag(sumaPmas[n1])<<"  "<<"  "<<abs(sumaPmas[n1])<<endl;
+       misc3<<r_Cc<<"  "<<real(Plc_mas[n1])<<"  "<<"  "<<imag(Plc_mas[n1])<<"  "<<"  "<<abs(Plc_mas[n1])<<endl;
+
   }
   for (n1 = 0; n1 <integrando->dim1->num_puntos; n1++)
     {
@@ -1747,6 +1750,7 @@ void SChica(integrando_schica *integrando,int P,int la,int lc,complejo* schica_m
         ((integrando->dim1)->b-(integrando->dim1)->a)*((integrando->dim2)->b-(integrando->dim2)->a)*
         ((integrando->dim3)->b-(integrando->dim3)->a)/8.;
     }
+  exit(0);
   delete[] flc_mas;
   delete[] flc_menos;
   delete[] Plc_mas;
@@ -2216,6 +2220,8 @@ complejo interpola_cmpx(complejo* funcion,double* r,double posicion,int puntos)
   if(idx<1) return funcion[0];
   if (isnan(abs(funcion[idx]+(funcion[idx+1]-funcion[idx])*(posicion-r[idx])/delta_r)))
     {
+      cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+      cout<<"Error in interpola_cmpx"<<endl;
       cout<<delta_r<<"  "<<r[puntos-1]<<"  "<<idx<<"  "<<funcion[idx]<<"  "<<funcion[idx+1]<<endl;
       Error("NaN in interpola_cmpx");
     }
@@ -3564,7 +3570,6 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
   intS->schica_menos=schica_menos;
   GeneraCoordenadasSuccessive(parm,ints->coords,ints->dim1,ints->dim2,ints->dim3);
   intS->coords=ints->coords;
-
   /*Selecciona los potenciales opticos en los distintos canales*/
   for (n=0;n<parm->num_opt;n++)
     {
@@ -3574,6 +3579,7 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
     }
   with_coulomb_in=AddCoulomb(parm->pot_opt[indx_ingreso],parm->Z_A*parm->Z_a);
   with_coulomb_out=AddCoulomb(parm->pot_opt[indx_salida],parm->Z_A*parm->Z_a);
+    cout<<parm->pot_opt[indx_intermedio].id<<endl;
   with_coulomb_intermediate=AddCoulomb(parm->pot_opt[indx_intermedio],parm->Z_A*parm->Z_a);
   ints->pot_intermediate=&with_coulomb_intermediate;
   ints->pot_in=&with_coulomb_in;
@@ -3625,7 +3631,6 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
     }
   ints->prior=parm->prior;
   intS->prior=parm->prior;
-  
   /*Calculo de las amplitudes de transferencia**************************************************************************/
   la_min=parm->lmin;
   if (parm->continuation)
@@ -3795,7 +3800,7 @@ void Successive(struct parametros *parm,complejo*** Clalb,complejo*** Cnonlalb)
       misc2<<r_Cc<<" "<<real(bt[n])<<" "<<imag(bt[n])<<" "<<abs(bt[n])
            <<" "<<abs(bt[n])*abs(bt[n])<<endl;
     }
-  //exit(0);
+  exit(0);
   delete[] schica_mas;
   delete[] schica_menos;
   delete[] nonort_schica_mas;
@@ -8008,7 +8013,6 @@ phonon::phonon(parametros* parm)
   Y.push_back(1.);
   Xso1.push_back(0.);
   Xso2.push_back(0.);
-  cout<<"quillo 1"<<endl;
   energy_h.push_back(parm->st[2].energia);
   energy_p.push_back(parm->st[3].energia);
   hole.push_back(1);
@@ -8171,18 +8175,22 @@ void DaehnickPotential(double E,double N,double Z)
 }
 
 potencial_optico AddCoulomb(const potencial_optico &v,double q1q2)
+{
+  cout << " Coulomb: " << v.id << endl;
+  potencial_optico res;
+  res.puntos = v.puntos;
+  res.radio = v.radio;
+  int n;
+  for (n = 0; n < v.puntos; n++)
   {
-    potencial_optico res;
-    res.puntos=v.puntos;
-    res.radio=v.radio;
-    int n;
-    for (n=0;n<v.puntos;n++) {
-      res.r[n]=v.r[n];
-      if(v.r[n]>=v.radio_coul) res.pot[n]=v.pot[n]+E_CUADRADO*q1q2/v.r[n];
-      if(v.r[n]<v.radio_coul) res.pot[n]=v.pot[n]+E_CUADRADO*q1q2*(3.-(v.r[n]/v.radio_coul)*(v.r[n]/v.radio_coul))/(2.*v.radio_coul);
-	}
-    return res;
+      res.r[n] = v.r[n];
+      if (v.r[n] >= v.radio_coul)
+          res.pot[n] = v.pot[n] + E_CUADRADO * q1q2 / v.r[n];
+      if (v.r[n] < v.radio_coul)
+          res.pot[n] = v.pot[n] + E_CUADRADO * q1q2 * (3. - (v.r[n] / v.radio_coul) * (v.r[n] / v.radio_coul)) / (2. * v.radio_coul);
   }
+  return res;
+}
 
 ////////////////////////////////////////
 // Computes phase shift               //
