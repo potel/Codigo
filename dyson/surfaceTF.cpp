@@ -146,12 +146,12 @@ double surfaceTF::derDispersiveE( double E ) {
     }
     else if ( EnergyType == 1 ) {
 
-        TF.deltaVXAboveBelow( Ecm - Efermi ); // Dispersive Correction
+        TF.deltaVXAboveBelow( E - Efermi ); // Dispersive Correction
         TF.findHalfIntegral(); // Needed for Subtracted Dispersive Correction
 
         return TF.derDeltaVAbove(); // Subtracted Dispersive Correction
     }
-    else return TF.derDeltaV(Ecm);
+    else return TF.derDeltaV(E);
 }
 
 //***************************************************************
